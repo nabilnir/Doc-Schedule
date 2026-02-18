@@ -1,4 +1,3 @@
-// actions/register.js
 "use server";
 
 import { connectMongoDB } from "@/lib/mongodb";
@@ -9,10 +8,10 @@ export async function createUser(data) {
   try {
     const { fullName, email, phone, password, role } = data;
 
-    // ১. ডাটাবেস কানেকশন
+    // 1. Connect to the database
     await connectMongoDB();
 
-    // ২. ইউজার আগে থেকেই আছে কিনা চেক করা
+    // 2. Check if a user with this email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return { 
@@ -21,10 +20,10 @@ export async function createUser(data) {
       };
     }
 
-    // ৩. পাসওয়ার্ড হ্যাশ করা
+    // 3. Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ৪. নতুন ইউজার তৈরি করা
+    // 4. Create a new user
     await User.create({
       fullName,
       email,
@@ -33,7 +32,7 @@ export async function createUser(data) {
       role,
     });
 
-    // ৫. সফল হলে রেস্পন্স পাঠানো
+    // 5. Send success response
     return { 
       success: true, 
       message: "User registered successfully!" 
@@ -41,6 +40,8 @@ export async function createUser(data) {
 
   } catch (error) {
     console.error("Registration Error:", error);
+
+    // Send error response if something goes wrong
     return { 
       success: false, 
       message: "Something went wrong. Please try again." 

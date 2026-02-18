@@ -29,11 +29,11 @@ export default function RegisterPage() {
   const onSubmit = async (data) => {
     setIsLoading(true);
 
-    // ডাটা অবজেক্ট তৈরি
+    // Creating data object
     const userData = { ...data, role };
 
     try {
-      // সরাসরি সার্ভার অ্যাকশন কল করা হচ্ছে
+      // Calling server action directly
       const result = await createUser(userData);
 
       if (result.success) {
@@ -43,7 +43,7 @@ export default function RegisterPage() {
           icon: "success",
           confirmButtonColor: "#000000",
         }).then(() => {
-          router.push("/login"); // লগইন পেজে রিডাইরেক্ট
+          router.push("/login"); // Redirect to login page
         });
       } else {
         Swal.fire({
@@ -86,7 +86,11 @@ export default function RegisterPage() {
             <button
               type="button" // Prevent accidental form submission
               onClick={() => setRole("patient")}
-              className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${role === "patient" ? "border-black bg-black text-white shadow-lg" : "border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200"}`}
+              className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${
+                role === "patient"
+                  ? "border-black bg-black text-white shadow-lg"
+                  : "border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200"
+              }`}
             >
               <UserCircle className="w-6 h-6" />
               <span className="text-sm font-bold">Patient</span>
@@ -94,7 +98,11 @@ export default function RegisterPage() {
             <button
               type="button" // Prevent accidental form submission
               onClick={() => setRole("doctor")}
-              className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${role === "doctor" ? "border-black bg-black text-white shadow-lg" : "border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200"}`}
+              className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${
+                role === "doctor"
+                  ? "border-black bg-black text-white shadow-lg"
+                  : "border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200"
+              }`}
             >
               <Stethoscope className="w-6 h-6" />
               <span className="text-sm font-bold">Doctor</span>
@@ -225,12 +233,14 @@ export default function RegisterPage() {
             <div className="col-span-2 mt-4">
               <button
                 type="submit"
-                disabled={isLoading} // ১. লোডিং এর সময় বাটন ডিসেবল থাকবে
+                disabled={isLoading} // 1. Button will be disabled during loading
                 className={`w-full py-5 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl 
-      ${isLoading ? "opacity-70 cursor-not-allowed" : ""} // ২. লোডিং এর সময় একটু ঝাপসা দেখাবে
+      ${
+        isLoading ? "opacity-70 cursor-not-allowed" : ""
+      } // 2. Faded look during loading
     `}
               >
-                {/* ৩. টেক্সট পরিবর্তন হবে */}
+                {/* 3. Text will change */}
                 {isLoading ? (
                   "Processing..."
                 ) : (
@@ -246,9 +256,12 @@ export default function RegisterPage() {
           <div className="mt-10 pt-8 border-t border-gray-100 text-center">
             <p className="text-[#666666]">
               Already have an account?{" "}
-              <a href="/login" className="text-black font-bold hover:underline">
+              <Link
+                href="/login"
+                className="text-black font-bold hover:underline"
+              >
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

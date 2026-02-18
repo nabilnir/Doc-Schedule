@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { Mail, Lock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react"; // ১. NextAuth ইম্পোর্ট
-import { useRouter } from "next/navigation"; // ২. রাউটার ইম্পোর্ট
-import Swal from "sweetalert2"; // ৩. এলার্ট ইম্পোর্ট
+import { signIn } from "next-auth/react"; // 1. Import NextAuth
+import { useRouter } from "next/navigation"; // 2. Import Router
+import Swal from "sweetalert2"; // 3. Import Alert
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false); // ৪. লোডিং স্টেট
+  const [isLoading, setIsLoading] = useState(false); // 4. Loading State
   const router = useRouter();
 
   const {
@@ -18,20 +18,20 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm();
 
-  // ৫. লগিন ফাংশন
+  // 5. Login Function
   const onSubmit = async (data) => {
     setIsLoading(true);
 
     try {
-      // NextAuth এর signIn মেথড কল করা হচ্ছে
+      // Calling NextAuth's signIn method
       const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false, // পেজ রিফ্রেশ বা অটো রিডাইরেক্ট বন্ধ রাখা হলো যাতে আমরা নিজেরা হ্যান্ডেল করতে পারি
+        redirect: false, // Prevent page refresh or auto-redirect to handle manually
       });
 
       if (res.error) {
-        // লগিন ভুল হলে
+        // If login fails
         Swal.fire({
           icon: "error",
           title: "Login Failed",
@@ -39,7 +39,7 @@ export default function LoginPage() {
           confirmButtonColor: "#000000",
         });
       } else {
-        // লগিন সফল হলে
+        // If login succeeds
         Swal.fire({
           icon: "success",
           title: "Welcome Back!",
@@ -47,8 +47,8 @@ export default function LoginPage() {
           showConfirmButton: false,
           timer: 1500,
         }).then(() => {
-          router.push("/"); // হোম পেজ বা ড্যাশবোর্ডে পাঠিয়ে দিন
-          router.refresh(); // সেশন আপডেট করার জন্য রিফ্রেশ
+          router.push("/"); // Redirect to home page or dashboard
+          router.refresh(); // Refresh to update session
         });
       }
     } catch (error) {
@@ -150,7 +150,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isLoading} // লোডিং এর সময় বাটন ডিজেবল থাকবে
+              disabled={isLoading} // Button will be disabled during loading
               className={`w-full py-4 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
@@ -162,9 +162,9 @@ export default function LoginPage() {
 
           <div className="mt-10 pt-8 border-t border-gray-100 text-center">
             <p className="text-[#666666]">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
-                href="/register" // a ট্যাগ এর বদলে Link কম্পোনেন্ট ব্যবহার করা ভালো
+                href="/register" // Better to use Link component instead of 'a' tag
                 className="text-black font-bold hover:underline"
               >
                 Sign up for free
