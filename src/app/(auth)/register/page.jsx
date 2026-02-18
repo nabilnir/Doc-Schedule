@@ -1,104 +1,143 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { User, Phone, Mail, Lock, ChevronRight, Stethoscope, UserCircle } from 'lucide-react';
 
 export default function RegisterPage() {
     const [role, setRole] = useState('patient');
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center p-6">
-            <div className="w-full max-w-[560px] bg-white rounded-[40px] shadow-2xl border border-[#E5E5E5] overflow-hidden">
-                <div className="p-12">
-                    <div className="flex flex-col items-center text-center mb-10">
-                        <a href="/" className="mb-8">
-                            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
-                                <span className="text-white font-bold text-2xl">D</span>
+        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative py-12">
+
+            {/* Logo / Header */}
+            <div className="mb-6 flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg text-[#3CA9DB] font-bold text-lg">
+                        D
+                    </div>
+                    <span className="text-2xl font-bold text-white tracking-tight">DocSchedule</span>
+                </Link>
+            </div>
+
+            <div className="w-full max-w-[520px] bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 overflow-hidden">
+                <div className="p-8">
+                    <div className="flex flex-col items-center text-center mb-6">
+                        {/* Avatar Circle */}
+                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border-2 border-[#F5F5F7]">
+                            <div className="w-full h-full rounded-full bg-gradient-to-b from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
+                                <UserCircle className="w-8 h-8 text-blue-200 mt-1" />
                             </div>
-                        </a>
-                        <h1 className="text-3xl font-bold mb-2">Create Account</h1>
-                        <p className="text-[#666666]">Join the future of healthcare scheduling.</p>
+                        </div>
+
+                        <h1 className="text-2xl font-bold mb-1 tracking-tight">Create Account</h1>
+                        <p className="text-[#666666] text-sm">Join the future of healthcare scheduling.</p>
                     </div>
 
                     {/* Role Selector */}
-                    <div className="flex gap-4 mb-10">
+                    <div className="flex gap-3 mb-6">
                         <button
                             onClick={() => setRole('patient')}
-                            className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${role === 'patient' ? 'border-black bg-black text-white shadow-lg' : 'border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200'}`}
+                            className={`flex-1 p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${role === 'patient' ? 'border-[#3CA9DB] bg-[#3CA9DB]/5 text-[#3CA9DB]' : 'border-gray-50 bg-gray-50/50 text-gray-400 hover:border-gray-100'}`}
                         >
-                            <UserCircle className="w-6 h-6" />
-                            <span className="text-sm font-bold">Patient</span>
+                            <UserCircle className={`w-5 h-5 ${role === 'patient' ? 'text-[#3CA9DB]' : 'text-gray-400'}`} />
+                            <span className="text-[13px] font-bold">Patient</span>
                         </button>
                         <button
                             onClick={() => setRole('doctor')}
-                            className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${role === 'doctor' ? 'border-black bg-black text-white shadow-lg' : 'border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200'}`}
+                            className={`flex-1 p-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${role === 'doctor' ? 'border-[#3CA9DB] bg-[#3CA9DB]/5 text-[#3CA9DB]' : 'border-gray-50 bg-gray-50/50 text-gray-400 hover:border-gray-100'}`}
                         >
-                            <Stethoscope className="w-6 h-6" />
-                            <span className="text-sm font-bold">Doctor</span>
+                            <Stethoscope className={`w-5 h-5 ${role === 'doctor' ? 'text-[#3CA9DB]' : 'text-gray-400'}`} />
+                            <span className="text-[13px] font-bold">Doctor</span>
                         </button>
                     </div>
 
-                    <form className="grid grid-cols-2 gap-6">
-                        <div className="col-span-2 space-y-2">
-                            <label className="text-sm font-bold text-gray-400 uppercase ml-2">Full Name</label>
+                    <form className="grid grid-cols-2 gap-x-4 gap-y-4">
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="text-[13px] font-bold text-gray-800 ml-1">Full Name</label>
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <User className="w-4 h-4" />
+                                </div>
                                 <input
                                     type="text"
                                     placeholder="John Doe"
-                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-[#7BA1C7] focus:bg-white outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-400 uppercase ml-2">Email</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[13px] font-bold text-gray-800 ml-1">Email</label>
                             <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <Mail className="w-4 h-4" />
+                                </div>
                                 <input
                                     type="email"
                                     placeholder="john@example.com"
-                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-[#7BA1C7] focus:bg-white outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-400 uppercase ml-2">Phone</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[13px] font-bold text-gray-800 ml-1">Phone</label>
                             <div className="relative">
-                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <Phone className="w-4 h-4" />
+                                </div>
                                 <input
                                     type="tel"
                                     placeholder="+1 (555) 000-0000"
-                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-[#7BA1C7] focus:bg-white outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="col-span-2 space-y-2">
-                            <label className="text-sm font-bold text-gray-400 uppercase ml-2">Password</label>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="text-[13px] font-bold text-gray-800 ml-1">Password</label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <Lock className="w-4 h-4" />
+                                </div>
                                 <input
                                     type="password"
                                     placeholder="••••••••"
-                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-[#7BA1C7] focus:bg-white outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="col-span-2 mt-4">
-                            <button className="w-full py-5 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl">
+                        <div className="col-span-2 mt-2">
+                            <button className="w-full py-4 bg-[#3CA9DB] text-white rounded-xl font-bold text-base hover:bg-[#3498C5] transition-all shadow-[0_8px_16px_rgba(60,169,219,0.3)] active:scale-[0.98] flex items-center justify-center gap-2">
                                 Register as {role === 'patient' ? 'Patient' : 'Doctor'}
-                                <ChevronRight className="w-5 h-5" />
+                                <ChevronRight className="w-4 h-4" />
                             </button>
                         </div>
                     </form>
 
-                    <div className="mt-10 pt-8 border-t border-gray-100 text-center">
-                        <p className="text-[#666666]">Already have an account? <a href="/login" className="text-black font-bold hover:underline">Sign in</a></p>
+                    <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-4">
+                        <p className="text-[#666666] text-sm">
+                            Already have an account? <Link href="/login" className="text-[#3CA9DB] font-bold hover:underline">Sign in</Link>
+                        </p>
+                        <p className="text-[#666666]/50 text-xs">
+                            Need help? <Link href="#" className="text-[#3CA9DB]/70 font-semibold hover:underline">Contact Us</Link>
+                        </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Global Footer */}
+            <div className="mt-8 text-[#666666]/70 text-[13px] font-medium">
+                © 2026 DocSchedule App
+            </div>
+
+            {/* Chat button mockup */}
+            <div className="fixed bottom-6 right-6 w-14 h-14 bg-[#333] rounded-full flex items-center justify-center shadow-2xl cursor-pointer hover:scale-110 transition-transform">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                </svg>
             </div>
         </div>
     );
