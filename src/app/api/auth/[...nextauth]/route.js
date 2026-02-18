@@ -14,23 +14,23 @@ const handler = NextAuth({
         const { email, password } = credentials;
 
         try {
-          // ১. ডাটাবেস কানেকশন
+          // 1. Connect to the database
           await connectMongoDB();
 
-          // ২. ইউজার খোঁজা
+          // 2. Find user by email
           const user = await User.findOne({ email });
           if (!user) {
-            return null; // ইউজার না পেলে নাল রিটার্ন
+            return null; // Return null if user is not found
           }
 
-          // ৩. পাসওয়ার্ড চেক করা
+          // 3. Verify the password
           const passwordsMatch = await bcrypt.compare(password, user.password);
 
           if (!passwordsMatch) {
-            return null; // পাসওয়ার্ড ভুল হলে নাল রিটার্ন
+            return null; // Return null if password is incorrect
           }
 
-          // ৪. সব ঠিক থাকলে ইউজার অবজেক্ট রিটার্ন করা
+          // 4. Return user object if authentication is successful
           return user;
         } catch (error) {
           console.log("Error: ", error);
@@ -44,20 +44,20 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login", // আপনার কাস্টম লগইন পেজের লিংক
+    signIn: "/login", // Link to your custom login page
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user._id;
-        token.role = user.role; // সেশনে role সেভ করার জন্য
+        token.role = user.role; // Save role in JWT
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
-        session.user.role = token.role; // ক্লায়েন্ট সাইডে role পাওয়ার জন্য
+        session.user.role = token.role; // Access role on client side
       }
       return session;
     },
