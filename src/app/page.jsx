@@ -1,9 +1,31 @@
-import Image from "next/image";
+import Navbar from "@/components/sections/Navbar";
+import Hero from "@/components/sections/Hero";
+import DashboardShowcase from "@/components/sections/DashboardShowcase";
+import SmartSlotBento from "@/components/sections/SmartSlotBento";
+import PublicBookingSection from "@/components/sections/PublicBookingSection";
+import CalendarSection from "@/components/sections/CalendarSection";
+import GoogleSyncSection from "@/components/sections/GoogleSyncSection";
+import PaymentGatewaySection from "@/components/sections/PaymentGatewaySection";
+import IntakeFormsSection from "@/components/sections/IntakeFormsSection";
+import ReportsSection from "@/components/sections/ReportsSection";
+import EmailRemindersSection from "@/components/sections/EmailRemindersSection";
+import Footer from "@/components/sections/Footer";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1>This is TimeBridge</h1>
-    </div>
+    <main className="min-h-screen bg-white font-sans">
+      <Navbar />
+      <Hero />
+      <DashboardShowcase />
+      <SmartSlotBento />
+      <PublicBookingSection />
+      <CalendarSection />
+      <GoogleSyncSection />
+      <PaymentGatewaySection />
+      <IntakeFormsSection />
+      <ReportsSection />
+      <EmailRemindersSection />
+      <Footer />
+    </main>
   );
-}
+};
