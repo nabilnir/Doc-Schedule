@@ -3,9 +3,19 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1>This is TimeBridge</h1>
-        
-    </div>
+    <main className="min-h-screen bg-white font-sans">
+      <Navbar />
+      <Hero />
+      <DashboardShowcase />
+      <SmartSlotBento />
+      <PublicBookingSection />
+      <CalendarSection />
+      <GoogleSyncSection />
+      <PaymentGatewaySection />
+      <IntakeFormsSection />
+      <ReportsSection />
+      <EmailRemindersSection />
+      <Footer />
+    </main>
   );
 }
