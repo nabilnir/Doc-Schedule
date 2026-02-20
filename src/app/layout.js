@@ -15,22 +15,22 @@ const geistMono = Geist_Mono({
 const openRunde = localFont({
   src: [
     {
-      path: "../fonts/open-runde/OpenRunde-Regular-BF64ee9c6978988.woff",
+      path: "../../public/fonts/open-runde/OpenRunde-Regular-BF64ee9c6978988.woff",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../fonts/open-runde/OpenRunde-Medium-BF64ee9c695513a.woff",
+      path: "../../public/fonts/open-runde/OpenRunde-Medium-BF64ee9c695513a.woff",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../fonts/open-runde/OpenRunde-Semibold-BF64ee9c69788f3.woff",
+      path: "../../public/fonts/open-runde/OpenRunde-Semibold-BF64ee9c69788f3.woff",
       weight: "600",
       style: "normal",
     },
     {
-      path: "../fonts/open-runde/OpenRunde-Bold-BF64ee9c696534f.woff",
+      path: "../../public/fonts/open-runde/OpenRunde-Bold-BF64ee9c696534f.woff",
       weight: "700",
       style: "normal",
     },
