@@ -13,6 +13,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+<<<<<<< HEAD
+=======
+    "firebase": "^12.9.0",
+>>>>>>> 07ee21ef4ab17750eeaede76ecb24498e476e7c5
     "googleapis": "^105.0.0",
     "lucide-react": "^0.564.0",
     "next": "16.1.6",
