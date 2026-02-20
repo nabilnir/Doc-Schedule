@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 const Navbar = () => {
   return (
@@ -10,15 +11,15 @@ const Navbar = () => {
         {/* Left Side: Logo and Navigation Links */}
         <div className="flex items-center gap-10">
           {/* DocSchedule Logo */}
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">D</span>
               </div>
               <span className="text-xl font-bold tracking-tight text-[#1A1A1A]">DocSchedule</span>
             </div>
-          </a>
-
+          </Link>
+          
           {/* Nav Items */}
           <div className="hidden items-center gap-8 lg:flex">
              <div className="group relative">
