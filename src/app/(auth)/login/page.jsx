@@ -1,12 +1,12 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, ChevronRight, User, Loader2 } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const registered = searchParams.get('registered');
@@ -170,5 +170,17 @@ export default function LoginPage() {
                 </svg>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-white" />
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }
