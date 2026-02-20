@@ -6,6 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-sans: "Inter", var(--font-geist-sans);
   --font-sans: var(--font-open-runde), "Inter", var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -37,6 +38,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -45,7 +47,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-
+  
   --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
   --animate-spin-slow: spin 8s linear infinite;
 }
@@ -73,7 +75,6 @@
 }
 
 @layer base {
-
   *,
   ::after,
   ::before,
