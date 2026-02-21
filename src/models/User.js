@@ -12,9 +12,15 @@ const UserSchema = new mongoose.Schema({
     firebaseUid: { type: String },
     otp: { type: String, default: null },
     isVerified: { type: Boolean, default: false },
+    resetOtp: { type: String, default: null },
+    resetOtpExpires: { type: Date, default: null },
 }, { timestamps: true });
 
-// Please keep the comparePassword method for the login process.
+UserSchema.pre("save", async function () {
+    if (!this.isModified("password") || !this.password) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
+
 UserSchema.methods.comparePassword = async function (inputPassword) {
     if (!this.password) return false;
     return bcrypt.compare(inputPassword, this.password);
