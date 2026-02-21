@@ -12,13 +12,13 @@ const UserSchema = new mongoose.Schema({
     firebaseUid: { type: String },
     otp: { type: String, default: null },
     isVerified: { type: Boolean, default: false },
+    resetOtp: { type: String, default: null },
+    resetOtpExpires: { type: Date, default: null },
 }, { timestamps: true });
 
-// Hash password before saving (only if it was modified)
-UserSchema.pre("save", async function (next) {
-    if (!this.isModified("password") || !this.password) return next();
+UserSchema.pre("save", async function () {
+    if (!this.isModified("password") || !this.password) return;
     this.password = await bcrypt.hash(this.password, 10);
-    next();
 });
 
 UserSchema.methods.comparePassword = async function (inputPassword) {
