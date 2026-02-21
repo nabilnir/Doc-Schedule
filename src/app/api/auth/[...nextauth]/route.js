@@ -7,13 +7,11 @@ import User from "@/models/User";
 
 export const authOptions = {
     providers: [
-        // ── Google ──────────────────────────────────────────────────────────────
+        // ── Google & GitHub (OAuth users are auto-verified) ──────────────────
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
-
-        // ── GitHub ──────────────────────────────────────────────────────────────
         GitHubProvider({
             clientId: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -34,6 +32,12 @@ export const authOptions = {
 
                 if (!user || !user.password) return null;
 
+                // ── CHECK IF VERIFIED ──────────────────────────────────────────
+                // If the user does not verify using the OTP, we will block the login.
+                if (user.isVerified === false) {
+                    throw new Error("unverified"); // This will be handled as an error on the frontend.
+                }
+
                 const valid = await user.comparePassword(credentials.password);
                 if (!valid) return null;
 
@@ -48,12 +52,7 @@ export const authOptions = {
         }),
     ],
 
-    // ── Callbacks ──────────────────────────────────────────────────────────────
     callbacks: {
-        /**
-         * Fired after every sign-in.
-         * For OAuth providers we auto-create users in MongoDB on their first login.
-         */
         async signIn({ user, account }) {
             if (account.provider === "google" || account.provider === "github") {
                 try {
@@ -66,18 +65,18 @@ export const authOptions = {
                             email: user.email,
                             image: user.image || "",
                             provider: account.provider,
-                            role: "patient", // default role for OAuth users
+                            role: "patient",
+                            isVerified: true, // OAuth users are auto-verified
                         });
                     }
                 } catch (err) {
-                    console.error("Error saving OAuth user to MongoDB:", err);
-                    return false; // Block sign-in on DB error
+                    console.error("Error saving OAuth user:", err);
+                    return false;
                 }
             }
             return true;
         },
 
-        /** Expose role + id to the JWT */
         async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
@@ -89,7 +88,6 @@ export const authOptions = {
             return token;
         },
 
-        /** Expose role + id to the client session */
         async session({ session, token }) {
             if (token) {
                 session.user.id = token.id;
@@ -113,5 +111,4 @@ export const authOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
