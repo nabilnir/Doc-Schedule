@@ -35,7 +35,7 @@ const Navbar = () => {
               Pricing
             </a>
             <a 
-              href="#doctors" 
+              href="/all-doctors" 
               className="text-[15px] font-medium text-[#1A1A1A] transition-colors hover:text-[#666666]"
             >
               For Doctors
