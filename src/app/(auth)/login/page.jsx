@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { Mail, Lock, ChevronRight, User, Loader2 } from 'lucide-react';
+import { Mail, Lock, ChevronRight, User, Loader2, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
     const router = useRouter();
@@ -15,6 +15,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState(null); // 'google' | 'github'
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -96,12 +97,28 @@ function LoginForm() {
                         <div className="space-y-1.5">
                             <div className="flex justify-between items-center px-1">
                                 <label className="text-[13px] font-bold text-gray-800">Password</label>
-                                <Link href="#" className="text-xs font-semibold text-[#3CA9DB] hover:underline">Forgot?</Link>
+                                <Link href="/forgot-password" title="Forgot Password" className="text-xs font-semibold text-[#3CA9DB] hover:underline">Forgot?</Link>
                             </div>
-                            <div className="relative">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Lock className="w-4 h-4" /></div>
-                                <input name="password" type="password" placeholder="••••••••" value={form.password} onChange={handleChange} required
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm" />
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3CA9DB] transition-colors">
+                                    <Lock className="w-4 h-4" />
+                                </div>
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={form.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </div>
                         </div>
 
