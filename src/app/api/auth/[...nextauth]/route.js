@@ -25,22 +25,38 @@ export const authOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) return null;
+                if (!credentials?.email || !credentials?.password) {
+                    console.log("Missing credentials.");
+                    return null;
+                }
 
                 await connectDB();
                 const user = await User.findOne({ email: credentials.email.toLowerCase() });
 
-                if (!user || !user.password) return null;
+                if (!user) {
+                    console.log("User not found in DB.");
+                    return null;
+                }
+
+                if (!user.password) {
+                    console.log("User has no password (likely OAuth).");
+                    return null;
+                }
 
                 // ── CHECK IF VERIFIED ──────────────────────────────────────────
                 // If the user does not verify using the OTP, we will block the login.
                 if (user.isVerified === false) {
+                    console.log("User is not verified.");
                     throw new Error("unverified"); // This will be handled as an error on the frontend.
                 }
 
                 const valid = await user.comparePassword(credentials.password);
-                if (!valid) return null;
+                if (!valid) {
+                    console.log("Invalid password.");
+                    return null;
+                }
 
+                console.log("Login successful.");
                 return {
                     id: user._id.toString(),
                     name: user.fullName,
