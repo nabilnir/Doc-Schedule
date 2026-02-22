@@ -14,15 +14,17 @@ export async function POST(request) {
         }
 
         // Compare OTP
-        if (user.otp === otp) {
-            user.isVerified = true;
-            user.otp = null; // The OTP has been deleted for security reasons.
-            await user.save();
-
-            return NextResponse.json({ message: "Verified" }, { status: 200 });
-        } else {
+        if (user.otp !== otp) {
             return NextResponse.json({ error: "Invalid OTP code" }, { status: 400 });
         }
+
+        // Use findOneAndUpdate to BYPASS the pre-save hook (password is never re-hashed)
+        await User.findOneAndUpdate(
+            { email: email.toLowerCase() },
+            { $set: { isVerified: true, otp: null } }
+        );
+
+        return NextResponse.json({ message: "Verified" }, { status: 200 });
     } catch (err) {
         return NextResponse.json({ error: "Server error" }, { status: 500 });
     }

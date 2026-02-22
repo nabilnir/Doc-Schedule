@@ -8,8 +8,8 @@ const CalendarSection = () => {
     const [selectedDay, setSelectedDay] = useState(2); // Wednesday
 
     return (
-        <section className="py-[120px] bg-[#F5F5F7]" id="calendar">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-[#F5F5F7]" id="calendar">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
                     {/* Content */}
@@ -18,7 +18,7 @@ const CalendarSection = () => {
                             <CalendarIcon className="w-4 h-4 text-[#7BA1C7]" />
                             <span className="text-[15px] font-semibold text-[#7BA1C7] uppercase tracking-wider">Real-Time Calendar</span>
                         </div>
-                        <h2 className="text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
                             Seamless <span className="text-[#7BA1C7]">interactive</span> calendar.
                         </h2>
                         <div className="space-y-6">
@@ -45,18 +45,18 @@ const CalendarSection = () => {
 
                     {/* Visual: Calendar UI */}
                     <div className="order-1 lg:order-2 perspective-[2000px]">
-                        <div className="bg-white rounded-[40px] shadow-2xl p-10 border border-[#E5E5E5] transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-0 transition-transform duration-700">
-                            <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-2xl font-bold">October 2026</h3>
+                        <div className="bg-white rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-10 border border-[#E5E5E5] transform lg:rotate-y-[-5deg] lg:rotate-x-[5deg] hover:rotate-0 transition-transform duration-700">
+                            <div className="flex justify-between items-center mb-6 md:mb-10">
+                                <h3 className="text-xl md:text-2xl font-bold">October 2026</h3>
                                 <div className="flex gap-2">
-                                    <button className="p-2 border border-[#E5E5E5] rounded-full hover:bg-gray-50"><ChevronLeft className="w-5 h-5" /></button>
-                                    <button className="p-2 border border-[#E5E5E5] rounded-full hover:bg-gray-50"><ChevronRight className="w-5 h-5" /></button>
+                                    <button className="p-2 border border-[#E5E5E5] rounded-full hover:bg-gray-50"><ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /></button>
+                                    <button className="p-2 border border-[#E5E5E5] rounded-full hover:bg-gray-50"><ChevronRight className="w-4 h-4 md:w-5 md:h-5" /></button>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-7 gap-4 mb-8">
+                            <div className="grid grid-cols-7 gap-2 md:gap-4 mb-6 md:mb-8">
                                 {days.map((day, i) => (
-                                    <div key={day} className="text-center text-sm font-semibold text-[#666666]">
+                                    <div key={day} className="text-center text-[10px] md:text-sm font-semibold text-[#666666]">
                                         {day}
                                     </div>
                                 ))}
@@ -64,9 +64,9 @@ const CalendarSection = () => {
                                     <button
                                         key={i}
                                         onClick={() => setSelectedDay(i)}
-                                        className={`h-12 w-full rounded-2xl flex items-center justify-center text-sm font-medium transition-all ${selectedDay === i
-                                                ? "bg-black text-white shadow-xl scale-110"
-                                                : i % 4 === 0 ? "bg-[#F0F7FF] text-[#7BA1C7] hover:bg-black hover:text-white" : "text-gray-300 pointer-events-none"
+                                        className={`h-8 w-full md:h-12 rounded-lg md:rounded-2xl flex items-center justify-center text-[10px] md:text-sm font-medium transition-all ${selectedDay === i
+                                            ? "bg-black text-white shadow-xl scale-110"
+                                            : i % 4 === 0 ? "bg-[#F0F7FF] text-[#7BA1C7] hover:bg-black hover:text-white" : "text-gray-300 pointer-events-none"
                                             }`}
                                     >
                                         {i + 1}

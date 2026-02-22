@@ -5,8 +5,8 @@ import { CreditCard, Lock, ShieldCheck, Zap } from 'lucide-react';
 
 const PaymentGatewaySection = () => {
     return (
-        <section className="py-[120px] bg-[#F5F5F7] overflow-hidden" id="payments">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-[#F5F5F7] overflow-hidden" id="payments">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="flex flex-col lg:flex-row items-center gap-20">
 
                     {/* Content */}
@@ -15,45 +15,45 @@ const PaymentGatewaySection = () => {
                             <CreditCard className="w-4 h-4 text-[#7BA1C7]" />
                             <span className="text-[15px] font-semibold uppercase tracking-wider">Secure Payments</span>
                         </div>
-                        <h2 className="text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
                             Integrated <span className="text-[#7BA1C7]">Stripe</span> processing.
                         </h2>
-                        <p className="text-[20px] text-[#666666] leading-relaxed mb-10">
+                        <p className="text-base md:text-[20px] text-[#666666] leading-relaxed mb-10">
                             Collect consultation fees upfront. Patients pay securely via Stripe or SSLCommerz before booking confirmation.
                         </p>
 
-                        <ul className="space-y-6">
+                        <ul className="space-y-4 md:space-y-6">
                             <li className="flex items-center gap-4">
-                                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
-                                    <CheckIcon className="w-4 h-4" />
+                                <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
+                                    <CheckIcon className="w-3 h-3 md:w-4 md:h-4" />
                                 </div>
-                                <span className="text-lg font-medium">Instant Payouts to Doctors</span>
+                                <span className="text-base md:text-lg font-medium">Instant Payouts to Doctors</span>
                             </li>
                             <li className="flex items-center gap-4">
-                                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
-                                    <CheckIcon className="w-4 h-4" />
+                                <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
+                                    <CheckIcon className="w-3 h-3 md:w-4 md:h-4" />
                                 </div>
-                                <span className="text-lg font-medium">Automatic Invoicing</span>
+                                <span className="text-base md:text-lg font-medium">Automatic Invoicing</span>
                             </li>
                             <li className="flex items-center gap-4">
-                                <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
-                                    <CheckIcon className="w-4 h-4" />
+                                <div className="w-5 h-5 md:w-6 md:h-6 bg-black rounded-full flex items-center justify-center text-white shrink-0">
+                                    <CheckIcon className="w-3 h-3 md:w-4 md:h-4" />
                                 </div>
-                                <span className="text-lg font-medium">Multi-currency Support</span>
+                                <span className="text-base md:text-lg font-medium">Multi-currency Support</span>
                             </li>
                         </ul>
                     </div>
 
                     {/* Visual: Checkout UI */}
                     <div className="w-full lg:w-1/2">
-                        <div className="bg-white rounded-[40px] p-10 shadow-2xl border border-[#E5E5E5] relative overflow-hidden group">
-                            <div className="flex items-center justify-between mb-10">
+                        <div className="bg-white rounded-[30px] md:rounded-[40px] p-6 md:p-10 shadow-2xl border border-[#E5E5E5] relative overflow-hidden group">
+                            <div className="flex items-center justify-between mb-8 md:mb-10">
                                 <div className="flex flex-col">
-                                    <span className="text-sm text-gray-400 font-bold uppercase">Amount Due</span>
-                                    <span className="text-4xl font-bold">$50.00</span>
+                                    <span className="text-xs md:text-sm text-gray-400 font-bold uppercase">Amount Due</span>
+                                    <span className="text-3xl md:text-4xl font-bold">$50.00</span>
                                 </div>
-                                <div className="w-16 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <Lock className="w-5 h-5 text-gray-400" />
+                                <div className="w-12 h-8 md:w-16 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                                 </div>
                             </div>
 

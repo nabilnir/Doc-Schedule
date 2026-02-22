@@ -17,7 +17,11 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 UserSchema.pre("save", async function () {
-    if (!this.isModified("password") || !this.password) return;
+    if (!this.password) return;
+    // Skip if not modified
+    if (!this.isModified("password")) return;
+    // Skip if already a bcrypt hash (prevents double-hashing)
+    if (this.password.startsWith("$2b$") || this.password.startsWith("$2a$")) return;
     this.password = await bcrypt.hash(this.password, 10);
 });
 

@@ -35,10 +35,12 @@ function LoginForm() {
 
         setLoading(false);
 
-        if (result?.error) {
+        if (result?.error === 'unverified') {
+            setError('Your account is not verified. Please check your email for the OTP.');
+        } else if (result?.error) {
             setError('Invalid email or password. Please try again.');
         } else {
-            window.location.href = '/dashboard';
+            router.push('/dashboard');
         }
     };
 

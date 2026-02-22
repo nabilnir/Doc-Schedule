@@ -5,14 +5,14 @@ import { LayoutDashboard, Users, TrendingUp, History } from 'lucide-react';
 
 const DashboardShowcase = () => {
     return (
-        <section className="py-[120px] bg-white overflow-hidden" id="dashboards">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="dashboards">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="flex flex-col items-center text-center mb-20">
                     <div className="inline-flex items-center gap-2 bg-[#F5F5F7] px-4 py-2 rounded-full border border-[#E5E5E5] mb-8">
                         <LayoutDashboard className="w-4 h-4 text-[#7BA1C7]" />
                         <span className="text-[15px] font-semibold text-[#1A1A1A]">Multi-tenant Dashboards</span>
                     </div>
-                    <h2 className="text-[56px] font-bold leading-[1.1] mb-8">
+                    <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] mb-8">
                         Isolated views for <span className="text-[#7BA1C7]">Doctors</span> & <span className="text-[#7BA1C7]">Patients</span>.
                     </h2>
                 </div>
@@ -56,19 +56,25 @@ const DashboardShowcase = () => {
                     <div className="bento-card bg-black text-white flex flex-col group hover:shadow-2xl transition-all duration-500">
                         <div className="flex justify-between items-start mb-10">
                             <div>
-                                <h3 className="text-2xl font-bold mb-2 text-white">Patient Hub</h3>
-                                <p className="text-white/60">Track medical history, appointments, and report uploads.</p>
+                                <h3 className="text-xl md:text-2xl font-bold mb-2 text-white">Patient Hub</h3>
+                                <p className="text-white/60 text-sm md:text-base">Track medical history, appointments, and report uploads.</p>
                             </div>
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-black">
-                                <History className="w-6 h-6" />
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl md:rounded-2xl flex items-center justify-center text-black">
+                                <History className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                         </div>
 
-                        <div className="bg-white/5 rounded-3xl p-6 border border-white/10 flex-grow">
+                        <div className="bg-white/5 rounded-2xl md:rounded-3xl p-4 md:p-6 border border-white/10 flex-grow">
                             <div className="flex items-center gap-4 mb-8">
-                                <div className="w-12 h-12 bg-[#7BA1C7] rounded-full"></div>
+                                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#7BA1C7]/20 shadow-lg">
+                                    <img
+                                        src="/homepage/Robert James.jpg"
+                                        alt="Robert Wills"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                                 <div>
-                                    <p className="text-sm font-bold">John Doe</p>
+                                    <p className="text-sm font-bold">Robert Wills</p>
                                     <p className="text-xs text-white/40">Upcoming: Oct 20, 2026</p>
                                 </div>
                             </div>

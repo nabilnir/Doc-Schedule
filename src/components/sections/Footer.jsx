@@ -4,8 +4,8 @@ import React from 'react';
 
 const Footer = () => {
     return (
-        <footer className="bg-black text-white pt-[120px] pb-20 overflow-hidden">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <footer className="bg-black text-white pt-20 md:pt-[120px] pb-10 md:pb-20 overflow-hidden">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
                     {/* Brand */}
                     <div className="md:col-span-4 space-y-8">
@@ -40,9 +40,9 @@ const Footer = () => {
                     </div>
 
                     {/* CTA Group */}
-                    <div className="md:col-span-4 bg-[#1A1A1A] p-10 rounded-[40px] border border-white/5 space-y-6">
-                        <h5 className="text-2xl font-bold">Ready to digitize your practice?</h5>
-                        <p className="text-white/60">Join 500+ professionals using DocSchedule today.</p>
+                    <div className="md:col-span-4 bg-[#1A1A1A] p-8 md:p-10 rounded-[30px] md:rounded-[40px] border border-white/5 space-y-6">
+                        <h5 className="text-xl md:text-2xl font-bold">Ready to digitize your practice?</h5>
+                        <p className="text-white/60 text-sm md:text-base">Join 500+ professionals using DocSchedule today.</p>
                         <a
                             href="/register"
                             className="flex items-center justify-center w-full py-4 bg-[#7BA1C7] text-black rounded-full font-bold hover:scale-[1.02] transition-transform"
