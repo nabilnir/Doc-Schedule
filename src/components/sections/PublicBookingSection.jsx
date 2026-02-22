@@ -5,19 +5,23 @@ import { User, Shield, Share2, Globe } from 'lucide-react';
 
 const PublicBookingSection = () => {
     return (
-        <section className="py-[120px] bg-white overflow-hidden" id="booking-page">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="booking-page">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                     {/* Visual: Profile Page Mockup */}
                     <div className="w-full lg:w-1/2 relative">
-                        <div className="relative z-10 bg-[#F5F5F7] rounded-[40px] p-2 border border-[#E5E5E5] shadow-2xl overflow-hidden group">
-                            <div className="bg-white rounded-[38px] p-10">
+                        <div className="relative z-10 bg-[#F5F5F7] rounded-[30px] md:rounded-[40px] p-2 border border-[#E5E5E5] shadow-2xl overflow-hidden group">
+                            <div className="bg-white rounded-[28px] md:rounded-[38px] p-6 md:p-10">
                                 <div className="flex flex-col items-center text-center space-y-4 mb-10">
-                                    <div className="w-24 h-24 bg-[#7BA1C7] rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                                        SJ
+                                    <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#7BA1C7]/20 shadow-xl">
+                                        <img
+                                            src="/homepage/Melona Wills.jpg"
+                                            alt="Dr. Melona Wills"
+                                            className="w-full h-full object-cover"
+                                        />
                                     </div>
                                     <div>
-                                        <h4 className="text-2xl font-bold">Dr. Sarah Johnson</h4>
+                                        <h4 className="text-2xl font-bold">Dr. Melona Wills</h4>
                                         <p className="text-[#666666]">Cardiologist • 12 years exp.</p>
                                     </div>
                                     <div className="flex gap-2">
@@ -54,14 +58,14 @@ const PublicBookingSection = () => {
 
                     {/* Content */}
                     <div className="w-full lg:w-1/2">
-                        <div className="inline-flex items-center gap-2 bg-[#F5F5F7] px-4 py-2 rounded-full border border-[#E5E5E5] mb-8">
+                        <div className="inline-flex items-center gap-2 bg-[#F5F5F7] px-4 py-2 rounded-full border border-[#E5E5E5] mb-6 md:mb-8">
                             <User className="w-4 h-4 text-[#7BA1C7]" />
-                            <span className="text-[15px] font-semibold text-[#1A1A1A]">Public Booking Page</span>
+                            <span className="text-[13px] md:text-[15px] font-semibold text-[#1A1A1A]">Public Booking Page</span>
                         </div>
-                        <h2 className="text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-6 md:mb-8">
                             A <span className="text-[#7BA1C7]">professional URL</span> for your practice.
                         </h2>
-                        <p className="text-[20px] text-[#666666] leading-relaxed mb-10">
+                        <p className="text-base md:text-[20px] text-[#666666] leading-relaxed mb-10">
                             Each doctor gets a unique, SEO-optimized public profile where patients can view schedules, specialties, and book directly.
                         </p>
 

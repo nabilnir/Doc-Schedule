@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, CalendarCheck2, Users, Building2, 
-  MessageSquare, Settings, LogOut, Search, Bell, 
-  ChevronLeft, Menu, X 
+import { signOut } from "next-auth/react";
+import {
+  LayoutDashboard, CalendarCheck2, Users, Building2,
+  MessageSquare, Settings, LogOut, Search, Bell,
+  ChevronLeft, Menu, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,8 +47,8 @@ export default function DashboardLayout({ children }) {
               href={item.href}
               className={cn(
                 "group flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                isActive 
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-100" 
+                isActive
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-100"
                   : "text-slate-500 hover:bg-slate-50 hover:text-blue-600",
                 collapsed && "justify-center px-0 w-12 mx-auto"
               )}
@@ -60,8 +61,9 @@ export default function DashboardLayout({ children }) {
       </nav>
 
       <div className="px-4 mt-auto border-t pt-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
+          onClick={() => signOut({ callbackUrl: '/' })}
           className={cn("w-full justify-start gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl", collapsed && "justify-center px-0")}
         >
           <LogOut className="w-5 h-5" />
@@ -78,7 +80,7 @@ export default function DashboardLayout({ children }) {
         "relative border-r bg-white hidden lg:flex flex-col transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.02)]",
         isCollapsed ? "w-20" : "w-72"
       )}>
-        <button 
+        <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-10 bg-white border shadow-sm rounded-full p-1 z-50 hover:bg-slate-50"
         >
@@ -91,7 +93,7 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* HEADER */}
         <header className="h-20 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-6 lg:px-10">
-          
+
           {/* Mobile Menu Trigger */}
           <div className="flex items-center gap-4 lg:hidden">
             <Sheet>
@@ -117,7 +119,7 @@ export default function DashboardLayout({ children }) {
               <Bell className="w-5 h-5 text-slate-600" />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </Button>
-            
+
             <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l shrink-0">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-slate-800">Kamalesh Roy</p>
