@@ -1,4 +1,4 @@
-import Navbar from "@/components/sections/Navbar";
+
 import Hero from "@/components/sections/Hero";
 import DashboardShowcase from "@/components/sections/DashboardShowcase";
 import SmartSlotBento from "@/components/sections/SmartSlotBento";
@@ -9,12 +9,11 @@ import PaymentGatewaySection from "@/components/sections/PaymentGatewaySection";
 import IntakeFormsSection from "@/components/sections/IntakeFormsSection";
 import ReportsSection from "@/components/sections/ReportsSection";
 import EmailRemindersSection from "@/components/sections/EmailRemindersSection";
-import Footer from "@/components/sections/Footer";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-      <Navbar />
+     
       <Hero />
       <DashboardShowcase />
       <SmartSlotBento />
@@ -25,7 +24,6 @@ export default function Home() {
       <IntakeFormsSection />
       <ReportsSection />
       <EmailRemindersSection />
-      <Footer />
     </main>
   );
 }
