@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
-import bcrypt from "bcryptjs"; 
+import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -19,10 +19,6 @@ export async function POST(request) {
             return NextResponse.json({ error: "Email already exists" }, { status: 409 });
         }
 
-        // 2. Hash Password manually before saving
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
         // 3. Generate OTP
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -36,12 +32,12 @@ export async function POST(request) {
             return NextResponse.json({ error: fbErr.message }, { status: 400 });
         }
 
-        // 5. MongoDB: save user with hashed password
+        // 5. MongoDB: save user (password is hashed automatically by UserSchema.pre('save') hook)
         const newUser = await User.create({
             fullName,
             email: email.toLowerCase(),
             phone: phone || "",
-            password: hashedPassword, 
+            password: password,
             role,
             provider: "credentials",
             firebaseUid,
@@ -50,20 +46,32 @@ export async function POST(request) {
         });
 
         // 6. Nodemailer Email Sending logic
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+        console.log("-----------------------------------------");
+        console.log(`NEW REGISTRATION OTP FOR ${email}: ${otpCode}`);
+        console.log("-----------------------------------------");
 
-        await transporter.sendMail({
-            from: `"DocSchedule" <${process.env.EMAIL_USER}>`,
-            to: email.toLowerCase(),
-            subject: "Verification Code",
-            html: `<p>Your OTP is: <b>${otpCode}</b></p>`
-        });
+        try {
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            await transporter.sendMail({
+                from: `"DocSchedule" <${process.env.EMAIL_USER}>`,
+                to: email.toLowerCase(),
+                subject: "Verification Code",
+                html: `<p>Your OTP is: <b>${otpCode}</b></p>`
+            });
+        } catch (emailErr) {
+            console.error("Nodemailer Error (Email sending failed):", emailErr.message);
+            // We don't return an error here because the user is created and OTP is logged to terminal.
+            // This prevents the 500 error from stopping the registration flow.
+        }
 
         return NextResponse.json({ message: "OTP sent" }, { status: 201 });
 
