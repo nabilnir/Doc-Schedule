@@ -5,14 +5,14 @@ import { PencilLine, ListChecks, HeartPulse, FileText } from 'lucide-react';
 
 const IntakeFormsSection = () => {
     return (
-        <section className="py-[120px] bg-white overflow-hidden" id="intake-forms">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="intake-forms">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
                     {/* Visual: Intake Form Mockup */}
                     <div className="relative">
-                        <div className="bg-white rounded-[40px] p-10 shadow-2xl border border-[#E5E5E5] transform hover:-rotate-1 transition-transform">
-                            <h3 className="text-2xl font-bold mb-8">Patient Intake Form</h3>
+                        <div className="bg-white rounded-[30px] md:rounded-[40px] p-6 md:p-10 shadow-2xl border border-[#E5E5E5] transform hover:-rotate-1 transition-transform">
+                            <h3 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">Patient Intake Form</h3>
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-400 uppercase">Primary Symptoms</label>
@@ -45,7 +45,7 @@ const IntakeFormsSection = () => {
                         </div>
 
                         {/* Decorative */}
-                        <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-black rounded-3xl flex items-center justify-center text-white transform -rotate-12 shadow-xl">
+                        <div className="hidden md:flex absolute -bottom-10 -left-10 w-24 h-24 bg-black rounded-3xl items-center justify-center text-white transform -rotate-12 shadow-xl">
                             <PencilLine className="w-10 h-10" />
                         </div>
                     </div>
@@ -56,10 +56,10 @@ const IntakeFormsSection = () => {
                             <ListChecks className="w-4 h-4 text-[#7BA1C7]" />
                             <span className="text-[15px] font-semibold text-[#1A1A1A]">Digital Intake</span>
                         </div>
-                        <h2 className="text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
                             Prepare before the <span className="text-[#7BA1C7]">consultation</span>.
                         </h2>
-                        <p className="text-[20px] text-[#666666] leading-relaxed mb-10">
+                        <p className="text-base md:text-[20px] text-[#666666] leading-relaxed mb-10">
                             Collect custom patient information, symptoms, and medical history during the booking process.
                         </p>
 
