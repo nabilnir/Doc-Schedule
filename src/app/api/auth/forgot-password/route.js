@@ -20,10 +20,11 @@ export async function POST(request) {
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
-        // 2. Save to User
-        user.resetOtp = otpCode;
-        user.resetOtpExpires = expires;
-        await user.save();
+        // 2. Save to User - use findOneAndUpdate to bypass pre-save hook (password never touched)
+        await User.findOneAndUpdate(
+            { email: email.toLowerCase() },
+            { $set: { resetOtp: otpCode, resetOtpExpires: expires } }
+        );
 
         // 3. Log to terminal (Fallback for dev)
         console.log("-----------------------------------------");

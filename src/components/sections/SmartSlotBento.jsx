@@ -14,45 +14,45 @@ const SmartSlotBento = () => {
     }, []);
 
     return (
-        <section className="py-[120px] bg-white overflow-hidden" id="features">
-            <div className="container mx-auto max-w-[1440px] px-8">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="features">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 {/* Section Heading */}
-                <div className="flex flex-col items-center mb-[60px]">
-                    <h2 className="text-[56px] font-semibold tracking-[-0.02em] leading-[1.2] text-[#1A1A1A] text-center mb-6">
+                <div className="flex flex-col items-center mb-10 md:mb-[60px]">
+                    <h2 className="text-3xl sm:text-4xl md:text-[56px] font-semibold tracking-[-0.02em] leading-[1.2] text-[#1A1A1A] text-center mb-6">
                         Intelligent <span className="text-[#7BA1C7]">Slot Generation</span>
                     </h2>
-                    <p className="text-[20px] text-[#666666] text-center max-w-[600px]">
+                    <p className="text-base md:text-[20px] text-[#666666] text-center max-w-[600px]">
                         Automatically create available time slots based on your working hours and preferences.
                     </p>
                 </div>
 
                 {/* Bento Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-[700px]">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 min-h-auto md:h-[700px]">
 
                     {/* Bento Card 1: Slot Engine */}
-                    <div className="md:col-span-8 bento-card bg-[#F5F5F7] flex flex-col relative group overflow-hidden">
+                    <div className="md:col-span-8 bento-card bg-[#F5F5F7] p-6 md:p-10 flex flex-col relative group overflow-hidden">
                         <div className="mb-6 relative z-10">
                             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-[#E5E5E5] mb-4">
                                 <Clock className="w-4 h-4 text-[#7BA1C7]" strokeWidth={2.5} />
-                                <span className="text-[15px] font-medium text-[#1A1A1A]">Scheduling Engine</span>
+                                <span className="text-[13px] font-medium text-[#1A1A1A]">Scheduling Engine</span>
                             </div>
-                            <h3 className="text-[32px] font-semibold leading-[1.3] text-[#1A1A1A] max-w-[400px]">
+                            <h3 className="text-2xl md:text-[32px] font-semibold leading-[1.3] text-[#1A1A1A] max-w-[400px]">
                                 Smart Slot Generation based on your availability
                             </h3>
                         </div>
 
                         {/* Visual: Slot Grid */}
-                        <div className="flex-grow flex items-center justify-center py-8">
-                            <div className="grid grid-cols-3 gap-4 w-full max-w-[500px]">
+                        <div className="flex-grow flex items-center justify-center py-6 md:py-8">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 w-full max-w-[500px]">
                                 {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map((time, i) => (
                                     <div
                                         key={i}
-                                        className={`p-6 rounded-2xl border transition-all duration-500 flex flex-col items-center gap-2 ${activeSlots[i]
-                                                ? "bg-white border-[#7BA1C7] shadow-lg scale-105"
-                                                : "bg-gray-100 border-transparent opacity-50"
+                                        className={`p-4 md:p-6 rounded-2xl border transition-all duration-500 flex flex-col items-center gap-2 ${activeSlots[i]
+                                            ? "bg-white border-[#7BA1C7] shadow-lg md:scale-105"
+                                            : "bg-gray-100 border-transparent opacity-50"
                                             }`}
                                     >
-                                        <span className={`text-sm font-bold ${activeSlots[i] ? "text-[#7BA1C7]" : "text-gray-400"}`}>
+                                        <span className={`text-xs md:text-sm font-bold ${activeSlots[i] ? "text-[#7BA1C7]" : "text-gray-400"}`}>
                                             {time}
                                         </span>
                                         {activeSlots[i] && <CheckCircle2 className="w-4 h-4 text-[#7BA1C7]" />}
@@ -61,9 +61,9 @@ const SmartSlotBento = () => {
                             </div>
                         </div>
 
-                        <div className="mt-auto relative z-10">
-                            <p className="text-[#666666] mb-6 max-w-[300px]">Define your hours, we handle the rest with conflict checking.</p>
-                            <a href="#" className="inline-flex items-center text-[15px] font-medium text-[#1A1A1A] hover:opacity-70 transition-opacity bg-white px-6 py-3 rounded-full shadow-sm">
+                        <div className="mt-6 md:mt-auto relative z-10">
+                            <p className="text-[#666666] mb-6 max-w-[300px] text-sm md:text-base">Define your hours, we handle the rest with conflict checking.</p>
+                            <a href="#" className="inline-flex items-center text-sm md:text-[15px] font-medium text-[#1A1A1A] hover:opacity-70 transition-opacity bg-white px-6 py-3 rounded-full shadow-sm">
                                 How it works <ChevronRight className="ml-1 w-4 h-4" />
                             </a>
                         </div>
@@ -73,13 +73,13 @@ const SmartSlotBento = () => {
                     </div>
 
                     {/* Bento Card 2: Public Profile */}
-                    <div className="md:col-span-4 bento-card bg-black text-white flex flex-col relative overflow-hidden group">
+                    <div className="md:col-span-4 bento-card bg-black text-white p-6 md:p-10 flex flex-col relative overflow-hidden group">
                         <div className="mb-6 relative z-10">
                             <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/10 mb-4">
                                 <Calendar className="w-4 h-4 text-[#7BA1C7]" strokeWidth={2.5} />
                                 <span className="text-[15px] font-medium text-white">Public Profile</span>
                             </div>
-                            <h3 className="text-[28px] font-semibold leading-[1.3] text-white">
+                            <h3 className="text-2xl md:text-[28px] font-semibold leading-[1.3] text-white">
                                 Your professional booking page
                             </h3>
                         </div>
@@ -101,8 +101,8 @@ const SmartSlotBento = () => {
                             </div>
                         </div>
 
-                        <div className="mt-auto relative z-10">
-                            <p className="text-white/60 mb-6">A clean, professional URL to share with your patients anywhere.</p>
+                        <div className="mt-6 md:mt-auto relative z-10">
+                            <p className="text-white/60 mb-6 text-sm md:text-base">A clean, professional URL to share with your patients anywhere.</p>
                         </div>
 
                         {/* Background Decoration */}

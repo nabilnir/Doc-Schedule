@@ -21,9 +21,11 @@ export async function POST(request) {
         // 1. Generate New OTP
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // 2. Save OTP (Wait, in registration it's just 'otp')
-        user.otp = otpCode;
-        await user.save();
+        // 2. Save OTP - use findOneAndUpdate to bypass pre-save hook (password never touched)
+        await User.findOneAndUpdate(
+            { email: email.toLowerCase() },
+            { $set: { otp: otpCode } }
+        );
 
         // 3. Log to terminal (Fallback for dev)
         console.log("-----------------------------------------");

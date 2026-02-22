@@ -52,8 +52,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openRunde.variable} font-sans antialiased`}
       >
-         <Navbar />
         <AuthProvider>
+          <Navbar />
           {children}
         </AuthProvider>
         <Footer></Footer>
