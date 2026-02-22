@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { Mail, Lock, ChevronRight, User, Loader2 } from 'lucide-react';
+import { Mail, Lock, ChevronRight, User, Loader2, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
     const router = useRouter();
@@ -15,6 +15,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState(null); // 'google' | 'github'
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -34,7 +35,9 @@ function LoginForm() {
 
         setLoading(false);
 
-        if (result?.error) {
+        if (result?.error === 'unverified') {
+            setError('Your account is not verified. Please check your email for the OTP.');
+        } else if (result?.error) {
             setError('Invalid email or password. Please try again.');
         } else {
             router.push('/dashboard');
@@ -47,10 +50,10 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative">
+        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative py-8">
 
             {/* Logo */}
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-4 flex items-center gap-2">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg text-[#3CA9DB] font-bold text-lg">D</div>
                     <span className="text-2xl font-bold text-white tracking-tight">DocSchedule</span>
@@ -58,8 +61,8 @@ function LoginForm() {
             </div>
 
             <div className="w-full max-w-[440px] bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 overflow-hidden">
-                <div className="p-8">
-                    <div className="flex flex-col items-center text-center mb-6">
+                <div className="p-6 sm:p-8 pt-6">
+                    <div className="flex flex-col items-center text-center mb-5">
                         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border-2 border-[#F5F5F7]">
                             <div className="w-full h-full rounded-full bg-gradient-to-b from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
                                 <User className="w-8 h-8 text-blue-200 mt-1" />
@@ -96,12 +99,28 @@ function LoginForm() {
                         <div className="space-y-1.5">
                             <div className="flex justify-between items-center px-1">
                                 <label className="text-[13px] font-bold text-gray-800">Password</label>
-                                <Link href="#" className="text-xs font-semibold text-[#3CA9DB] hover:underline">Forgot?</Link>
+                                <Link href="/forgot-password" title="Forgot Password" className="text-xs font-semibold text-[#3CA9DB] hover:underline">Forgot?</Link>
                             </div>
-                            <div className="relative">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Lock className="w-4 h-4" /></div>
-                                <input name="password" type="password" placeholder="••••••••" value={form.password} onChange={handleChange} required
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm" />
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3CA9DB] transition-colors">
+                                    <Lock className="w-4 h-4" />
+                                </div>
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={form.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full pl-10 pr-12 py-3 bg-white border border-gray-200 rounded-xl focus:border-[#3CA9DB] focus:ring-4 focus:ring-[#3CA9DB]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </div>
                         </div>
 
@@ -113,7 +132,7 @@ function LoginForm() {
                     </form>
 
                     {/* OR Divider */}
-                    <div className="relative my-8">
+                    <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-100"></div>
                         </div>
@@ -151,7 +170,7 @@ function LoginForm() {
                         </button>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-4">
+                    <div className="mt-6 pt-5 border-t border-gray-100 text-center space-y-3">
                         <p className="text-[#666666] text-sm">
                             Don&apos;t have an account? <Link href="/register" className="text-[#3CA9DB] font-bold hover:underline">Sign up for free</Link>
                         </p>
