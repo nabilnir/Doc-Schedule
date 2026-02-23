@@ -27,11 +27,7 @@ export async function POST(request) {
             { $set: { otp: otpCode } }
         );
 
-        // 3. Log to terminal (Fallback for dev)
-        console.log("-----------------------------------------");
-        console.log(`RESENT REGISTRATION OTP FOR ${email}: ${otpCode}`);
-        console.log("-----------------------------------------");
-
+        
         // 4. Send Email
         try {
             const transporter = nodemailer.createTransport({
