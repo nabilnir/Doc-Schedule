@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, trim: true },
     password: { type: String },
-    role: { type: String, enum: ["patient", "doctor"], default: "patient" },
+    role: { type: String, enum: ["patient", "doctor", "admin"], default: "patient" },
     image: { type: String },
     provider: { type: String, enum: ["credentials", "google", "github"], default: "credentials" },
     firebaseUid: { type: String },
@@ -14,14 +14,7 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     resetOtp: { type: String, default: null },
     resetOtpExpires: { type: Date, default: null },
-    planType: {
-        type: String,
-        enum: ["free", "monthly", "yearly"],
-        default: "free"
-    },
-    planStartDate: { type: Date, default: Date.now },
-}, {
-    timestamps: true,
+}, { timestamps: true,
     collection: 'users'
 });
 

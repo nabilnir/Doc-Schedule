@@ -2,10 +2,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard, CalendarCheck2, Users, Building2,
-  MessageSquare, Settings, LogOut, ChevronLeft, Menu
+  MessageSquare, Settings, LogOut, ChevronLeft, Menu,
+  UserPlus, BarChart3, ClipboardList, Clock9
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,16 +14,41 @@ import DashboardHeader from "@/components/DashboardHeader";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: CalendarCheck2, label: "Appointment", href: "/dashboard/appointment" },
-    { icon: Users, label: "Doctors", href: "/dashboard/doctors" },
-    { icon: Building2, label: "Departments", href: "/dashboard/departments" },
-    { icon: MessageSquare, label: "Message", href: "/dashboard/messages" },
-    { icon: Settings, label: "Setting", href: "/dashboard/settings" },
-  ];
+  const role = session?.user?.role || "patient";
+
+  const getNavItems = (role) => {
+    switch (role) {
+      case "admin":
+        return [
+          { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+          { icon: Users, label: "Manage Patients", href: "/dashboard/admin/patients" },
+          { icon: UserPlus, label: "Manage Doctors", href: "/dashboard/admin/doctors" },
+          { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
+          { icon: Settings, label: "Setting", href: "/dashboard/settings" },
+        ];
+      case "doctor":
+        return [
+          { icon: LayoutDashboard, label: "Doctor Portal", href: "/dashboard" },
+          { icon: CalendarCheck2, label: "My Appointments", href: "/dashboard/doctor/appointments" },
+          { icon: ClipboardList, label: "Patient Records", href: "/dashboard/doctor/records" },
+          { icon: Clock9, label: "My Schedule", href: "/dashboard/doctor/schedule" },
+          { icon: Settings, label: "Setting", href: "/dashboard/settings" },
+        ];
+      default: // patient
+        return [
+          { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+          { icon: CalendarCheck2, label: "My Bookings", href: "/dashboard/appointment" },
+          { icon: Users, label: "Find Doctors", href: "/all-doctors" },
+          { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
+          { icon: Settings, label: "Setting", href: "/dashboard/settings" },
+        ];
+    }
+  };
+
+  const navItems = getNavItems(role);
 
   // Reusable Sidebar Component
   const SidebarContent = ({ collapsed = false }) => (
@@ -79,7 +105,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC]">
-      
+
       {/* --- DESKTOP SIDEBAR --- */}
       <aside className={cn(
         "relative border-r bg-white hidden lg:flex flex-col transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20",
@@ -97,7 +123,7 @@ export default function DashboardLayout({ children }) {
 
       {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
+
         {/* HEADER COMPONENT */}
         <DashboardHeader SidebarContent={SidebarContent} />
 
