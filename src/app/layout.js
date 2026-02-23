@@ -1,9 +1,8 @@
+
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
-import Navbar from "@/components/sections/Navbar";
-import Footer from "@/components/sections/Footer";
+import { MainConditionalLayout } from "@/components/MainConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,17 +45,20 @@ export const metadata = {
   description: "Multi-tenant Doctor Appointment Booking and Scheduling SaaS Platform.",
 };
 
+
 export default function RootLayout({ children }) {
+
+  
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${openRunde.variable} font-sans antialiased`}
       >
-        <AuthProvider>
-          <Navbar />
+       <MainConditionalLayout>
           {children}
-        </AuthProvider>
-        <Footer></Footer>
+        </MainConditionalLayout>
+        
       </body>
     </html>
   );

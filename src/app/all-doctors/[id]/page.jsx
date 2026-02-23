@@ -1,14 +1,17 @@
 import connectDB from "@/lib/mongodb";
 import Doctor from "@/models/Doctor";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import BookingSystem from "@/components/appointment/booking-system";
 
 export default async function DoctorDetails({ params }) {
   await connectDB();
   const { id } = await params;
-  const doctor = await Doctor.findById(id).lean();
+  const rawDoctor = await Doctor.findById(id).lean();
 
-  if (!doctor) return notFound();
+  if (!rawDoctor) return notFound();
+  
+  // Serialization for Client Component
+  const doctor = JSON.parse(JSON.stringify(rawDoctor));
 
   return (
     <div className="max-w-5xl mx-auto mt-10 p-6 md:p-12">
@@ -16,7 +19,7 @@ export default async function DoctorDetails({ params }) {
         {/* Left: Basic Info */}
         <div className="md:col-span-1 bg-slate-50 p-6 rounded-2xl border">
           <div className="w-32 h-32 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-blue-600">
-            {doctor.name.charAt(4)} 
+            {doctor.name.charAt(0)} 
           </div>
           <h2 className="text-2xl font-bold text-center">{doctor.name}</h2>
           <p className="text-center text-blue-600 font-medium">{doctor.specialty}</p>
@@ -27,11 +30,11 @@ export default async function DoctorDetails({ params }) {
           </div>
         </div>
 
-        {/* Right: Education & Slots */}
-        <div className="md:col-span-2 space-y-6">
+        {/* Right: Info & Interactive Booking */}
+        <div className="md:col-span-2 space-y-8">
           <section>
             <h3 className="text-xl font-bold border-b pb-2">Professional Info</h3>
-            <div className="mt-4 grid grid-cols-1 gap-4">
+            <div className="mt-4 grid grid-cols-1 gap-2 text-slate-600">
               <p><strong>Designation:</strong> {doctor.designation}</p>
               <p><strong>Education:</strong> {doctor.education}</p>
               <p><strong>Current Hospital:</strong> {doctor.hospital}</p>
@@ -39,18 +42,11 @@ export default async function DoctorDetails({ params }) {
             </div>
           </section>
 
-          <section>
-            <h3 className="text-xl font-bold border-b pb-2">Available Time Slots</h3>
-            <div className="flex flex-wrap gap-3 mt-4">
-              {doctor.time_slots.map((slot, index) => (
-                <div key={index} className="px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-md font-medium">
-                  {slot}
-                </div>
-              ))}
-            </div>
+          {/* Booking Component Integration */}
+          <section className="bg-white p-6 rounded-2xl border shadow-sm">
+            <h3 className="text-xl font-bold mb-4">Book Your Appointment</h3>
+            <BookingSystem doctor={doctor} />
           </section>
-
-          <Button size="lg" className="w-full md:w-auto">Book Appointment Now</Button>
         </div>
       </div>
     </div>

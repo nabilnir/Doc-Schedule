@@ -1,6 +1,3 @@
-// 
-
-
 import mongoose from "mongoose";
 
 const DoctorSchema = new mongoose.Schema({
@@ -14,11 +11,12 @@ const DoctorSchema = new mongoose.Schema({
   email: String,
   time_slots: [String],
   fee: Number,
-  image: String
-}, { 
+  image: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true }
+}, {
   timestamps: true,
-  collection: 'doctor' // এখানে কালেকশন নাম সরাসরি বলে দিন
+  collection: 'doctor'
 });
 
-// ৩ নম্বর প্যারামিটার হিসেবে আবার 'doctor' দিন
+
 export default mongoose.models.Doctor || mongoose.model("Doctor", DoctorSchema, "doctor");
