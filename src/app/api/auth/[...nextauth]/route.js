@@ -44,10 +44,9 @@ export const authOptions = {
                 }
 
                 // ── CHECK IF VERIFIED ──────────────────────────────────────────
-                // If the user does not verify using the OTP, we will block the login.
                 if (user.isVerified === false) {
                     console.log("User is not verified.");
-                    throw new Error("unverified"); // This will be handled as an error on the frontend.
+                    throw new Error("unverified");
                 }
 
                 const valid = await user.comparePassword(credentials.password);
@@ -56,13 +55,22 @@ export const authOptions = {
                     return null;
                 }
 
-                console.log("Login successful.");
+                // ── HARDCODE ADMIN ROLE ──────────────────────────────────────
+                // You can change this email to your desired admin email
+                const adminEmail = "docschedule.noreply@gmail.com";
+                let userRole = user.role;
+                if (user.email.toLowerCase() === adminEmail.toLowerCase()) {
+                    userRole = "admin";
+                }
+
+                console.log("Login successful. Role:", userRole);
                 return {
                     id: user._id.toString(),
                     name: user.fullName,
                     email: user.email,
-                    role: user.role,
+                    role: userRole,
                     image: user.image,
+                    phone: user.phone,
                 };
             },
         }),
@@ -75,15 +83,24 @@ export const authOptions = {
                     await connectDB();
 
                     const existing = await User.findOne({ email: user.email });
+
+                    // Admin check for OAuth
+                    const adminEmail = "docschedule.noreply@gmail.com";
+                    const assignedRole = user.email.toLowerCase() === adminEmail.toLowerCase() ? "admin" : "patient";
+
                     if (!existing) {
                         await User.create({
                             fullName: user.name || "Unknown",
                             email: user.email,
                             image: user.image || "",
                             provider: account.provider,
-                            role: "patient",
-                            isVerified: true, // OAuth users are auto-verified
+                            role: assignedRole,
+                            isVerified: true,
                         });
+                    } else if (existing.role !== assignedRole && existing.email === adminEmail) {
+                        // Ensure existing user gets admin role if email matches
+                        existing.role = "admin";
+                        await existing.save();
                     }
                 } catch (err) {
                     console.error("Error saving OAuth user:", err);
@@ -93,13 +110,23 @@ export const authOptions = {
             return true;
         },
 
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account, trigger, session }) {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
+                token.phone = user.phone;
             }
             if (account) {
                 token.provider = account.provider;
+            }
+            if (trigger === "update" && session) {
+                // When calling update() on the client, the new data is passed here
+                if (session.user) {
+                    token.name = session.user.name || token.name;
+                    token.email = session.user.email || token.email;
+                    token.picture = session.user.image || token.picture;
+                    token.phone = session.user.phone || token.phone;
+                }
             }
             return token;
         },
@@ -108,6 +135,7 @@ export const authOptions = {
             if (token) {
                 session.user.id = token.id;
                 session.user.role = token.role;
+                session.user.phone = token.phone;
                 session.user.provider = token.provider;
             }
             return session;

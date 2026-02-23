@@ -1,5 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import Doctor from "@/models/Doctor";
+import mongoose from "mongoose";
 import {
   Card,
   CardContent,
@@ -29,10 +30,21 @@ export default async function AllDoctorPage({ searchParams }) {
       query.specialty = category;
     }
 
+    const dbName = mongoose.connection.name;
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionNames = collections.map(c => c.name);
+
+    console.log("-----------------------------------------");
+    console.log("🔍 DB Debug Info:");
+    console.log("📦 Connected to DB:", dbName);
+    console.log("📂 Collections in DB:", collectionNames);
+    console.log("🎯 Targeting Collection:", Doctor.collection.name);
     console.log("Current Query:", query);
 
     const rawDoctors = await Doctor.find(query).lean();
-    console.log("Total Doctors in DB:", await Doctor.countDocuments());
+    console.log("Total Doctors found:", rawDoctors.length);
+    console.log("Total Doctors in model.countDocuments():", await Doctor.countDocuments());
+    console.log("-----------------------------------------");
 
     const doctors = JSON.parse(JSON.stringify(rawDoctors));
 
