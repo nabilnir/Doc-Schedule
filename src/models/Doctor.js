@@ -11,10 +11,11 @@ const DoctorSchema = new mongoose.Schema({
   email: String,
   time_slots: [String],
   fee: Number,
-  image: String
-}, { 
+  image: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true }
+}, {
   timestamps: true,
-  collection: 'doctor' 
+  collection: 'doctor'
 });
 
 
