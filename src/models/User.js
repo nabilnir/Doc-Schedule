@@ -14,9 +14,16 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     resetOtp: { type: String, default: null },
     resetOtpExpires: { type: Date, default: null },
-}, { timestamps: true,
+    planType: {
+        type: String,
+        enum: ["free", "monthly", "yearly"],
+        default: "free"
+    },
+    planStartDate: { type: Date, default: Date.now },
+}, {
+    timestamps: true,
     collection: 'users'
- });
+});
 
 UserSchema.pre("save", async function () {
     if (!this.password) return;

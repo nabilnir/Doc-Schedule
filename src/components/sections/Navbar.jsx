@@ -33,7 +33,7 @@ const Navbar = () => {
                 <ChevronDown className="h-4 w-4 text-[#1A1A1A]" />
               </button>
             </div>
-            <a href="#pricing" className="text-[15px] font-medium text-[#1A1A1A] transition-colors hover:text-[#666666]">
+            <a href="/pricing" className="text-[15px] font-medium text-[#1A1A1A] transition-colors hover:text-[#666666]">
               Pricing
             </a>
             <a href="/all-doctors" className="text-[15px] font-medium text-[#1A1A1A] transition-colors hover:text-[#666666]">
