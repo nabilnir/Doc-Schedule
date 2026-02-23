@@ -54,7 +54,7 @@ export default async function AllDoctorPage({ searchParams }) {
                 <CardHeader className="p-0">
                   <div className="h-52 w-full relative">
                     <Image
-                      src="https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"
+                      src={doc.image || "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"}
                       alt="Doctor Illustration"
                       fill
                       className="object-cover"
