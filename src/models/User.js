@@ -14,7 +14,8 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     resetOtp: { type: String, default: null },
     resetOtpExpires: { type: Date, default: null },
-}, { timestamps: true,
+}, {
+    timestamps: true,
     collection: 'users'
 });
 
@@ -32,5 +33,5 @@ UserSchema.methods.comparePassword = async function (inputPassword) {
     return bcrypt.compare(inputPassword, this.password);
 };
 
-const User = mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema, "users");
 export default User;
