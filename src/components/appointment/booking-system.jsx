@@ -12,7 +12,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+<<<<<<< HEAD
 import { bookAppointment, getBookedSlots } from "@/app/actions/book-appointment";
+=======
+import {
+  bookAppointment,
+  getBookedSlots,
+} from "@/app/actions/book-appointment";
+import { useSession } from "next-auth/react";
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
 
 export default function BookingSystem({ doctor }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -20,6 +28,10 @@ export default function BookingSystem({ doctor }) {
   const [isPending, setIsPending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
+<<<<<<< HEAD
+=======
+  const { data: session, update } = useSession();
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
 
   // Patient Information State
   const [patientInfo, setPatientInfo] = useState({
@@ -41,12 +53,28 @@ export default function BookingSystem({ doctor }) {
     fetchBookedSlots();
   }, [selectedDate, doctor?._id]);
 
+  useEffect(() => {
+    if (session?.user) {
+      setPatientInfo((prev) => ({
+        ...prev,
+        // যদি আগে থেকে নাম/ইমেইল না থাকে (খালি থাকে), তবেই সেশনের ডাটা বসবে
+        name: prev.name || session.user.name || "",
+        email: prev.email || session.user.email || "",
+      }));
+    }
+  }, [session]);
+
   const quickDates = Array.from({ length: 4 }, (_, i) =>
     addDays(startOfToday(), i),
   );
 
   const dummySlots = doctor?.time_slots || [
-    "09:00 AM", "10:00 AM", "11:30 AM", "02:00 PM", "04:00 PM", "05:30 PM",
+    "09:00 AM",
+    "10:00 AM",
+    "11:30 AM",
+    "02:00 PM",
+    "04:00 PM",
+    "05:30 PM",
   ];
 
   const handleInputChange = (e) => {
@@ -162,30 +190,85 @@ export default function BookingSystem({ doctor }) {
         {/* ... Modal Content ... */}
         <DialogContent className="sm:max-w-[425px] rounded-[32px] bg-white p-8">
           <DialogHeader>
+<<<<<<< HEAD
             <DialogTitle className="text-2xl font-bold">Patient Details</DialogTitle>
+=======
+            <DialogTitle className="text-2xl font-bold">
+              Patient Details
+            </DialogTitle>
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label>Patient Name</Label>
+<<<<<<< HEAD
               <Input name="name" placeholder="Full Name" onChange={handleInputChange} className="rounded-xl h-12" />
             </div>
             <div className="space-y-2">
               <Label>Email Address</Label>
               <Input name="email" type="email" placeholder="email@example.com" onChange={handleInputChange} className="rounded-xl h-12" required />
+=======
+              <Input
+                name="name"
+                value={patientInfo.name}
+                placeholder="Full Name"
+                onChange={handleInputChange}
+                className="rounded-xl h-12"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email Address</Label>
+              <Input
+                name="email"
+                type="email"
+                placeholder="email@example.com"
+                value={patientInfo.email}
+                onChange={handleInputChange}
+                className="rounded-xl h-12"
+                required
+              />
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Age</Label>
+<<<<<<< HEAD
                 <Input name="age" type="number" placeholder="Age" onChange={handleInputChange} className="rounded-xl h-12" />
               </div>
               <div className="space-y-2">
                 <Label>Blood Group</Label>
                 <Input name="bloodGroup" placeholder="A+" onChange={handleInputChange} className="rounded-xl h-12" />
+=======
+                <Input
+                  name="age"
+                  type="number"
+                  placeholder="Age"
+                  onChange={handleInputChange}
+                  className="rounded-xl h-12"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Blood Group</Label>
+                <Input
+                  name="bloodGroup"
+                  placeholder="A+"
+                  onChange={handleInputChange}
+                  className="rounded-xl h-12"
+                />
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
               </div>
             </div>
           </div>
           <DialogFooter>
+<<<<<<< HEAD
             <Button onClick={handleFinalSubmit} disabled={isPending} className="w-full bg-black hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200">
+=======
+            <Button
+              onClick={handleFinalSubmit}
+              disabled={isPending}
+              className="w-full bg-[#00c58d] text-white py-7 rounded-2xl font-bold text-lg cursor-pointer"
+            >
+>>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
               {isPending ? "Processing..." : "Submit Appointment"}
             </Button>
           </DialogFooter>
