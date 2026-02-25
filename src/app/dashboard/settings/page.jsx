@@ -188,8 +188,8 @@ export default function SettingsPage() {
                 <Card className="lg:col-span-2 border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white/50 backdrop-blur-xl">
                     <CardHeader className="pb-0 pt-8 px-8">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-50 rounded-2xl">
-                                <User className="w-6 h-6 text-blue-600" />
+                            <div className="p-3 bg-slate-50 rounded-2xl">
+                                <User className="w-6 h-6 text-[#7BA1C7]" />
                             </div>
                             <div>
                                 <CardTitle className="text-xl font-bold">Profile Details</CardTitle>
@@ -204,11 +204,11 @@ export default function SettingsPage() {
                             <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100">
                                 <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                     <Avatar className={cn(
-                                        "h-24 w-24 border-4 border-white shadow-xl ring-2 ring-blue-50 transition-all group-hover:ring-blue-100",
+                                        "h-24 w-24 border-4 border-white shadow-xl ring-2 ring-slate-50 transition-all group-hover:ring-slate-100",
                                         uploading && "opacity-50"
                                     )}>
                                         <AvatarImage src={profileForm.image} />
-                                        <AvatarFallback className="bg-blue-600 text-white text-2xl font-bold">
+                                        <AvatarFallback className="bg-[#7BA1C7] text-white text-2xl font-bold">
                                             {profileForm.fullName?.split(" ").map(n => n[0]).join("").toUpperCase() || "U"}
                                         </AvatarFallback>
                                     </Avatar>
@@ -228,14 +228,14 @@ export default function SettingsPage() {
                                     />
                                 </div>
                                 <div className="flex-1 space-y-2 text-center sm:text-left">
-                                    <Label className="text-base text-slate-900 font-semibold group-hover:text-blue-600 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                    <Label className="text-base text-slate-900 font-semibold group-hover:text-[#7BA1C7] transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                                         Profile Photo
                                     </Label>
                                     <Input
                                         value={profileForm.image}
                                         onChange={(e) => setProfileForm({ ...profileForm, image: e.target.value })}
                                         placeholder="Enter image URL..."
-                                        className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-blue-500"
+                                        className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-[#7BA1C7]"
                                     />
                                     <p className="text-[11px] text-slate-400">Click the photo to upload or paste a URL above.</p>
                                 </div>
@@ -250,7 +250,7 @@ export default function SettingsPage() {
                                             value={profileForm.fullName}
                                             onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
                                             placeholder="John Doe"
-                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-blue-500 font-medium"
+                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
                                         />
                                     </div>
                                 </div>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                                             value={profileForm.email}
                                             onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
                                             placeholder="john@example.com"
-                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-blue-500 font-medium"
+                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
                                         />
                                     </div>
                                 </div>
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                                             value={profileForm.phone}
                                             onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                                             placeholder="+1 (555) 000-0000"
-                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-blue-500 font-medium"
+                                            className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
                                         />
                                     </div>
                                 </div>
@@ -284,7 +284,7 @@ export default function SettingsPage() {
                                 <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-8 h-12 font-bold shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                    className="bg-black hover:bg-slate-800 text-white rounded-2xl px-8 h-12 font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                 >
                                     {loading ? "Saving..." : "Save Changes"}
                                     {!loading && <Save className="ml-2 w-4 h-4" />}
@@ -299,8 +299,8 @@ export default function SettingsPage() {
                     <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white/50 backdrop-blur-xl">
                         <CardHeader className="pb-4 pt-8 px-8">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-amber-50 rounded-2xl">
-                                    <Lock className="w-5 h-5 text-amber-600" />
+                                <div className="p-3 bg-slate-50 rounded-2xl">
+                                    <Lock className="w-5 h-5 text-[#7BA1C7]" />
                                 </div>
                                 <div>
                                     <CardTitle className="text-lg font-bold">Security</CardTitle>
@@ -317,7 +317,7 @@ export default function SettingsPage() {
                                             type={showPasswords.old ? "text" : "password"}
                                             value={passwordForm.oldPassword}
                                             onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
-                                            className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-blue-500 pr-11"
+                                            className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-[#7BA1C7] pr-11"
                                         />
                                         <button
                                             type="button"
@@ -336,7 +336,7 @@ export default function SettingsPage() {
                                                 type={showPasswords.new ? "text" : "password"}
                                                 value={passwordForm.newPassword}
                                                 onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                                                className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-blue-500 pr-11"
+                                                className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-[#7BA1C7] pr-11"
                                             />
                                             <button
                                                 type="button"
@@ -354,7 +354,7 @@ export default function SettingsPage() {
                                                 type={showPasswords.confirm ? "text" : "password"}
                                                 value={passwordForm.confirmPassword}
                                                 onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                                                className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-blue-500 pr-11"
+                                                className="bg-slate-50 border-none rounded-xl h-11 focus-visible:ring-[#7BA1C7] pr-11"
                                             />
                                             <button
                                                 type="button"
@@ -377,11 +377,11 @@ export default function SettingsPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+                    <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 text-white">
                         <CardHeader className="pb-4">
-                            <ShieldCheck className="w-8 h-8 mb-2" />
+                            <ShieldCheck className="w-8 h-8 mb-2 text-[#7BA1C7]" />
                             <CardTitle className="text-lg">Two-Factor Auth</CardTitle>
-                            <CardDescription className="text-blue-100">Add an extra layer of security to your account.</CardDescription>
+                            <CardDescription className="text-slate-100/70">Add an extra layer of security to your account.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white rounded-xl h-11 font-bold">

@@ -35,10 +35,10 @@ export default async function AllDoctorPage({ searchParams }) {
     const collectionNames = collections.map(c => c.name);
 
     console.log("-----------------------------------------");
-    console.log("🔍 DB Debug Info:");
-    console.log("📦 Connected to DB:", dbName);
-    console.log("📂 Collections in DB:", collectionNames);
-    console.log("🎯 Targeting Collection:", Doctor.collection.name);
+    console.log("DB Debug Info:");
+    console.log("Connected to DB:", dbName);
+    console.log("Collections in DB:", collectionNames);
+    console.log("Targeting Collection:", Doctor.collection.name);
     console.log("Current Query:", query);
 
     const rawDoctors = await Doctor.find(query).lean();
@@ -49,7 +49,7 @@ export default async function AllDoctorPage({ searchParams }) {
     const doctors = JSON.parse(JSON.stringify(rawDoctors));
 
     return (
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto pt-28 px-6 pb-6">
         <h1 className="text-3xl font-bold mb-6 text-center">
           Meet Our Doctors
         </h1>

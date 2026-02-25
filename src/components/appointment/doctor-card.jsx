@@ -27,9 +27,9 @@ export default function DoctorCard({ doctor }) {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" className="rounded-full px-6 h-12">View Profile</Button>
-          <Button 
+          <Button
             onClick={() => setIsExpanded(!isExpanded)}
-            className={cn("rounded-full px-8 h-12 font-bold", isExpanded ? "bg-slate-100 text-slate-600" : "bg-[#00AEEF] text-white")}
+            className={cn("rounded-full px-8 h-12 font-bold", isExpanded ? "bg-slate-100 text-slate-600" : "bg-[#7BA1C7] text-white")}
           >
             {isExpanded ? "Close" : "Book Now"}
           </Button>

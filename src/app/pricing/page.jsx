@@ -18,13 +18,13 @@ export default function Pricing() {
   const handleSubscribe = async (planType) => {
     try {
       if (!userId) return alert("Please login first!");
-      
+
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId: userId, 
-          planType: planType 
+        body: JSON.stringify({
+          userId: userId,
+          planType: planType
         }),
       })
       const data = await response.json()
@@ -50,10 +50,10 @@ export default function Pricing() {
           <Label htmlFor="duration" className={!isYearly ? "font-bold text-slate-900" : "text-muted-foreground"}>
             Monthly
           </Label>
-          <Switch 
-            id="duration" 
-            checked={isYearly} 
-            onCheckedChange={setIsYearly} 
+          <Switch
+            id="duration"
+            checked={isYearly}
+            onCheckedChange={setIsYearly}
           />
           <Label htmlFor="duration" className={isYearly ? "font-bold text-slate-900" : "text-muted-foreground"}>
             Yearly <Badge variant="secondary" className="ml-1 bg-green-100 text-green-700 hover:bg-green-100">Save 20%</Badge>
@@ -62,7 +62,7 @@ export default function Pricing() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        
+
         {/* Monthly Plan Card */}
         <Card className={`transition-all duration-300 ${!isYearly ? "border-primary shadow-lg scale-105" : "opacity-70"}`}>
           <CardHeader>
@@ -74,21 +74,21 @@ export default function Pricing() {
               $50<span className="text-lg font-normal text-muted-foreground">/mo</span>
             </div>
             <ul className="space-y-3 text-sm text-slate-600">
-              <li className="flex items-center gap-2 font-semibold text-blue-600">
-                <Check className="h-5 w-5"/> 5% Discount on All Bookings
+              <li className="flex items-center gap-2 font-semibold text-[#7BA1C7]">
+                <Check className="h-5 w-5" /> 5% Discount on All Bookings
               </li>
               <li className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-500"/> Digital Prescription Tools
+                <Check className="h-5 w-5 text-green-500" /> Digital Prescription Tools
               </li>
               <li className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-500"/> 24/7 Priority Support
+                <Check className="h-5 w-5 text-green-500" /> 24/7 Priority Support
               </li>
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              onClick={() => handleSubscribe('monthly')} 
-              className="w-full text-md py-6" 
+            <Button
+              onClick={() => handleSubscribe('monthly')}
+              className="w-full text-md py-6"
               variant={!isYearly ? "default" : "outline"}
             >
               Get Monthly Plan
@@ -105,7 +105,7 @@ export default function Pricing() {
           )}
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2">
-              Yearly Plan <Zap className="h-5 w-5 fill-orange-400 text-orange-400"/>
+              Yearly Plan <Zap className="h-5 w-5 fill-orange-400 text-orange-400" />
             </CardTitle>
             <CardDescription>Maximum savings for busy practices</CardDescription>
           </CardHeader>
@@ -114,21 +114,21 @@ export default function Pricing() {
               $480<span className="text-lg font-normal text-muted-foreground">/yr</span>
             </div>
             <ul className="space-y-3 text-sm text-slate-600">
-              <li className="flex items-center gap-2 font-bold text-blue-700">
-                <Check className="h-5 w-5"/> 10% Discount on All Bookings
+              <li className="flex items-center gap-2 font-bold text-[#7BA1C7]">
+                <Check className="h-5 w-5" /> 10% Discount on All Bookings
               </li>
               <li className="flex items-center gap-2 font-semibold">
-                <Check className="h-5 w-5 text-green-500"/> Advanced Analytics Dashboard
+                <Check className="h-5 w-5 text-green-500" /> Advanced Analytics Dashboard
               </li>
               <li className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-500"/> All Premium Features Included
+                <Check className="h-5 w-5 text-green-500" /> All Premium Features Included
               </li>
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              onClick={() => handleSubscribe('yearly')} 
-              className="w-full text-md py-6" 
+            <Button
+              onClick={() => handleSubscribe('yearly')}
+              className="w-full text-md py-6"
               variant={isYearly ? "default" : "outline"}
             >
               Get Yearly Plan

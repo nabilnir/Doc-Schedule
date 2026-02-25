@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+
 const UserSchema = new mongoose.Schema({
     fullName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -14,6 +15,9 @@ const UserSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     resetOtp: { type: String, default: null },
     resetOtpExpires: { type: Date, default: null },
+    loginAttempts: { type: Number, default: 0 },
+    otpAttempts: { type: Number, default: 0 },
+    isBlocked: { type: Boolean, default: false },
 }, {
     timestamps: true,
     collection: 'users'
