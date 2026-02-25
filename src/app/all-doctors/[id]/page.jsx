@@ -9,7 +9,7 @@ export default async function DoctorDetails({ params }) {
   const rawDoctor = await Doctor.findById(id).lean();
 
   if (!rawDoctor) return notFound();
-  
+
   // Serialization for Client Component
   const doctor = JSON.parse(JSON.stringify(rawDoctor));
 
@@ -18,11 +18,11 @@ export default async function DoctorDetails({ params }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left: Basic Info */}
         <div className="md:col-span-1 bg-slate-50 p-6 rounded-2xl border">
-          <div className="w-32 h-32 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-blue-600">
-            {doctor.name.charAt(0)} 
+          <div className="w-32 h-32 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-[#7BA1C7]">
+            {doctor.name.charAt(0)}
           </div>
-          <h2 className="text-2xl font-bold text-center">{doctor.name}</h2>
-          <p className="text-center text-blue-600 font-medium">{doctor.specialty}</p>
+          <h2 className="text-2xl font-bold text-center text-slate-900">{doctor.name}</h2>
+          <p className="text-center text-[#7BA1C7] font-medium">{doctor.specialty}</p>
           <div className="mt-6 space-y-3 text-sm">
             <p><strong>Email:</strong> {doctor.email}</p>
             <p><strong>Phone:</strong> {doctor.phone}</p>

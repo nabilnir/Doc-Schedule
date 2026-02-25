@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { format, addDays, startOfToday } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { bookAppointment, getBookedSlots } from "@/app/actions/book-appointment"; 
+import { bookAppointment, getBookedSlots } from "@/app/actions/book-appointment";
 
 export default function BookingSystem({ doctor }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [isPending, setIsPending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bookedSlots, setBookedSlots] = useState([]); 
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   // Patient Information State
   const [patientInfo, setPatientInfo] = useState({
@@ -96,8 +96,8 @@ export default function BookingSystem({ doctor }) {
               className={cn(
                 "px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
                 format(selectedDate, "PP") === format(date, "PP")
-                  ? "bg-sky-500 text-white border-sky-500 shadow-md"
-                  : "bg-white text-slate-600 hover:border-sky-200",
+                  ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
+                  : "bg-white text-slate-600 hover:border-[#7BA1C7]/30",
               )}
             >
               {format(date, "PP") === format(new Date(), "PP")
@@ -121,18 +121,18 @@ export default function BookingSystem({ doctor }) {
                 onClick={() => setSelectedSlot(slot)}
                 className={cn(
                   "py-3 text-xs font-bold rounded-2xl border transition-all relative overflow-hidden",
-                  isBooked 
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200" 
+                  isBooked
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200"
                     : selectedSlot === slot
-                      ? "bg-white text-sky-600 border-sky-500 ring-2 ring-sky-100"
-                      : "bg-white text-slate-500 hover:border-sky-200",
+                      ? "bg-white text-[#7BA1C7] border-[#7BA1C7] ring-2 ring-slate-100"
+                      : "bg-white text-slate-500 hover:border-[#7BA1C7]/30",
                 )}
               >
                 {slot}
                 {isBooked && (
-                   <span className="absolute inset-0 flex items-center justify-center bg-gray-100/50 text-[8px] font-black uppercase text-gray-400">
-                     Booked
-                   </span>
+                  <span className="absolute inset-0 flex items-center justify-center bg-gray-100/50 text-[8px] font-black uppercase text-gray-400">
+                    Booked
+                  </span>
                 )}
               </button>
             );
@@ -151,7 +151,7 @@ export default function BookingSystem({ doctor }) {
         <Button
           disabled={!selectedSlot}
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-[#00c58d] hover:bg-[#00b07d] text-white px-10 py-7 rounded-2xl font-bold text-lg"
+          className="w-full sm:w-auto bg-black hover:bg-slate-800 text-white px-10 py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200"
         >
           Confirm & Proceed
         </Button>
@@ -161,34 +161,34 @@ export default function BookingSystem({ doctor }) {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         {/* ... Modal Content ... */}
         <DialogContent className="sm:max-w-[425px] rounded-[32px] bg-white p-8">
-            <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">Patient Details</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label>Patient Name</Label>
-                    <Input name="name" placeholder="Full Name" onChange={handleInputChange} className="rounded-xl h-12" />
-                </div>
-                <div className="space-y-2">
-                    <Label>Email Address</Label>
-                    <Input name="email" type="email" placeholder="email@example.com" onChange={handleInputChange} className="rounded-xl h-12" required />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>Age</Label>
-                        <Input name="age" type="number" placeholder="Age" onChange={handleInputChange} className="rounded-xl h-12" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Blood Group</Label>
-                        <Input name="bloodGroup" placeholder="A+" onChange={handleInputChange} className="rounded-xl h-12" />
-                    </div>
-                </div>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Patient Details</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Patient Name</Label>
+              <Input name="name" placeholder="Full Name" onChange={handleInputChange} className="rounded-xl h-12" />
             </div>
-            <DialogFooter>
-                <Button onClick={handleFinalSubmit} disabled={isPending} className="w-full bg-[#00c58d] text-white py-7 rounded-2xl font-bold text-lg">
-                    {isPending ? "Processing..." : "Submit Appointment"}
-                </Button>
-            </DialogFooter>
+            <div className="space-y-2">
+              <Label>Email Address</Label>
+              <Input name="email" type="email" placeholder="email@example.com" onChange={handleInputChange} className="rounded-xl h-12" required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Age</Label>
+                <Input name="age" type="number" placeholder="Age" onChange={handleInputChange} className="rounded-xl h-12" />
+              </div>
+              <div className="space-y-2">
+                <Label>Blood Group</Label>
+                <Input name="bloodGroup" placeholder="A+" onChange={handleInputChange} className="rounded-xl h-12" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleFinalSubmit} disabled={isPending} className="w-full bg-black hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200">
+              {isPending ? "Processing..." : "Submit Appointment"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
