@@ -14,7 +14,7 @@ const SmartSlotBento = () => {
     }, []);
 
     return (
-        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="features">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="slot-generation">
             <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 {/* Section Heading */}
                 <div className="flex flex-col items-center mb-10 md:mb-[60px]">
