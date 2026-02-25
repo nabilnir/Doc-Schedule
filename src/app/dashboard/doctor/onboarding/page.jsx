@@ -68,8 +68,6 @@ export default function DoctorOnboarding() {
         <div className="min-h-screen py-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="max-w-4xl mx-auto">
                 <Card className="border-none shadow-2xl shadow-blue-100 rounded-[40px] overflow-hidden bg-white/80 backdrop-blur-xl">
-                    <div className="h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 w-full" />
-
                     <CardHeader className="p-10 text-center">
                         <div className="w-24 h-24 bg-blue-50 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-50 rotate-3 transform transition-transform hover:rotate-0">
                             <Stethoscope className="w-12 h-12 text-blue-600" />

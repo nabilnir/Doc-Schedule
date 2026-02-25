@@ -7,14 +7,14 @@ export async function GET() {
   try {
     await connectDB();
 
-    // সরাসরি সেশন কল করুন (কনফিগ ছাড়া অনেক সময় ডিফল্ট সেশন পাওয়া যায়)
+    //Call the session directly (many times default sessions are available without configuration)
     const session = await getServerSession();
 
     if (!session || !session.user?.email) {
       return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
-    // শুধুমাত্র লগইন করা ইউজারের নোটিফিকেশন খুঁজুন
+    // Find notifications for logged in users only
     const notifications = await Notification.find({ 
       userEmail: session.user.email 
     })
