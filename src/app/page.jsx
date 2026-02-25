@@ -1,4 +1,3 @@
-
 import Hero from "@/components/sections/Hero";
 import DashboardShowcase from "@/components/sections/DashboardShowcase";
 import SmartSlotBento from "@/components/sections/SmartSlotBento";
@@ -9,11 +8,12 @@ import PaymentGatewaySection from "@/components/sections/PaymentGatewaySection";
 import IntakeFormsSection from "@/components/sections/IntakeFormsSection";
 import ReportsSection from "@/components/sections/ReportsSection";
 import EmailRemindersSection from "@/components/sections/EmailRemindersSection";
+import ReviewSlider from "@/components/sections/ReviewSlider";
+import ClinicMarquee from "@/components/sections/ClinicMarquee";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-     
       <Hero />
       <DashboardShowcase />
       <SmartSlotBento />
@@ -24,6 +24,8 @@ export default function Home() {
       <IntakeFormsSection />
       <ReportsSection />
       <EmailRemindersSection />
+      <ReviewSlider />
+      <ClinicMarquee />
     </main>
   );
 }

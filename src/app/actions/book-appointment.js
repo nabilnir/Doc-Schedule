@@ -5,6 +5,9 @@ import { sendEmail } from "@/lib/mail";
 import { format, startOfDay, endOfDay } from "date-fns";
 import cron from "node-cron";
 import Notification from "@/models/Notification";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+
 
 export async function getBookedSlots(doctorId, date) {
   try {
@@ -28,6 +31,12 @@ export async function getBookedSlots(doctorId, date) {
 }
 
 export async function bookAppointment(data) {
+
+  const session = await getServerSession(authOptions)
+  const inputEmail = data.patientDetails.email;
+
+  const loggedInUserEmail = session.user.email;
+
   try {
     await connectDB();
 
@@ -54,14 +63,15 @@ export async function bookAppointment(data) {
       patientName: data.patientDetails.name,
       patientAge: data.patientDetails.age,
       patientBloodGroup: data.patientDetails.bloodGroup,
-      patientEmail: data.patientDetails.email,
+      patientEmail: inputEmail,
+      userEmail: loggedInUserEmail,
     });
     await newAppointment.save();
 
     // Create dashboard notifications
     if (Notification) {
       await new Notification({
-        userEmail: data.patientDetails.email,
+        userEmail: loggedInUserEmail,
         message: `${data.patientDetails.name} booked ${data.doctorName} at ${data.slot}`,
         type: "appointment",
         isRead: false,
