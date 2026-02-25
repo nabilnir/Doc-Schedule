@@ -51,10 +51,7 @@ export async function POST(request) {
             isVerified: false,
         });
 
-        // 6. Nodemailer Email Sending logic
-        console.log("-----------------------------------------");
-        console.log(`NEW REGISTRATION OTP FOR ${email}: ${otpCode}`);
-        console.log("-----------------------------------------");
+      
 
         try {
             const transporter = nodemailer.createTransport({
