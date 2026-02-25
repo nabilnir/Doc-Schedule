@@ -8,6 +8,7 @@ const AppointmentSchema = new mongoose.Schema({
   patientName: String,
   patientAge: Number,
   patientBloodGroup: String,
+  patientEmail: String,
   status: { type: String, default: 'pending' },
 }, { timestamps: true });
 
