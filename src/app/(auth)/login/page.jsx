@@ -37,6 +37,8 @@ function LoginForm() {
 
         if (result?.error === 'unverified') {
             setError('Your account is not verified. Please check your email for the OTP.');
+        } else if (result?.error === 'blocked') {
+            setError('Your account is blocked. Please contact the admin.');
         } else if (result?.error) {
             setError('Invalid email or password. Please try again.');
         } else {
@@ -50,7 +52,7 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative py-8">
+        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center pt-28 pb-8 px-4 relative">
 
             {/* Logo */}
             <div className="mb-4 flex items-center gap-2">
