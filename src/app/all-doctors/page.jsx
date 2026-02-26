@@ -59,19 +59,19 @@ export default async function AllDoctorPage({ searchParams }) {
               {doctors.map((doc) => (
                 <Card
                   key={doc._id}
-                  className="overflow-hidden shadow-sm hover:shadow-md transition-all"
+                  className="overflow-hidden shadow-sm hover:shadow-md transition-all pt-0 gap-0"
                 >
-                  <CardHeader className="p-0">
-                    <div className="h-52 w-full relative">
+                  <CardHeader className="p-0 border-b-0 space-y-0">
+                    <div className="h-52 w-full relative rounded-t-xl overflow-hidden">
                       <Image
                         src={doc.image || "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"}
                         alt="Doctor Illustration"
                         fill
-                        className="object-cover"
+                        className="object-cover object-top"
                       />
                     </div>
                   </CardHeader>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 pt-4">
                     <h3 className="font-bold text-lg leading-tight">
                       {doc.name}
                     </h3>

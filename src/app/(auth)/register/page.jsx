@@ -74,17 +74,18 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (res.ok) {
-                // OTP verify 
+                // OTP verify successful, auto-login
                 const result = await signIn('credentials', {
                     redirect: false,
                     email: form.email,
                     password: form.password,
                 });
 
-                if (result?.ok) {
-                    window.location.href = '/dashboard';
+                if (result?.ok && !result?.error) {
+                    window.location.replace('/dashboard');
                 } else {
-                    router.push('/login?verified=true');
+                    console.error("Auto login failed after OTP verification:", result?.error);
+                    router.push('/login?registered=true');
                 }
             } else {
                 if (res.status === 403) {

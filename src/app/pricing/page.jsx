@@ -37,7 +37,7 @@ export default function Pricing() {
   }
 
   return (
-    <section className="py-20 px-4 bg-slate-50/50 min-h-screen">
+    <section className="py-20 px-4 bg-slate-50/50 min-h-screen pt-32">
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 text-slate-900">
           Membership Pricing for Doctors
