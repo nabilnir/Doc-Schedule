@@ -25,7 +25,7 @@ export default async function DoctorDetails({ params }) {
                 src={doctor.image}
                 alt={doctor.name}
                 fill
-                className="object-cover"
+                className="object-cover object-top"
               />
             ) : (
               doctor.name.charAt(0)

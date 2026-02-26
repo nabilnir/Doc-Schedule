@@ -5,7 +5,7 @@ import { CreditCard, Lock, ShieldCheck, Zap } from 'lucide-react';
 
 const PaymentGatewaySection = () => {
     return (
-        <section className="py-20 md:py-[120px] bg-[#F5F5F7] overflow-hidden" id="payments">
+        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="payments">
             <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 <div className="flex flex-col lg:flex-row items-center gap-20">
 
@@ -15,11 +15,13 @@ const PaymentGatewaySection = () => {
                             <CreditCard className="w-4 h-4 text-[#7BA1C7]" />
                             <span className="text-[15px] font-semibold uppercase tracking-wider">Secure Payments</span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8">
-                            Integrated <span className="text-[#7BA1C7]">Stripe</span> processing.
+                        <h2 className="text-3xl sm:text-4xl md:text-[56px] font-bold leading-[1.1] text-[#1A1A1A] mb-8 flex flex-wrap items-center gap-x-4">
+                            Integrated
+                            <img src="/brand/stripe.png" alt="Stripe" className="h-10 md:h-14 object-contain inline-block" />
+                            processing.
                         </h2>
                         <p className="text-base md:text-[20px] text-[#666666] leading-relaxed mb-10">
-                            Collect consultation fees upfront. Patients pay securely via Stripe or SSLCommerz before booking confirmation.
+                            Collect consultation fees upfront. Patients pay securely via Stripe before booking confirmation.
                         </p>
 
                         <ul className="space-y-4 md:space-y-6">
