@@ -122,13 +122,30 @@ export const authOptions = {
                             role: assignedRole,
                             isVerified: true,
                         });
-                    } else if (existing.role !== assignedRole && existing.email === adminEmail) {
-                        // Ensure existing user gets admin role if email matches
-                        existing.role = "admin";
-                        await existing.save();
+                    } else {
+                        let needsUpdate = false;
+
+                        // If they exist but aren't verified, verify them since they used a trusted OAuth provider
+                        if (!existing.isVerified) {
+                            existing.isVerified = true;
+                            needsUpdate = true;
+                        }
+
+                        // If it's a credentials account, maybe update it to reflect social login, or leave as is.
+                        // We will just verify them.
+
+                        if (existing.role !== assignedRole && existing.email === adminEmail) {
+                            // Ensure existing user gets admin role if email matches
+                            existing.role = "admin";
+                            needsUpdate = true;
+                        }
+
+                        if (needsUpdate) {
+                            await existing.save();
+                        }
                     }
                 } catch (err) {
-                    console.error("Error saving OAuth user:", err);
+                    console.error("Error saving/linking OAuth user:", err);
                     return false;
                 }
             }
@@ -142,6 +159,7 @@ export const authOptions = {
                 token.role = user.role;
                 token.phone = user.phone;
                 token.provider = account.provider;
+                token.email = user.email; // explicitly set email to match the provider email
             }
 
             // For OAuth providers, we need to fetch the local user data from DB 
