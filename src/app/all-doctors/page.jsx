@@ -21,7 +21,7 @@ export default async function AllDoctorPage({ searchParams }) {
     const params = await searchParams;
     const search = params?.search || "";
     const category = params?.category || "";
-    
+
     // --- PAGINATION SETTINGS ---
     const page = Number(params?.page) || 1;
     const limit = 8; // Number of doctors per page
@@ -36,29 +36,11 @@ export default async function AllDoctorPage({ searchParams }) {
       query.specialty = category;
     }
 
-<<<<<<< HEAD
-    const dbName = mongoose.connection.name;
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionNames = collections.map(c => c.name);
-
-    console.log("-----------------------------------------");
-    console.log("DB Debug Info:");
-    console.log("Connected to DB:", dbName);
-    console.log("Collections in DB:", collectionNames);
-    console.log("Targeting Collection:", Doctor.collection.name);
-    console.log("Current Query:", query);
-
-    const rawDoctors = await Doctor.find(query).lean();
-    console.log("Total Doctors found:", rawDoctors.length);
-    console.log("Total Doctors in model.countDocuments():", await Doctor.countDocuments());
-    console.log("-----------------------------------------");
-=======
     // Parallel execution for better performance
     const [rawDoctors, totalDoctors] = await Promise.all([
       Doctor.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Doctor.countDocuments(query)
     ]);
->>>>>>> f68286d2b206cd8716443f9eb921d5e9aac9e2bc
 
     const totalPages = Math.ceil(totalDoctors / limit);
     const doctors = JSON.parse(JSON.stringify(rawDoctors));
@@ -114,9 +96,9 @@ export default async function AllDoctorPage({ searchParams }) {
             </div>
 
             {/* Pagination Controls */}
-            <PaginationControls 
-              currentPage={page} 
-              totalPages={totalPages} 
+            <PaginationControls
+              currentPage={page}
+              totalPages={totalPages}
             />
           </>
         ) : (
