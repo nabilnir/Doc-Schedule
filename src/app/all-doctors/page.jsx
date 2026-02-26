@@ -21,7 +21,7 @@ export default async function AllDoctorPage({ searchParams }) {
     const params = await searchParams;
     const search = params?.search || "";
     const category = params?.category || "";
-    
+
     // --- PAGINATION SETTINGS ---
     const page = Number(params?.page) || 1;
     const limit = 8; // Number of doctors per page
@@ -46,7 +46,7 @@ export default async function AllDoctorPage({ searchParams }) {
     const doctors = JSON.parse(JSON.stringify(rawDoctors));
 
     return (
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto pt-28 px-6 pb-6">
         <h1 className="text-3xl font-bold mb-6 text-center">
           Meet Our Doctors
         </h1>
@@ -96,9 +96,9 @@ export default async function AllDoctorPage({ searchParams }) {
             </div>
 
             {/* Pagination Controls */}
-            <PaginationControls 
-              currentPage={page} 
-              totalPages={totalPages} 
+            <PaginationControls
+              currentPage={page}
+              totalPages={totalPages}
             />
           </>
         ) : (

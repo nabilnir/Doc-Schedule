@@ -43,6 +43,11 @@ export const authOptions = {
                     return null;
                 }
 
+                if (user.isBlocked) {
+                    console.log("User is blocked.");
+                    throw new Error("blocked");
+                }
+
                 // ── CHECK IF VERIFIED ──────────────────────────────────────────
                 if (user.isVerified === false) {
                     console.log("User is not verified.");
@@ -51,8 +56,28 @@ export const authOptions = {
 
                 const valid = await user.comparePassword(credentials.password);
                 if (!valid) {
-                    console.log("Invalid password.");
+                    const updated = await User.findOneAndUpdate(
+                        { email: credentials.email.toLowerCase() },
+                        { $inc: { loginAttempts: 1 } },
+                        { new: true, upsert: false }
+                    );
+
+                    const attemptsUsed = updated.loginAttempts || 0;
+                    const isNowBlocked = attemptsUsed >= 5;
+
+                    if (isNowBlocked) {
+                        await User.updateOne({ _id: updated._id }, { $set: { isBlocked: true } });
+                        throw new Error("blocked");
+                    }
                     return null;
+                }
+
+                // Reset login attempts on success
+                if (user.loginAttempts > 0) {
+                    await User.findOneAndUpdate(
+                        { email: credentials.email.toLowerCase() },
+                        { $set: { loginAttempts: 0 } }
+                    );
                 }
 
                 // ── HARDCODE ADMIN ROLE ──────────────────────────────────────
@@ -111,21 +136,39 @@ export const authOptions = {
         },
 
         async jwt({ token, user, account, trigger, session }) {
-            if (user) {
+            // Initial sign in
+            if (user && account) {
                 token.id = user.id;
                 token.role = user.role;
                 token.phone = user.phone;
-            }
-            if (account) {
                 token.provider = account.provider;
             }
+
+            // For OAuth providers, we need to fetch the local user data from DB 
+            // on subsequent calls or ensures we have the correct DB ID/Role
+            if (token.provider && token.provider !== "credentials" && !token.dbCheck) {
+                try {
+                    await connectDB();
+                    const dbUser = await User.findOne({ email: token.email });
+                    if (dbUser) {
+                        token.id = dbUser._id.toString();
+                        token.role = dbUser.role;
+                        token.phone = dbUser.phone;
+                        token.dbCheck = true; // Cache the check for this session
+                    }
+                } catch (err) {
+                    console.error("JWT Callback DB Check Error:", err);
+                }
+            }
+
             if (trigger === "update" && session) {
-                // When calling update() on the client, the new data is passed here
                 if (session.user) {
                     token.name = session.user.name || token.name;
                     token.email = session.user.email || token.email;
                     token.picture = session.user.image || token.picture;
                     token.phone = session.user.phone || token.phone;
+                    // Support role update (e.g. after onboarding)
+                    token.role = session.user.role || token.role;
                 }
             }
             return token;

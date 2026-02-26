@@ -67,10 +67,10 @@ export default function DoctorOnboarding() {
     return (
         <div className="min-h-screen py-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="max-w-4xl mx-auto">
-                <Card className="border-none shadow-2xl shadow-blue-100 rounded-[40px] overflow-hidden bg-white/80 backdrop-blur-xl">
+                <Card className="border-none shadow-2xl shadow-slate-100 rounded-[40px] overflow-hidden bg-white/80 backdrop-blur-xl">
                     <CardHeader className="p-10 text-center">
-                        <div className="w-24 h-24 bg-blue-50 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-50 rotate-3 transform transition-transform hover:rotate-0">
-                            <Stethoscope className="w-12 h-12 text-blue-600" />
+                        <div className="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-50/50 rotate-3 transform transition-transform hover:rotate-0">
+                            <Stethoscope className="w-12 h-12 text-[#7BA1C7]" />
                         </div>
                         <CardTitle className="text-4xl font-black text-slate-900 tracking-tight">Doctor Onboarding</CardTitle>
                         <CardDescription className="text-lg text-slate-500 mt-4 max-w-lg mx-auto leading-relaxed">
@@ -183,7 +183,7 @@ export default function DoctorOnboarding() {
                             <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-3xl text-xl font-black shadow-2xl shadow-blue-200 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
+                                className="w-full h-16 bg-black hover:bg-slate-800 text-white rounded-3xl text-xl font-black shadow-2xl shadow-slate-200 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50"
                             >
                                 {loading ? (
                                     <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
@@ -203,7 +203,7 @@ function FormGroup({ label, icon: Icon, id, children }) {
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2 ml-1">
-                <Icon className="w-4 h-4 text-blue-500" />
+                <Icon className="w-4 h-4 text-[#7BA1C7]" />
                 <Label htmlFor={id} className="text-sm font-bold text-slate-700 uppercase tracking-wider">
                     {label}
                 </Label>

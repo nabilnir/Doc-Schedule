@@ -87,7 +87,11 @@ export default function RegisterPage() {
                     router.push('/login?verified=true');
                 }
             } else {
-                setError(data.error || 'Invalid OTP');
+                if (res.status === 403) {
+                    setError('Too many failed attempts. Account blocked. Please contact admin.');
+                } else {
+                    setError(data.error || 'Invalid OTP');
+                }
             }
         } catch (err) {
             setError('Verification failed.');
@@ -145,7 +149,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative py-8">
+        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center pt-28 pb-8 px-4 relative">
 
             {/* Logo */}
             <div className="mb-4 flex items-center gap-2">

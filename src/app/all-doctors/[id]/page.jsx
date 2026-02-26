@@ -19,23 +19,20 @@ export default async function DoctorDetails({ params }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left: Basic Info */}
         <div className="md:col-span-1 bg-slate-50 p-6 rounded-2xl border">
-          <div className="w-32 h-32 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-blue-600">
-            <div className="h-32 w-32 relative rounded-full">
+          <div className="w-32 h-32 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-[#7BA1C7] relative overflow-hidden ring-4 ring-slate-50">
+            {doctor.image ? (
               <Image
-                src={
-                  doctor.image ||
-                  "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"
-                }
-                alt="Doctor Illustration"
+                src={doctor.image}
+                alt={doctor.name}
                 fill
-                className="object-cover rounded-full"
+                className="object-cover"
               />
-            </div>
+            ) : (
+              doctor.name.charAt(0)
+            )}
           </div>
-          <h2 className="text-2xl font-bold text-center">{doctor.name}</h2>
-          <p className="text-center text-blue-600 font-medium">
-            {doctor.specialty}
-          </p>
+          <h2 className="text-2xl font-bold text-center text-slate-900">{doctor.name}</h2>
+          <p className="text-center text-[#7BA1C7] font-medium">{doctor.specialty}</p>
           <div className="mt-6 space-y-3 text-sm">
             <p>
               <strong>Email:</strong> {doctor.email}

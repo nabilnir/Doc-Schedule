@@ -27,20 +27,20 @@ const GoogleSyncSection = () => {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 md:w-40 h-6 md:h-8 bg-[#333] rounded-b-3xl z-20"></div>
                             <div className="bg-white h-full w-full rounded-[40px] md:rounded-[50px] p-4 md:p-6 text-black">
                                 <div className="flex justify-between items-center mb-8 pt-4">
-                                    <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-[10px] font-bold">31</div>
+                                    <div className="w-6 h-6 bg-[#7BA1C7] rounded flex items-center justify-center text-white text-[10px] font-bold">31</div>
                                     <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="p-4 bg-gray-50 rounded-2xl">
-                                        <p className="text-[10px] font-bold text-blue-600 uppercase">10:00 AM</p>
+                                        <p className="text-[10px] font-bold text-[#7BA1C7] uppercase">10:00 AM</p>
                                         <p className="text-sm font-bold">Team Meeting</p>
                                     </div>
-                                    <div className="p-4 bg-blue-50 rounded-2xl shadow-md animate-pulse">
-                                        <p className="text-[10px] font-bold text-blue-600 uppercase">11:30 AM</p>
+                                    <div className="p-4 bg-slate-50 rounded-2xl shadow-md animate-pulse">
+                                        <p className="text-[10px] font-bold text-[#7BA1C7] uppercase">11:30 AM</p>
                                         <p className="text-sm font-bold">DocSchedule: Sarah J.</p>
                                         <div className="mt-2 flex items-center gap-1">
-                                            <Check className="w-3 h-3 text-blue-600" />
-                                            <span className="text-[10px] text-blue-600">Synced</span>
+                                            <Check className="w-3 h-3 text-[#7BA1C7]" />
+                                            <span className="text-[10px] text-[#7BA1C7]">Synced</span>
                                         </div>
                                     </div>
                                     <div className="p-4 bg-gray-50 rounded-2xl">

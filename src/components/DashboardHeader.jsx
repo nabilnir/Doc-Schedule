@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Bell, Calendar, User, Clock, Search, Menu } from "lucide-react";
+import { Bell, Calendar, User, Clock, Search, Menu, Home } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,6 +13,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import * as Tooltip from "@radix-ui/react-tooltip"; // If needed, but let's stick to Sheet
 
 export default function DashboardHeader({ SidebarContent }) {
   const { data: session } = useSession();
@@ -57,16 +65,47 @@ export default function DashboardHeader({ SidebarContent }) {
   return (
     <header className="h-20 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-6 lg:px-10">
 
+      {/* Mobile Menu Toggle */}
+      <div className="lg:hidden flex items-center gap-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-slate-100">
+              <Menu className="w-6 h-6 text-slate-600" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-72 bg-white border-r">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+
+        {/* Brand for mobile */}
+        <div className="sm:hidden font-bold text-xl tracking-tight text-slate-800">
+          DocSchedule
+        </div>
+      </div>
+
       {/* Search Bar - Desktop */}
       <div className="relative w-full max-w-xs hidden md:block">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <Input
           placeholder="Search..."
-          className="pl-12 bg-slate-100/50 border-none rounded-2xl h-11 focus-visible:ring-blue-500"
+          className="pl-12 bg-slate-100/50 border-none rounded-2xl h-11 focus-visible:ring-[#7BA1C7]"
         />
       </div>
 
       <div className="flex items-center gap-3 lg:gap-6">
+        {/* Home Button */}
+        <Link href="/">
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full h-10 w-10 border-slate-200 hover:bg-slate-50 transition-all"
+          >
+            <Home className="w-5 h-5 text-slate-600" />
+          </Button>
+        </Link>
+
         {/* Notification Bell Popover */}
         <Popover>
           <PopoverTrigger asChild>
@@ -77,7 +116,7 @@ export default function DashboardHeader({ SidebarContent }) {
             >
               <Bell className="w-5 h-5 text-slate-600" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-[#7BA1C7] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white animate-pulse">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
@@ -91,7 +130,7 @@ export default function DashboardHeader({ SidebarContent }) {
             <div className="p-5 bg-white border-b flex justify-between items-center">
               <h3 className="font-bold text-slate-800">Notifications</h3>
               {unreadCount > 0 && (
-                <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] bg-slate-100 text-[#7BA1C7] px-2 py-0.5 rounded-full font-bold">
                   {unreadCount} New
                 </span>
               )}
@@ -114,11 +153,11 @@ export default function DashboardHeader({ SidebarContent }) {
                           }`}
                       >
                         <div className="flex justify-between items-start mb-1.5">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-blue-600">
+                          <p className="text-[10px] font-black uppercase tracking-wider text-[#7BA1C7]">
                             Appointment Alert
                           </p>
                           {!notif.isRead && (
-                            <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            <div className="h-2 w-2 bg-[#7BA1C7] rounded-full"></div>
                           )}
                         </div>
 
@@ -157,7 +196,7 @@ export default function DashboardHeader({ SidebarContent }) {
                 variant="ghost"
                 disabled={unreadCount === 0}
                 onClick={handleMarkAsRead}
-                className="text-xs font-bold text-blue-600 hover:bg-blue-100 hover:text-blue-700 w-full rounded-xl transition-all"
+                className="text-xs font-bold text-[#7BA1C7] hover:bg-slate-100 hover:text-slate-900 w-full rounded-xl transition-all"
               >
                 Mark all as read
               </Button>
@@ -171,13 +210,13 @@ export default function DashboardHeader({ SidebarContent }) {
             <p className="text-sm font-bold text-slate-800">
               {session?.user?.name || "Guest User"}
             </p>
-            <p className="text-[10px] font-medium text-blue-600 uppercase">
+            <p className="text-[10px] font-medium text-[#7BA1C7] uppercase">
               {session?.user?.role || "Member"}
             </p>
           </div>
           <Avatar className="h-9 w-9 border shadow-sm ring-2 ring-white">
             <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
-            <AvatarFallback className="bg-blue-600 text-white font-bold text-xs">
+            <AvatarFallback className="bg-[#7BA1C7] text-white font-bold text-xs">
               {session?.user?.name
                 ?.split(" ")
                 .map((n) => n[0])
