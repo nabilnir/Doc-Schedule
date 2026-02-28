@@ -10,7 +10,7 @@ import Image from 'next/image';
 const Hero = () => {
     return (
         <section
-            className="relative min-h-[700px] md:min-h-[900px] flex flex-col items-center pt-[100px] md:pt-[140px] px-6 overflow-hidden hero-gradient"
+            className="relative min-h-[500px] md:min-h-[900px] flex flex-col items-center pt-[100px] md:pt-[140px] px-6 overflow-hidden hero-gradient"
         >
             {/* Decorative Blur Background Element */}
             <div className="absolute inset-0 pointer-events-none opacity-20">
