@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div className="h-[60vh] flex items-center justify-center">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-[#7BA1C7] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -60,8 +60,8 @@ export default function DashboardPage() {
           </h1>
           <p className="text-slate-500 mt-1 capitalize">{role} Dashboard Overview</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-blue-100 transition-all hover:scale-[1.02]">
-          <PlusCircle className="w-5 h-5 mr-2" />
+        <Button className="bg-black hover:bg-slate-800 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02]">
+          <PlusCircle className="w-5 h-5 mr-2 text-[#7BA1C7]" />
           {role === "admin" ? "Admit User" : role === "doctor" ? "Add Slot" : "Book Appointment"}
         </Button>
       </div>
@@ -79,11 +79,11 @@ function DoctorOnboardingPrompt() {
   const router = useRouter();
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
-      <Card className="max-w-xl w-full border-none shadow-2xl shadow-blue-100 rounded-[32px] overflow-hidden bg-white">
-        <div className="h-2 bg-blue-600 w-full" />
+      <Card className="max-w-xl w-full border-none shadow-2xl shadow-slate-100 rounded-[32px] overflow-hidden bg-white">
+        <div className="h-2 bg-[#7BA1C7] w-full" />
         <CardHeader className="pt-10 px-10 pb-0 text-center">
           <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Activity className="w-10 h-10 text-blue-600" />
+            <Activity className="w-10 h-10 text-[#7BA1C7]" />
           </div>
           <CardTitle className="text-3xl font-extrabold text-slate-800">Complete Your Profile</CardTitle>
           <p className="text-slate-500 mt-4 text-lg leading-relaxed">
@@ -137,19 +137,19 @@ function DoctorView() {
 function PatientView() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card className="border-none shadow-xl shadow-slate-100 rounded-[32px] bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden group">
+      <Card className="border-none shadow-xl shadow-slate-100 rounded-[32px] bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden group">
         <CardContent className="p-8 relative">
           <Clock className="absolute right-[-20px] top-[-20px] w-48 h-48 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
           <p className="text-blue-100 font-bold uppercase tracking-[2px] text-xs mb-2">Upcoming</p>
           <h3 className="text-2xl font-bold mb-6 italic">Next Appointment</h3>
           <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md mb-6">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 font-bold">D</div>
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-[#7BA1C7] font-bold">D</div>
             <div>
               <p className="font-bold">Dr. Sarah Connor</p>
               <p className="text-sm text-blue-100">Tomorrow at 10:30 AM</p>
             </div>
           </div>
-          <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white text-blue-600 hover:text-blue-600 rounded-xl h-12 font-bold transition-all">
+          <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white hover:text-slate-900 rounded-xl h-12 font-bold transition-all">
             Join Meeting
           </Button>
         </CardContent>
@@ -165,7 +165,7 @@ function PatientView() {
 
 function StatCard({ title, value, icon: Icon, color, trend }) {
   const colors = {
-    blue: "bg-blue-50 text-blue-600 shadow-blue-100",
+    blue: "bg-slate-50 text-[#7BA1C7] shadow-slate-50",
     emerald: "bg-emerald-50 text-emerald-600 shadow-emerald-100",
     amber: "bg-amber-50 text-amber-600 shadow-amber-100",
     violet: "bg-violet-50 text-violet-600 shadow-violet-100",

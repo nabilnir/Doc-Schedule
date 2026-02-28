@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
       {/* Brand Logo */}
       <Link href="/">
         <div className={cn("px-6 mb-10 flex items-center gap-3", collapsed ? "justify-center" : "")}>
-          <div className="min-w-[40px] h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 font-bold text-xl">
+          <div className="min-w-[40px] h-10 bg-[#7BA1C7] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100 font-bold text-xl transition-all duration-300">
             D
           </div>
           {!collapsed && <span className="font-bold text-2xl tracking-tight text-slate-800">DocSchedule</span>}
@@ -74,12 +74,12 @@ export default function DashboardLayout({ children }) {
               className={cn(
                 "group flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-100"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-blue-600",
+                  ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-[#7BA1C7]",
                 collapsed && "justify-center px-0 w-12 mx-auto"
               )}
             >
-              <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
+              <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#7BA1C7]")} />
               {!collapsed && <span className="ml-3 font-semibold">{item.label}</span>}
             </Link>
           );
@@ -116,7 +116,7 @@ export default function DashboardLayout({ children }) {
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-10 bg-white border border-slate-100 shadow-md rounded-full p-1 z-50 hover:bg-slate-50 hover:scale-110 transition-transform"
         >
-          {isCollapsed ? <Menu className="w-3 h-3 text-blue-600" /> : <ChevronLeft className="w-3 h-3 text-blue-600" />}
+          {isCollapsed ? <Menu className="w-3 h-3 text-[#7BA1C7]" /> : <ChevronLeft className="w-3 h-3 text-[#7BA1C7]" />}
         </button>
         <SidebarContent collapsed={isCollapsed} />
       </aside>
