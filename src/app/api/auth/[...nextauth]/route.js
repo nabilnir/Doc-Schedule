@@ -83,7 +83,7 @@ export const authOptions = {
                 // ── HARDCODE ADMIN ROLE ──────────────────────────────────────
                 // You can change this email to your desired admin email
                 const adminEmail = "docschedule.noreply@gmail.com";
-                let userRole = user.role;
+                let userRole = (user.role || "patient").toLowerCase();
                 if (user.email.toLowerCase() === adminEmail.toLowerCase()) {
                     userRole = "admin";
                 }
@@ -156,7 +156,7 @@ export const authOptions = {
             // Initial sign in
             if (user && account) {
                 token.id = user.id;
-                token.role = user.role;
+                token.role = (user.role || "patient").toLowerCase();
                 token.phone = user.phone;
                 token.provider = account.provider;
                 token.email = user.email; // explicitly set email to match the provider email
@@ -170,7 +170,7 @@ export const authOptions = {
                     const dbUser = await User.findOne({ email: token.email });
                     if (dbUser) {
                         token.id = dbUser._id.toString();
-                        token.role = dbUser.role;
+                        token.role = (dbUser.role || "patient").toLowerCase();
                         token.phone = dbUser.phone;
                         token.dbCheck = true; // Cache the check for this session
                     }

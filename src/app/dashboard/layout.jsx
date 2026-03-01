@@ -16,8 +16,7 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const role = session?.user?.role || "patient";
+  const role = (session?.user?.role || "patient").toLowerCase();
 
   const getNavItems = (role) => {
     switch (role) {
