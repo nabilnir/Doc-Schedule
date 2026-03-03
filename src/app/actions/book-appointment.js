@@ -1,61 +1,132 @@
 "use server"
+
 import connectDB from "@/lib/mongodb";
 import Appointment from "@/models/Appointment";
 import { sendEmail } from "@/lib/mail";
 import { format, startOfDay, endOfDay } from "date-fns";
-import cron from "node-cron";
-import Notification from "@/models/Notification";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { google } from "googleapis";
 
+// --- Google Calendar Configuration ---
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+);
 
+oauth2Client.setCredentials({
+  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+});
+
+const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+/**
+ * Helper: Adds the appointment to Google Calendar and sends an email invitation.
+ */
+async function addToGoogleCalendar(appointment) {
+  try {
+    // 1. Parse time slot (e.g., "10:00 AM") to set Date object hours
+    const appointmentDate = new Date(appointment.appointmentDate);
+    const [time, modifier] = appointment.timeSlot.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (hours === 12) {
+      hours = modifier === "AM" ? 0 : 12;
+    } else if (modifier === "PM") {
+      hours += 12;
+    }
+
+    const startTime = new Date(appointmentDate);
+    startTime.setHours(hours, minutes, 0, 0);
+    
+    // Set appointment duration to 1 hour
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
+
+    const event = {
+      summary: `Medical Appointment: ${appointment.doctorName}`,
+      location: "Clinic / Hospital",
+      description: `Patient: ${appointment.patientName}, Age: ${appointment.patientAge}. Booked via DocSchedule.`,
+      start: { 
+        dateTime: startTime.toISOString(), 
+        timeZone: "Asia/Dhaka" 
+      },
+      end: { 
+        dateTime: endTime.toISOString(), 
+        timeZone: "Asia/Dhaka" 
+      },
+      // Adding the patient as an attendee triggers the invitation email
+      attendees: [
+        { email: appointment.patientEmail },
+      ],
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: "email", minutes: 1440 }, // 24 hours before
+          { method: "popup", minutes: 60 },   // 1 hour before
+        ],
+      },
+    };
+
+    // 2. Insert event to Google Calendar
+    // sendUpdates: "all" is critical for the guest to receive the email
+    await calendar.events.insert({
+      calendarId: "primary",
+      requestBody: event,
+      sendUpdates: "all", 
+    });
+
+    console.log("LOG: Google Calendar Event Created & Invitation Sent");
+    return true;
+  } catch (error) {
+    console.error("LOG: Google Calendar API Error:", error.message);
+    return false;
+  }
+}
+
+// --- Server Actions ---
+
+/**
+ * Fetches already booked slots for a specific doctor on a specific date.
+ */
 export async function getBookedSlots(doctorId, date) {
   try {
     await connectDB();
     const targetDate = new Date(date);
-
-    // Find all appointments on a specific day
     const appointments = await Appointment.find({
       doctorId: doctorId,
-      appointmentDate: {
-        $gte: startOfDay(targetDate),
-        $lte: endOfDay(targetDate)
-      }
+      appointmentDate: { $gte: startOfDay(targetDate), $lte: endOfDay(targetDate) }
     }).select('timeSlot');
-
     return appointments.map(app => app.timeSlot);
   } catch (error) {
-    console.error("Error fetching booked slots:", error);
+    console.error("LOG: Error fetching booked slots:", error);
     return [];
   }
 }
 
+/**
+ * Main action to book an appointment, save to DB, and sync with Calendar/Email.
+ */
 export async function bookAppointment(data) {
-
-  const session = await getServerSession(authOptions)
-  const inputEmail = data.patientDetails.email;
-
-  const loggedInUserEmail = session.user.email;
+  const session = await getServerSession(authOptions);
+  
+  // Check if user is logged in
+  if (!session) return { success: false, error: "Unauthorized access." };
 
   try {
+    console.log("LOG: Initializing booking process...");
     await connectDB();
 
-    // Check for duplicate bookings at the same time 
-    const existingAppointment = await Appointment.findOne({
+    // 1. Check for duplicate bookings in the same slot
+    const existing = await Appointment.findOne({
       doctorId: data.doctorId,
-      appointmentDate: {
-        $gte: startOfDay(new Date(data.date)),
-        $lte: endOfDay(new Date(data.date))
-      },
+      appointmentDate: { $gte: startOfDay(new Date(data.date)), $lte: endOfDay(new Date(data.date)) },
       timeSlot: data.slot
     });
 
-    if (existingAppointment) {
-      return { success: false, error: "This slot has already been booked." };
-    }
+    if (existing) return { success: false, error: "This time slot is already taken." };
 
-    // Save new appointment
-    const newAppointment = new Appointment({
+    // 2. Save appointment details to MongoDB
+    const newApp = new Appointment({
       doctorId: data.doctorId,
       doctorName: data.doctorName,
       appointmentDate: data.date,
@@ -63,153 +134,39 @@ export async function bookAppointment(data) {
       patientName: data.patientDetails.name,
       patientAge: data.patientDetails.age,
       patientBloodGroup: data.patientDetails.bloodGroup,
-      patientEmail: inputEmail,
-      userEmail: loggedInUserEmail,
+      patientEmail: data.patientDetails.email,
+      userEmail: session.user.email,
     });
-    await newAppointment.save();
+    
+    const savedApp = await newApp.save();
+    console.log("LOG: Appointment record saved to database.");
 
-    // Create dashboard notifications
-    if (Notification) {
-      await new Notification({
-        userEmail: loggedInUserEmail,
-        message: `${data.patientDetails.name} booked ${data.doctorName} at ${data.slot}`,
-        type: "appointment",
-        isRead: false,
-      }).save();
-    }
+    // 3. Sync with Google Calendar (Sends the auto-invite)
+    await addToGoogleCalendar(savedApp);
 
-    // Sending email confirmation
+    // 4. Send a custom confirmation email via Nodemailer
     const emailBody = `
-  <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #00AEEF;">
-      
-      <h2 style="color: #00AEEF; margin-top: 0; font-size: 24px;">Appointment Confirmed!</h2>
-      
-      <p style="font-size: 16px;">Dear <strong>${data.patientDetails.name}</strong>,</p>
-      
-      <p style="font-size: 16px;">We are pleased to confirm that your appointment has been successfully scheduled. Below are the details of your upcoming visit:</p>
-      
-      <div style="background-color: #f8fbfb; border: 1px solid #e1e8ed; padding: 20px; border-radius: 6px; margin: 25px 0;">
-        <p style="margin: 0 0 12px 0; font-size: 16px;">
-          <span style="color: #7f8c8d; display: inline-block; width: 70px;">Doctor:</span> 
-          <strong>${data.doctorName}</strong>
-        </p>
-        <p style="margin: 0 0 12px 0; font-size: 16px;">
-          <span style="color: #7f8c8d; display: inline-block; width: 70px;">Date:</span> 
-          <strong>${format(new Date(data.date), 'PPP')}</strong>
-        </p>
-        <p style="margin: 0; font-size: 16px;">
-          <span style="color: #7f8c8d; display: inline-block; width: 70px;">Time:</span> 
-          <strong style="color: #00AEEF;">${data.slot}</strong>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #4CAF50;">Booking Confirmed!</h2>
+        <p>Hello <strong>${data.patientDetails.name}</strong>,</p>
+        <p>Your appointment has been successfully scheduled.</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <p><strong>Doctor:</strong> ${data.doctorName}</p>
+          <p><strong>Date:</strong> ${format(new Date(data.date), 'PPPP')}</p>
+          <p><strong>Time:</strong> ${data.slot}</p>
+        </div>
+        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+          * A Google Calendar invitation has also been sent to your email.
         </p>
       </div>
-      
-      <p style="font-size: 14px; color: #555;">
-        If you need to reschedule or cancel your appointment, please contact us as soon as possible. We look forward to seeing you!
-      </p>
-      
-      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-      
-      <p style="margin-bottom: 0; font-size: 14px;">Thank you for choosing <strong>DocSchedule</strong>.</p>
-      <p style="margin-top: 5px; font-size: 14px;">Warm regards,</p>
-      
-    </div>
-  </div>
-`;
-    await sendEmail(data.patientDetails.email, "Appointment Confirmation", emailBody);
+    `;
 
-    // Scheduling reminders
-    scheduleReminder(newAppointment);
-
+    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
+    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
+    
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    console.error("LOG: Fatal Booking Error:", error);
+    return { success: false, error: error.message || "An internal server error occurred." };
   }
 }
-
-
-/**
- * 3. Reminder scheduling (1 hour in advance)
- */ 
-
-function scheduleReminder(appointment) {
-  // 1. Get the base date
-  const appointmentTime = new Date(appointment.appointmentDate);
-
-  // 2. Parse the timeSlot (e.g., "09:00 AM" or "02:30 PM")
-  const [time, modifier] = appointment.timeSlot.split(" ");
-  let [hours, minutes] = time.split(":");
-
-  hours = parseInt(hours, 10);
-  minutes = parseInt(minutes, 10);
-
-  // Convert 12-hour format to 24-hour format
-  if (hours === 12) {
-    hours = modifier === "AM" ? 0 : 12;
-  } else if (modifier === "PM") {
-    hours += 12;
-  }
-
-  // 3. Set the exact hours and minutes to the appointment Date
-  appointmentTime.setHours(hours, minutes, 0, 0);
-
-  // 4. Now subtract 1 hour (60 * 60 * 1000 milliseconds)
-  const reminderTime = new Date(appointmentTime.getTime() - (60 * 60 * 1000));
-
-  console.log(`[DEBUG] Appointment is at: ${appointmentTime}`);
-  console.log(`[DEBUG] Reminder scheduled for: ${reminderTime}`);
-
-  // Check if the reminder time has already passed
-  if (reminderTime < new Date()) {
-    console.log("Reminder time has already passed. Email will not be scheduled.");
-    return;
-  }
-
-  // 5. Schedule the Cron Job
-  const cronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
-
-  cron.schedule(cronTime, async () => {
-    const reminderBody = `
-  <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #00AEEF;">
-      
-      <h2 style="color: #2c3e50; margin-top: 0; font-size: 24px;">Appointment Reminder</h2>
-      
-      <p style="font-size: 16px;">Dear <strong>${appointment.patientName}</strong>,</p>
-      
-      <p style="font-size: 16px;">This is a friendly reminder that your consultation is coming up in just <strong>1 hour</strong>.</p>
-      
-      <div style="background-color: #f8fbfb; border: 1px solid #e1e8ed; padding: 20px; border-radius: 6px; margin: 25px 0;">
-        <p style="margin: 0 0 10px 0; font-size: 16px;">
-          <span style="color: #7f8c8d;">Doctor:</span> 
-          <strong>${appointment.doctorName}</strong>
-        </p>
-        <p style="margin: 0; font-size: 16px;">
-          <span style="color: #7f8c8d;">Time:</span> 
-          <strong style="color: #00AEEF;">${appointment.timeSlot}</strong>
-        </p>
-      </div>
-      
-      <p style="font-size: 14px; color: #555;">
-        Please plan to be available or arrive a few minutes early. If you have any urgent questions before your appointment, feel free to contact our support team.
-      </p>
-      
-      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-      
-      <p style="margin-bottom: 0; font-size: 14px;">Warm regards,</p>
-      <p style="margin-top: 5px; font-size: 14px;"><strong>The DocSchedule Team</strong></p>
-      
-    </div>
-  </div>
-`;
-
-    try {
-      await sendEmail(appointment.patientEmail, "Appointment Reminder", reminderBody);
-      console.log(`Reminder email successfully sent to ${appointment.patientEmail}`);
-    } catch (error) {
-      console.error("Failed to send reminder email:", error);
-    }
-  });
-}
-
-
