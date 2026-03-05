@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Check, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,7 +19,7 @@ export default function Pricing() {
     try {
       if (!userId) return alert("Please login first!");
 
-      const response = await fetch('/api/subscribe', {
+      const response = await fetch('/api/stripe/subscribe-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -28,13 +28,28 @@ export default function Pricing() {
         }),
       })
       const data = await response.json()
-      if (data.success) {
-        alert(`Successfully subscribed to the ${planType} plan!`)
+
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe
+      } else {
+        alert("Payment initialization failed");
       }
     } catch (error) {
       console.error("Subscription error:", error)
+      alert("Failed to connect to payment gateway.");
     }
   }
+
+  // Handle post-checkout success/cancel redirects
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("success")) {
+      alert("Subscription successful! You are now on a premium plan.");
+    }
+    if (query.get("canceled")) {
+      alert("Subscription canceled. You can try again anytime.");
+    }
+  }, []);
 
   return (
     <section className="py-20 px-4 bg-slate-50/50 min-h-screen pt-32">

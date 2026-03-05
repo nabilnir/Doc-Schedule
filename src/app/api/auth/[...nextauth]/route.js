@@ -82,7 +82,7 @@ export const authOptions = {
 
                 // ── HARDCODE ADMIN ROLE ──────────────────────────────────────
                 // You can change this email to your desired admin email
-                const adminEmail = "docschedule.noreply@gmail.com";
+                const adminEmail = "addmin.docschedule@gmail.com";
                 let userRole = (user.role || "patient").toLowerCase();
                 if (user.email.toLowerCase() === adminEmail.toLowerCase()) {
                     userRole = "admin";
@@ -110,7 +110,7 @@ export const authOptions = {
                     const existing = await User.findOne({ email: user.email });
 
                     // Admin check for OAuth
-                    const adminEmail = "docschedule.noreply@gmail.com";
+                    const adminEmail = "addmin.docschedule@gmail.com";
                     const assignedRole = user.email.toLowerCase() === adminEmail.toLowerCase() ? "admin" : "patient";
 
                     if (!existing) {
@@ -162,6 +162,17 @@ export const authOptions = {
                 token.email = user.email; // explicitly set email to match the provider email
             }
 
+            // Always check if user is blocked on every JWT refresh/check
+            try {
+                await connectDB();
+                const currentUser = await User.findOne({ email: token.email }).select('isBlocked');
+                if (currentUser?.isBlocked) {
+                    token.isBlocked = true;
+                }
+            } catch (err) {
+                console.error("JWT isBlocked check error:", err);
+            }
+
             // For OAuth providers, we need to fetch the local user data from DB 
             // on subsequent calls or ensures we have the correct DB ID/Role
             if (token.provider && token.provider !== "credentials" && !token.dbCheck) {
@@ -170,7 +181,15 @@ export const authOptions = {
                     const dbUser = await User.findOne({ email: token.email });
                     if (dbUser) {
                         token.id = dbUser._id.toString();
-                        token.role = (dbUser.role || "patient").toLowerCase();
+                        let userRole = (dbUser.role || "patient").toLowerCase();
+
+                        // Sync hardcoded admin role
+                        const adminEmail = "addmin.docschedule@gmail.com";
+                        if (token.email.toLowerCase() === adminEmail.toLowerCase()) {
+                            userRole = "admin";
+                        }
+
+                        token.role = userRole;
                         token.phone = dbUser.phone;
                         token.dbCheck = true; // Cache the check for this session
                     }
@@ -198,7 +217,10 @@ export const authOptions = {
                 session.user.role = token.role;
                 session.user.phone = token.phone;
                 session.user.provider = token.provider;
+                session.user.isBlocked = token.isBlocked || false;
             }
+            // If user is blocked, we can effectively invalidate the session on the client side
+            // or by checking this flag in components/middleware.
             return session;
         },
     },
