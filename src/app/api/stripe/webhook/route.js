@@ -2,7 +2,6 @@ import Stripe from "stripe";
 import connectDB from "@/lib/mongodb";
 import Appointment from "@/models/Appointment";
 import User from "@/models/User";
-import Appointment from "@/models/Appointment";
 import { handleConfirmedAppointment } from "@/app/actions/book-appointment";
 
 export const runtime = "nodejs";
