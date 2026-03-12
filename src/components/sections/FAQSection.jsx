@@ -95,7 +95,7 @@ const FAQSection = () => {
                             Still have questions?
                         </h3>
                         <p className="text-base md:text-lg text-[#666666] mb-6">
-                            Can't find the answer you're looking for? Our support team is here to help.
+                            Can't find the answer you 're looking for? Our support team is here to help.
                         </p>
                         <a
                             href="mailto:support@docschedule.com"
