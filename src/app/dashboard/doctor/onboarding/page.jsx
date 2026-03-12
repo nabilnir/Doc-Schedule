@@ -28,11 +28,40 @@ export default function DoctorOnboarding() {
         phone: session?.user?.phone || "",
         fee: "",
         image: session?.user?.image || "",
+        registrationNumber: "",
         time_slots: ["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"]
     });
 
+    const AVAILABLE_SLOTS = [
+        "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
+        "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM",
+        "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM",
+        "08:00 PM", "09:00 PM"
+    ];
+
+    const toggleTimeSlot = (slot) => {
+        setForm(prev => {
+            const slots = prev.time_slots || [];
+            if (slots.includes(slot)) {
+                return { ...prev, time_slots: slots.filter(s => s !== slot) };
+            } else {
+                return {
+                    ...prev, time_slots: [...slots, slot].sort((a, b) => {
+                        return AVAILABLE_SLOTS.indexOf(a) - AVAILABLE_SLOTS.indexOf(b);
+                    })
+                };
+            }
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!form.time_slots || form.time_slots.length === 0) {
+            setError("Please select at least one preferred time slot.");
+            return;
+        }
+
         setLoading(true);
         setError("");
 
@@ -46,14 +75,9 @@ export default function DoctorOnboarding() {
             const data = await res.json();
 
             if (res.ok) {
-                // Trigger session update to refresh role
-                await update({
-                    user: {
-                        ...session.user,
-                        role: "doctor"
-                    }
-                });
-                router.push("/dashboard");
+                // Profile is now pending admin approval — do NOT update role yet
+                setError("");
+                alert("✅ Profile submitted successfully! Your account is pending admin approval. You will receive access once verified.");
             } else {
                 setError(data.error || "Failed to save profile");
             }
@@ -163,6 +187,16 @@ export default function DoctorOnboarding() {
                                         required
                                     />
                                 </FormGroup>
+
+                                <FormGroup label="Medical Reg. Number" icon={Check} id="registrationNumber">
+                                    <Input
+                                        className="rounded-2xl h-14 bg-slate-50/50 border-none focus-visible:ring-blue-500"
+                                        placeholder="BMDC-12345"
+                                        value={form.registrationNumber}
+                                        onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })}
+                                        required
+                                    />
+                                </FormGroup>
                             </div>
 
                             <FormGroup label="Profile Image URL" icon={Camera} id="image">
@@ -173,6 +207,34 @@ export default function DoctorOnboarding() {
                                     onChange={(e) => setForm({ ...form, image: e.target.value })}
                                 />
                             </FormGroup>
+
+                            {/* Time Slots Selection */}
+                            <div className="space-y-4 pt-4 border-t border-slate-100">
+                                <div className="flex items-center gap-2 ml-1">
+                                    <Clock className="w-5 h-5 text-[#7BA1C7]" />
+                                    <Label className="text-lg font-bold text-slate-700 tracking-wider">
+                                        Preferred Time Slots
+                                    </Label>
+                                </div>
+                                <p className="text-sm text-slate-500 ml-1">Select the times you are typically available for consultation.</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
+                                    {AVAILABLE_SLOTS.map((slot) => {
+                                        const isSelected = form.time_slots.includes(slot);
+                                        return (
+                                            <div
+                                                key={slot}
+                                                onClick={() => toggleTimeSlot(slot)}
+                                                className={`cursor-pointer text-center py-2.5 rounded-2xl text-sm font-semibold border-2 transition-all ${isSelected
+                                                    ? "bg-[#7BA1C7] border-[#7BA1C7] text-white shadow-md shadow-blue-100"
+                                                    : "bg-white border-slate-100 text-slate-500 hover:border-[#7BA1C7]/30"
+                                                    }`}
+                                            >
+                                                {slot}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
 
                             {error && (
                                 <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-center font-bold animate-pulse">

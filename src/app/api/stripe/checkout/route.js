@@ -21,13 +21,13 @@ export async function POST(req) {
             product_data: {
               name: "Doctor Appointment Fee",
             },
-            unit_amount: fee * 100, 
+            unit_amount: fee * 100,
           },
           quantity: 1,
         },
       ],
-      success_url: `${origin}/payment-success`,
-      cancel_url: `${origin}/payment-cancel`,
+      success_url: `${origin}/dashboard/appointment?payment_success=true`,
+      cancel_url: `${origin}/dashboard/book-appointment?payment_canceled=true`,
       metadata: {
         appointmentId,
       },
