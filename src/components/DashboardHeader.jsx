@@ -40,7 +40,7 @@ export default function DashboardHeader({ SidebarContent }) {
       if (res.ok) {
         setUnreadCount(0);
         setNotifications((prev) =>
-          prev.map((notif) => ({ ...notif, isRead: true }))
+          prev.map((notif) => ({ ...notif, isRead: true })),
         );
       }
     } catch (err) {
@@ -56,7 +56,6 @@ export default function DashboardHeader({ SidebarContent }) {
 
   return (
     <header className="h-20 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-6 lg:px-10">
-
       {/* Search Bar - Desktop */}
       <div className="relative w-full max-w-xs hidden md:block">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -101,17 +100,27 @@ export default function DashboardHeader({ SidebarContent }) {
               {notifications.length > 0 ? (
                 <div className="flex flex-col">
                   {notifications.map((notif) => {
-                    // Logic to separate doctor and time from message
-                    // Format: "Name booked Dr. Name at Time"
-                    const parts = notif.message.split(" booked ");
-                    const doctorName = parts[1]?.split(" at ")[0] || "Doctor";
-                    const appointmentTime = notif.message.split(" at ")[1] || "Time not set";
+                    // --- Updated Parsing Logic ---
+                    // Format: "Your appointment with Dr. Ariful Islam on Mar 12, 2026 at 02:25 AM is confirmed."
+
+                    // Extracting Doctor Name: Get text between "with " and " on"
+                    const doctorMatch = notif.message.match(/with (.*?) on/);
+                    const doctorName = doctorMatch ? doctorMatch[1] : "Doctor";
+
+                    // Extracting Time: Get text between "at " and " is confirmed"
+                    const timeMatch = notif.message.match(
+                      /at (.*?) is confirmed/,
+                    );
+                    const appointmentTime = timeMatch
+                      ? timeMatch[1]
+                      : "Time not set";
 
                     return (
                       <div
                         key={notif._id}
-                        className={`p-4 border-b last:border-0 hover:bg-slate-50 transition-colors ${!notif.isRead ? "bg-blue-50/40" : ""
-                          }`}
+                        className={`p-4 border-b last:border-0 hover:bg-slate-50 transition-colors ${
+                          !notif.isRead ? "bg-blue-50/40" : ""
+                        }`}
                       >
                         <div className="flex justify-between items-start mb-1.5">
                           <p className="text-[10px] font-black uppercase tracking-wider text-blue-600">
@@ -123,7 +132,7 @@ export default function DashboardHeader({ SidebarContent }) {
                         </div>
 
                         <div className="space-y-2">
-                          {/* Doctor name*/}
+                          {/* Doctor name */}
                           <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
                             <User className="h-3.5 w-3.5 text-slate-400" />
                             <span className="truncate">{doctorName}</span>
@@ -147,7 +156,9 @@ export default function DashboardHeader({ SidebarContent }) {
               ) : (
                 <div className="p-10 text-center flex flex-col items-center justify-center">
                   <Bell className="h-8 w-8 text-slate-200 mb-2" />
-                  <p className="text-slate-400 text-sm">No notifications yet.</p>
+                  <p className="text-slate-400 text-sm">
+                    No notifications yet.
+                  </p>
                 </div>
               )}
             </ScrollArea>

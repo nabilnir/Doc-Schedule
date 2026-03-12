@@ -38,21 +38,21 @@ async function addToGoogleCalendar(appointment) {
 
     const startTime = new Date(appointmentDate);
     startTime.setHours(hours, minutes, 0, 0);
-    
+
     // Set appointment duration to 1 hour
-    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); 
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
     const event = {
       summary: `Medical Appointment: ${appointment.doctorName}`,
       location: "Clinic / Hospital",
       description: `Patient: ${appointment.patientName}, Age: ${appointment.patientAge}. Booked via DocSchedule.`,
-      start: { 
-        dateTime: startTime.toISOString(), 
-        timeZone: "Asia/Dhaka" 
+      start: {
+        dateTime: startTime.toISOString(),
+        timeZone: "Asia/Dhaka"
       },
-      end: { 
-        dateTime: endTime.toISOString(), 
-        timeZone: "Asia/Dhaka" 
+      end: {
+        dateTime: endTime.toISOString(),
+        timeZone: "Asia/Dhaka"
       },
       // Adding the patient as an attendee triggers the invitation email
       attendees: [
@@ -72,7 +72,7 @@ async function addToGoogleCalendar(appointment) {
     await calendar.events.insert({
       calendarId: "primary",
       requestBody: event,
-      sendUpdates: "all", 
+      sendUpdates: "all",
     });
 
     console.log("LOG: Google Calendar Event Created & Invitation Sent");
@@ -108,7 +108,7 @@ export async function getBookedSlots(doctorId, date) {
  */
 export async function bookAppointment(data) {
   const session = await getServerSession(authOptions);
-  
+
   // Check if user is logged in
   if (!session) return { success: false, error: "Unauthorized access." };
 
@@ -137,12 +137,31 @@ export async function bookAppointment(data) {
       patientEmail: data.patientDetails.email,
       userEmail: session.user.email,
     });
-    
+
     const savedApp = await newApp.save();
     console.log("LOG: Appointment record saved to database.");
 
     // 3. Sync with Google Calendar (Sends the auto-invite)
     await addToGoogleCalendar(savedApp);
+
+    // --- Step 3.5: Create an Internal Notification for the User ---
+    try {
+      // Importing the Notification model dynamically or ensure it's imported at the top
+      const Notification = (await import("@/models/Notification")).default;
+
+      await Notification.create({
+        userEmail: session.user.email,
+        message: `Your appointment with ${data.doctorName} on ${format(new Date(data.date), 'PP')} at ${data.slot} is confirmed.`,
+        type: "booking_success",
+        isRead: false,
+      });
+
+      console.log("LOG: Internal notification created successfully.");
+    } catch (notifError) {
+      // We use a try-catch here so that if the notification fails, 
+      // it doesn't break the entire booking process.
+      console.error("LOG: Notification Creation Error (Non-blocking):", notifError.message);
+    }
 
     // 4. Send a custom confirmation email via Nodemailer
     const emailBody = `
@@ -163,7 +182,7 @@ export async function bookAppointment(data) {
 
     console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
     await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
-    
+
     return { success: true };
   } catch (error) {
     console.error("LOG: Fatal Booking Error:", error);
