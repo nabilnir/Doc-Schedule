@@ -10,12 +10,25 @@ export default function DoctorCard({ doctor }) {
   const [isExpanded, setIsExpanded] = useState(false);
   if (!doctor) return null;
 
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const imageUrl = doctor.image && isValidUrl(doctor.image) 
+    ? doctor.image 
+    : "https://i.ibb.co/RGh95m3d/portrait-happy-ethnic-student-cheerful-600nw-2163470599.webp";
+
   return (
     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden mb-6 transition-all duration-300">
       <div className="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-4 w-full">
           <Image
-            src={doctor.image || "https://i.ibb.co/RGh95m3d/portrait-happy-ethnic-student-cheerful-600nw-2163470599.webp"}
+            src={imageUrl}
             width={64}
             height={64}
             className="w-16 h-16 rounded-full object-cover"
