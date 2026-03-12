@@ -12,11 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import {
-  bookAppointment,
-  getBookedSlots,
-} from "@/app/actions/book-appointment";
+import { bookAppointment, getBookedSlots } from "@/app/actions/book-appointment";
 import { useSession } from "next-auth/react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "../ui/calendar";
 
 export default function BookingSystem({ doctor }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -50,7 +50,6 @@ export default function BookingSystem({ doctor }) {
     if (session?.user) {
       setPatientInfo((prev) => ({
         ...prev,
-        // যদি আগে থেকে নাম/ইমেইল না থাকে (খালি থাকে), তবেই সেশনের ডাটা বসবে
         name: prev.name || session.user.name || "",
         email: prev.email || session.user.email || "",
       }));
@@ -117,8 +116,8 @@ export default function BookingSystem({ doctor }) {
               className={cn(
                 "px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
                 format(selectedDate, "PP") === format(date, "PP")
-                  ? "bg-sky-500 text-white border-sky-500 shadow-md"
-                  : "bg-white text-slate-600 hover:border-sky-200",
+                  ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
+                  : "bg-white text-slate-600 hover:border-[#7BA1C7]/30",
               )}
             >
               {format(date, "PP") === format(new Date(), "PP")
@@ -127,6 +126,35 @@ export default function BookingSystem({ doctor }) {
             </button>
           ))}
           {/* Popover Calendar remains same */}
+          <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={cn(
+            "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
+            // If the selected date is not among the quickDates, this button will be highlighted.
+            !quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+              ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
+              : "bg-white text-slate-600 hover:border-[#7BA1C7]/30"
+          )}
+        >
+          <CalendarIcon className="w-4 h-4" />
+          {/* If a custom date is selected, that date will be displayed, otherwise "More Dates" will be displayed. */}
+          {!quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+            ? format(selectedDate, "EEE, d MMM")
+            : "More Dates"}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={(date) => {
+            if (date) setSelectedDate(date);
+          }}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
         </div>
       </div>
 
@@ -145,8 +173,8 @@ export default function BookingSystem({ doctor }) {
                   isBooked
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200"
                     : selectedSlot === slot
-                      ? "bg-white text-sky-600 border-sky-500 ring-2 ring-sky-100"
-                      : "bg-white text-slate-500 hover:border-sky-200",
+                      ? "bg-white text-[#7BA1C7] border-[#7BA1C7] ring-2 ring-slate-100"
+                      : "bg-white text-slate-500 hover:border-[#7BA1C7]/30",
                 )}
               >
                 {slot}
@@ -172,7 +200,7 @@ export default function BookingSystem({ doctor }) {
         <Button
           disabled={!selectedSlot}
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-[#00c58d] hover:bg-[#00b07d] text-white px-10 py-7 rounded-2xl font-bold text-lg"
+          className="w-full sm:w-auto bg-black hover:bg-slate-800 text-white px-10 py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200"
         >
           Confirm & Proceed
         </Button>
@@ -183,9 +211,7 @@ export default function BookingSystem({ doctor }) {
         {/* ... Modal Content ... */}
         <DialogContent className="sm:max-w-[425px] rounded-[32px] bg-white p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              Patient Details
-            </DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Patient Details</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
@@ -203,8 +229,8 @@ export default function BookingSystem({ doctor }) {
               <Input
                 name="email"
                 type="email"
-                placeholder="email@example.com"
                 value={patientInfo.email}
+                placeholder="email@example.com"
                 onChange={handleInputChange}
                 className="rounded-xl h-12"
                 required
@@ -216,6 +242,7 @@ export default function BookingSystem({ doctor }) {
                 <Input
                   name="age"
                   type="number"
+                  value={patientInfo.age}
                   placeholder="Age"
                   onChange={handleInputChange}
                   className="rounded-xl h-12"
@@ -225,6 +252,7 @@ export default function BookingSystem({ doctor }) {
                 <Label>Blood Group</Label>
                 <Input
                   name="bloodGroup"
+                  value={patientInfo.bloodGroup}
                   placeholder="A+"
                   onChange={handleInputChange}
                   className="rounded-xl h-12"
@@ -233,11 +261,7 @@ export default function BookingSystem({ doctor }) {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              onClick={handleFinalSubmit}
-              disabled={isPending}
-              className="w-full bg-[#00c58d] text-white py-7 rounded-2xl font-bold text-lg cursor-pointer"
-            >
+            <Button onClick={handleFinalSubmit} disabled={isPending} className="w-full bg-black hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200">
               {isPending ? "Processing..." : "Submit Appointment"}
             </Button>
           </DialogFooter>

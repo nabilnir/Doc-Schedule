@@ -15,6 +15,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.pravatar.cc",
       },
+      {
+        protocol: "https",
+        hostname: "i.pinimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ibb.co.com",
+      },
     ],
   },
   reactCompiler: true,
