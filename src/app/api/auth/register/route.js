@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
+import mongoose from "mongoose";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
@@ -12,6 +13,11 @@ export async function POST(request) {
         const { fullName, email, phone, password, role } = body;
 
         await connectDB();
+        console.log("Registering user. Current Mongoose DB:", mongoose.connection.name);
+        console.log("Connection Ready State:", mongoose.connection.readyState);
+        if (mongoose.connection.name === 'test') {
+            console.error("⛔ CRITICAL: Application is about to write to the 'test' database!");
+        }
 
         // 1. Check duplicate
         const existing = await User.findOne({ email: email.toLowerCase() });

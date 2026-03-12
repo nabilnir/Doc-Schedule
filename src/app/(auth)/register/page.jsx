@@ -74,20 +74,25 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (res.ok) {
-                // OTP verify 
+                // OTP verify successful, auto-login
                 const result = await signIn('credentials', {
                     redirect: false,
                     email: form.email,
                     password: form.password,
                 });
 
-                if (result?.ok) {
-                    window.location.href = '/dashboard';
+                if (result?.ok && !result?.error) {
+                    window.location.replace('/dashboard');
                 } else {
-                    router.push('/login?verified=true');
+                    console.error("Auto login failed after OTP verification:", result?.error);
+                    router.push('/login?registered=true');
                 }
             } else {
-                setError(data.error || 'Invalid OTP');
+                if (res.status === 403) {
+                    setError('Too many failed attempts. Account blocked. Please contact admin.');
+                } else {
+                    setError(data.error || 'Invalid OTP');
+                }
             }
         } catch (err) {
             setError('Verification failed.');
@@ -145,7 +150,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center p-4 relative py-8">
+        <div className="min-h-screen bg-gradient-to-b from-[#85A9D2] via-[#A8C4E5] to-[#F5F5F7] flex flex-col items-center justify-center pt-28 pb-8 px-4 relative">
 
             {/* Logo */}
             <div className="mb-4 flex items-center gap-2">
