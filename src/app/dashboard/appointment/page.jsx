@@ -68,56 +68,57 @@ export default async function MyBookingsPage() {
           </a>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {appointments.map((app) => (
-            <div key={app._id} className="bg-white rounded-[24px] p-6 border shadow-sm hover:shadow-md transition-all duration-300 flex flex-col relative overflow-hidden group">
-              {/* Top Accent Line */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-[#7BA1C7] opacity-50 group-hover:opacity-100 transition-opacity" />
-
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Doctor</p>
-                  <h3 className="font-bold text-lg text-slate-900">{app.doctorName}</h3>
-                </div>
-                {getStatusBadge(app.status)}
-              </div>
-
-              <div className="space-y-4 mb-6 flex-1">
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#7BA1C7] shrink-0">
-                    <CalendarDays className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400">Date</p>
-                    <p className="font-medium">{format(new Date(app.appointmentDate), "EEEE, MMMM do, yyyy")}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#7BA1C7] shrink-0">
-                    <Clock9 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400">Time</p>
-                    <p className="font-medium">{app.timeSlot}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400">Patient Details</p>
-                    <p className="font-medium text-sm">
-                      {app.patientName} <span className="opacity-50">({app.patientAge}y, {app.patientGender || "N/A"})</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          ))}
+        <div className="bg-white rounded-[32px] border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b bg-slate-50/50">
+                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Doctor</th>
+                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Appointment Date</th>
+                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Time Slot</th>
+                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Patient Details</th>
+                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {appointments.map((app) => (
+                  <tr key={app._id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#7BA1C7]">
+                          <Activity className="w-5 h-5" />
+                        </div>
+                        <span className="font-bold text-slate-900">{app.doctorName}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-2 text-slate-600 font-medium">
+                        <CalendarDays className="w-4 h-4 text-slate-400" />
+                        {format(new Date(app.appointmentDate), "MMM do, yyyy")}
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 text-slate-600 font-medium">
+                      <div className="flex items-center gap-2">
+                        <Clock9 className="w-4 h-4 text-slate-400" />
+                        {app.timeSlot}
+                      </div>
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-800">{app.patientName}</span>
+                        <span className="text-xs text-slate-400 font-medium uppercase mt-0.5">
+                          {app.patientAge}y · {app.patientGender || "N/A"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 text-right">
+                      {getStatusBadge(app.status)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
