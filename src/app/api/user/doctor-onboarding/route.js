@@ -16,7 +16,8 @@ export async function POST(req) {
         const body = await req.json();
         const {
             name, designation, education, specialty,
-            experience, hospital, phone, fee, image, time_slots
+            experience, hospital, phone, fee, image, time_slots,
+            registrationNumber, credentialsUrl
         } = body;
 
         await connectDB();
@@ -27,7 +28,7 @@ export async function POST(req) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        // Create or Update Doctor Profile
+        // Create or Update Doctor Profile (pending verification)
         const filter = { userId: user._id };
         const update = {
             name,
@@ -41,7 +42,11 @@ export async function POST(req) {
             fee,
             image: image || user.image,
             time_slots: time_slots || [],
-            userId: user._id
+            userId: user._id,
+            registrationNumber: registrationNumber || null,
+            credentialsUrl: credentialsUrl || null,
+            isVerified: false,
+            verificationStatus: "pending",
         };
 
         const doctor = await Doctor.findOneAndUpdate(filter, update, {
@@ -50,14 +55,11 @@ export async function POST(req) {
             runValidators: true
         });
 
-        // Update User role if it's not already doctor or admin
-        if (user.role === "patient") {
-            user.role = "doctor";
-            await user.save();
-        }
+        // NOTE: Role is NOT updated here. Doctor must be approved by admin first.
+        // The admin's PATCH /api/admin/doctors?action=approve will set role to "doctor".
 
         return NextResponse.json({
-            message: "Doctor profile saved successfully",
+            message: "Doctor profile submitted for review. You will be notified upon approval.",
             doctor
         }, { status: 200 });
 

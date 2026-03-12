@@ -9,6 +9,7 @@ import IntakeFormsSection from "@/components/sections/IntakeFormsSection";
 import ReportsSection from "@/components/sections/ReportsSection";
 import EmailRemindersSection from "@/components/sections/EmailRemindersSection";
 import ReviewSlider from "@/components/sections/ReviewSlider";
+import FAQSection from "@/components/sections/FAQSection";
 import ClinicMarquee from "@/components/sections/ClinicMarquee";
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
       <ReportsSection />
       <EmailRemindersSection />
       <ReviewSlider />
+      <FAQSection />
       <ClinicMarquee />
     </main>
   );

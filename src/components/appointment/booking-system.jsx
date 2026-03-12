@@ -23,15 +23,14 @@ export default function BookingSystem({ doctor }) {
   const [bookedSlots, setBookedSlots] = useState([]);
   const { data: session, update } = useSession();
 
-  // Patient Information State
   const [patientInfo, setPatientInfo] = useState({
     name: "",
     age: "",
+    gender: "",
     bloodGroup: "",
     email: "",
   });
 
-  // When the date changes, the booked slot will be fetched from the database.
   useEffect(() => {
     const fetchBookedSlots = async () => {
       if (doctor?._id) {
@@ -42,6 +41,13 @@ export default function BookingSystem({ doctor }) {
     };
     fetchBookedSlots();
   }, [selectedDate, doctor?._id]);
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("payment_canceled")) {
+      alert("Payment was canceled. Your appointment has not been confirmed.");
+    }
+  }, []);
 
   useEffect(() => {
     if (session?.user) {
@@ -72,8 +78,8 @@ export default function BookingSystem({ doctor }) {
   };
 
   const handleFinalSubmit = async () => {
-    if (!patientInfo.name || !patientInfo.age || !patientInfo.email)
-      return alert("Please fill name, age and email");
+    if (!patientInfo.name || !patientInfo.age || !patientInfo.gender || !patientInfo.email)
+      return alert("Please fill name, age, gender, and email");
 
     setIsPending(true);
     const result = await bookAppointment({
@@ -84,17 +90,38 @@ export default function BookingSystem({ doctor }) {
       patientDetails: patientInfo,
     });
 
-    if (result.success) {
-      alert("Appointment Booked Successfully!");
-      setIsModalOpen(false);
-      setSelectedSlot(null);
-      // If the booking is successful, you can fetch again to update the slot list.
-      const updatedSlots = await getBookedSlots(doctor._id, selectedDate);
-      setBookedSlots(updatedSlots);
+    if (result.success && result.appointmentId) {
+      try {
+        // Assume default doctor fee is 500 for testing, otherwise fetch from doctor data
+        const fee = doctor?.consultationFee || 500;
+
+        const stripeRes = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appointmentId: result.appointmentId,
+            fee: fee,
+            patientEmail: patientInfo.email,
+          }),
+        });
+
+        const stripeData = await stripeRes.json();
+
+        if (stripeData.url) {
+          window.location.href = stripeData.url; // Redirect to Stripe
+        } else {
+          alert("Payment initialization failed");
+          setIsPending(false);
+        }
+      } catch (error) {
+        console.error("Stripe error:", error);
+        alert("Failed to connect to payment gateway.");
+        setIsPending(false);
+      }
     } else {
       alert("Error: " + result.error);
+      setIsPending(false);
     }
-    setIsPending(false);
   };
 
   return (
@@ -205,7 +232,7 @@ export default function BookingSystem({ doctor }) {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Age</Label>
                 <Input
@@ -218,7 +245,22 @@ export default function BookingSystem({ doctor }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Blood Group</Label>
+                <Label>Gender</Label>
+                <select
+                  name="gender"
+                  value={patientInfo.gender}
+                  onChange={handleInputChange}
+                  className="flex h-12 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="" disabled>Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Blood Grp</Label>
                 <Input
                   name="bloodGroup"
                   value={patientInfo.bloodGroup}
