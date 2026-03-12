@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link"; 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BookingSystem from "./booking-system";
 import { cn } from "@/lib/utils";
@@ -27,15 +27,15 @@ export default function DoctorCard({ doctor }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link href={`/all-doctors/${doctor._id || doctor.id}`}> 
+          <Link href={`/all-doctors/${doctor._id || doctor.id}`}>
             <Button variant="outline" className="rounded-full px-6 h-12 cursor-pointer">
               View Profile
             </Button>
           </Link>
 
-          <Button 
+          <Button
             onClick={() => setIsExpanded(!isExpanded)}
-            className={cn("rounded-full px-8 h-12 font-bold cursor-pointer", isExpanded ? "bg-slate-100 text-slate-600" : "bg-[#00AEEF] text-white")}
+            className={cn("rounded-full px-8 h-12 font-bold cursor-pointer", isExpanded ? "bg-slate-100 text-slate-600" : "bg-[#7BA1C7] text-white")}
           >
             {isExpanded ? "Close" : "Book Now"}
           </Button>
