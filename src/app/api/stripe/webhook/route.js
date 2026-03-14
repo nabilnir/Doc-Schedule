@@ -1,4 +1,8 @@
 import Stripe from "stripe";
+import connectDB from "@/lib/mongodb";
+import Appointment from "@/models/Appointment";
+import User from "@/models/User";
+import { handleConfirmedAppointment } from "@/app/actions/book-appointment";
 
 export const runtime = "nodejs";
 
@@ -23,13 +27,54 @@ export async function POST(req) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const appointmentId = session.metadata.appointmentId;
 
-    // 1️⃣ Update appointment status → confirmed
-    // await Appointment.findByIdAndUpdate(appointmentId, { status: "confirmed" });
+    // Check if it's an appointment booking
+    if (session.metadata?.appointmentId) {
+      const appointmentId = session.metadata.appointmentId;
 
-    // 2️⃣ Trigger integrations
-    // await handleConfirmedAppointment(appointmentId);
+      try {
+        await connectDB();
+
+        // 1️⃣ Update appointment status → confirmed
+        const updatedApp = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          { status: "confirmed", paymentStatus: "paid" },
+          { new: true }
+        );
+
+        console.log(`Webhook: Appointment ${appointmentId} confirmed and paid`);
+
+        // 2️⃣ Trigger integrations (Google Calendar & Email)
+        if (updatedApp) {
+          await handleConfirmedAppointment(appointmentId);
+        }
+      } catch (error) {
+        console.error("Webhook processing error for appointment:", error);
+      }
+    }
+    // Check if it's a doctor subscription
+    else if (session.metadata?.isSubscription === "true") {
+      const userId = session.metadata.userId;
+      const planType = session.metadata.planType;
+
+      try {
+        await connectDB();
+
+        // Update the doctor's plan
+        await User.findByIdAndUpdate(
+          userId,
+          {
+            planType: planType,
+            planStartDate: new Date()
+          },
+          { new: true }
+        );
+
+        console.log(`Webhook: Doctor ${userId} subscribed to ${planType} plan`);
+      } catch (error) {
+        console.error("Webhook processing error for subscription:", error);
+      }
+    }
   }
 
   return new Response("OK", { status: 200 });

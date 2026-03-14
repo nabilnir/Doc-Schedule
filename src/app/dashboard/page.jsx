@@ -79,7 +79,6 @@ function DoctorOnboardingPrompt() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
       <Card className="max-w-xl w-full border-none shadow-2xl shadow-slate-100 rounded-[32px] overflow-hidden bg-white">
-        <div className="h-2 bg-[#7BA1C7] w-full" />
         <CardHeader className="pt-10 px-10 pb-0 text-center">
           <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Activity className="w-10 h-10 text-[#7BA1C7]" />
@@ -113,15 +112,30 @@ function AdminView() {
     totalAppointments: 0,
     totalRevenue: 0
   });
+  const [revenueData, setRevenueData] = useState({
+    monthlyRevenue: Array(12).fill(0),
+    monthNames: [],
+    maxRevenue: 50000,
+    totalRevenue: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/admin/stats");
-        if (res.ok) {
-          const data = await res.json();
+        const [statsRes, revenueRes] = await Promise.all([
+          fetch("/api/admin/stats"),
+          fetch("/api/admin/revenue")
+        ]);
+        
+        if (statsRes.ok) {
+          const data = await statsRes.json();
           setStats(data);
+        }
+        
+        if (revenueRes.ok) {
+          const revData = await revenueRes.json();
+          setRevenueData(revData);
         }
       } catch (error) {
         console.error("Failed to fetch admin stats:", error);
@@ -164,46 +178,8 @@ function AdminView() {
           </div>
 
           <div className="flex-1 relative min-h-[220px]">
-            {/* Y Axis Mock */}
-            <div className="absolute left-0 top-0 bottom-8 w-10 flex flex-col justify-between text-[10px] text-slate-400 font-medium z-10">
-              <span>100k</span><span>80k</span><span>60k</span><span>45k</span><span>30k</span><span>15k</span><span>10k</span><span>0</span>
-            </div>
-
-            {/* Grid Lines Mock */}
-            <div className="absolute left-10 right-0 top-0 bottom-8 flex flex-col justify-between z-0">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <div key={i} className="w-full h-px bg-slate-50"></div>)}
-            </div>
-
-            {/* Chart Graphic Area */}
-            <div className="absolute left-10 right-0 top-0 bottom-8 z-10 flex items-end overflow-hidden custom-scrollbar">
-              <svg className="w-full h-full preserve-3d" viewBox="0 0 800 200" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,150 Q50,70 100,100 T200,80 T300,160 T400,40 T500,150 T600,60 T700,120 T800,90 L800,200 L0,200 Z" fill="url(#gradientArea)" />
-                <path d="M0,150 Q50,70 100,100 T200,80 T300,160 T400,40 T500,150 T600,60 T700,120 T800,90" fill="none" stroke="#3b82f6" strokeWidth="3" />
-
-                {/* Active Point Highlight */}
-                <g transform="translate(400, 40)">
-                  <line x1="0" y1="0" x2="0" y2="160" stroke="#3b82f6" strokeWidth="8" strokeLinecap="round" />
-                  <circle cx="0" cy="0" r="6" fill="white" stroke="#3b82f6" strokeWidth="3" />
-                </g>
-              </svg>
-              {/* Tooltip Mock */}
-              <div className="absolute" style={{ left: '50%', top: '15%', transform: 'translate(-50%, -100%)' }}>
-                <div className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold text-blue-600 shadow-md border border-blue-50 relative top-[-4px]">
-                  $62k
-                </div>
-              </div>
-            </div>
-
-            {/* X Axis Mock */}
-            <div className="absolute left-10 right-0 bottom-0 h-6 flex justify-between items-end text-[10px] text-slate-400 font-semibold px-2 z-10">
-              <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span>
-            </div>
+            {/* Generate Y Axis with dynamic range */}
+            <RevenueChart data={revenueData} />
           </div>
         </div>
 
@@ -500,4 +476,106 @@ function StatCard({ title, value, icon: Icon, color, trend }) {
 
 function cn(...inputs) {
   return inputs.filter(Boolean).join(' ');
+}
+
+function RevenueChart({ data }) {
+  if (!data || !data.monthlyRevenue) {
+    return <div>Loading chart...</div>;
+  }
+
+  const maxValue = Math.max(data.maxRevenue, 50000);
+  const chartHeight = 200;
+  const chartWidth = 800;
+  const padding = 30;
+  const pointSpacing = chartWidth / (data.monthlyRevenue.length - 1);
+
+  // Generate SVG path
+  let pathData = '';
+  let points = [];
+
+  for (let i = 0; i < data.monthlyRevenue.length; i++) {
+    const x = padding + i * pointSpacing;
+    const y = chartHeight - (data.monthlyRevenue[i] / maxValue) * (chartHeight - 20);
+    points.push({ x, y, value: data.monthlyRevenue[i] });
+    
+    if (i === 0) {
+      pathData += `M${x},${y}`;
+    } else {
+      // Smooth curve using quadratic Bezier
+      const prevPoint = points[i - 1];
+      const midX = (prevPoint.x + x) / 2;
+      const midY = (prevPoint.y + y) / 2;
+      pathData += ` Q${midX},${prevPoint.y} ${midX},${midY}`;
+      pathData += ` Q${midX},${y} ${x},${y}`;
+    }
+  }
+
+  // Close path for fill
+  const closePath = pathData + ` L${chartWidth},${chartHeight} L0,${chartHeight} Z`;
+
+  // Find max value for tooltip
+  const maxValueData = Math.max(...data.monthlyRevenue);
+  const maxIndex = data.monthlyRevenue.indexOf(maxValueData);
+  const maxPointX = padding + maxIndex * pointSpacing;
+  const maxPointY = chartHeight - (maxValueData / maxValue) * (chartHeight - 20);
+
+  // Generate Y-axis labels dynamically
+  const yAxisSteps = 5;
+  const yLabels = [];
+  for (let i = yAxisSteps; i >= 0; i--) {
+    const value = (i / yAxisSteps) * maxValue;
+    yLabels.push(value > 1000 ? `$${(value / 1000).toFixed(0)}k` : `$${value}`);
+  }
+
+  return (
+    <>
+      {/* Y Axis */}
+      <div className="absolute left-0 top-0 bottom-8 w-10 flex flex-col justify-between text-[10px] text-slate-400 font-medium z-10">
+        {yLabels.map((label, i) => (
+          <span key={i}>{label}</span>
+        ))}
+      </div>
+
+      {/* Grid Lines */}
+      <div className="absolute left-10 right-0 top-0 bottom-8 flex flex-col justify-between z-0">
+        {yLabels.map((_, i) => (
+          <div key={i} className="w-full h-px bg-slate-50"></div>
+        ))}
+      </div>
+
+      {/* Chart Area */}
+      <div className="absolute left-10 right-0 top-0 bottom-8 z-10 flex items-end overflow-hidden custom-scrollbar">
+        <svg className="w-full h-full preserve-3d" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path d={closePath} fill="url(#gradientArea)" />
+          <path d={pathData} fill="none" stroke="#3b82f6" strokeWidth="3" />
+          
+          {/* Highlight max point */}
+          <g transform={`translate(${maxPointX}, ${maxPointY})`}>
+            <line x1="0" y1="0" x2="0" y2={chartHeight - maxPointY} stroke="#3b82f6" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="0" cy="0" r="6" fill="white" stroke="#3b82f6" strokeWidth="3" />
+          </g>
+        </svg>
+
+        {/* Tooltip */}
+        <div className="absolute" style={{ left: `${(maxPointX / chartWidth) * 100}%`, top: `${(maxPointY / chartHeight) * 100}%`, transform: 'translate(-50%, -120%)' }}>
+          <div className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold text-blue-600 shadow-md border border-blue-50 whitespace-nowrap">
+            ${(maxValueData / 1000).toFixed(1)}k
+          </div>
+        </div>
+      </div>
+
+      {/* X Axis Labels */}
+      <div className="absolute left-10 right-0 bottom-0 h-6 flex justify-between items-end text-[10px] text-slate-400 font-semibold px-2 z-10">
+        {data.monthNames.map((month, i) => (
+          <span key={i}>{month.toUpperCase()}</span>
+        ))}
+      </div>
+    </>
+  );
 }

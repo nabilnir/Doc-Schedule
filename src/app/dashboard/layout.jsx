@@ -39,7 +39,8 @@ export default function DashboardLayout({ children }) {
       default: // patient
         return [
           { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-          { icon: CalendarCheck2, label: "My Bookings", href: "/dashboard/appointment" },
+          { icon: Clock9, label: "My Bookings", href: "/dashboard/appointment" },
+          { icon: CalendarCheck2, label: "Book Appointment", href: "/dashboard/book-appointment" },
           { icon: Users, label: "Find Doctors", href: "/all-doctors" },
           { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
           { icon: Settings, label: "Setting", href: "/dashboard/settings" },
