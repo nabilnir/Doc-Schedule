@@ -197,6 +197,53 @@ export async function bookAppointment(data) {
     });
 
     const savedApp = await newApp.save();
+    console.log("LOG: Appointment record saved to database.");
+
+    // 3. Sync with Google Calendar (Sends the auto-invite)
+    await addToGoogleCalendar(savedApp);
+
+    // --- Step 3.5: Create an Internal Notification for the User ---
+    try {
+      // Importing the Notification model dynamically or ensure it's imported at the top
+      const Notification = (await import("@/models/Notification")).default;
+
+      await Notification.create({
+        userEmail: session.user.email,
+        message: `Your appointment with ${data.doctorName} on ${format(new Date(data.date), 'PP')} at ${data.slot} is confirmed.`,
+        type: "booking_success",
+        isRead: false,
+      });
+
+      console.log("LOG: Internal notification created successfully.");
+    } catch (notifError) {
+      // We use a try-catch here so that if the notification fails, 
+      // it doesn't break the entire booking process.
+      console.error("LOG: Notification Creation Error (Non-blocking):", notifError.message);
+    }
+
+    // 4. Send a custom confirmation email via Nodemailer
+    const emailBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #4CAF50;">Booking Confirmed!</h2>
+        <p>Hello <strong>${data.patientDetails.name}</strong>,</p>
+        <p>Your appointment has been successfully scheduled.</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <p><strong>Doctor:</strong> ${data.doctorName}</p>
+          <p><strong>Date:</strong> ${format(new Date(data.date), 'PPPP')}</p>
+          <p><strong>Time:</strong> ${data.slot}</p>
+        </div>
+        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+          * A Google Calendar invitation has also been sent to your email.
+        </p>
+      </div>
+    `;
+
+    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
+    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
+
+    return { success: true };
+
+    const savedApp = await newApp.save();
     console.log("LOG: Pending appointment record saved to database.");
 
     // Return the ID so the UI can redirect to Stripe Checkout
