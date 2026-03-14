@@ -7,9 +7,12 @@ const AppointmentSchema = new mongoose.Schema({
   timeSlot: String,
   patientName: String,
   patientAge: Number,
+  patientGender: String,
   patientBloodGroup: String,
   patientEmail: String,
+  userEmail: String,
   status: { type: String, default: 'pending' },
+  paymentStatus: { type: String, default: 'unpaid' },
 }, { timestamps: true });
 
 export default mongoose.models.Appointment || mongoose.model("Appointment", AppointmentSchema);

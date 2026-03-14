@@ -1,9 +1,11 @@
 "use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { User, Shield, Share2, Globe } from 'lucide-react';
 
 const PublicBookingSection = () => {
+    const router = useRouter();
     return (
         <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="booking-page">
             <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
@@ -38,7 +40,10 @@ const PublicBookingSection = () => {
                                             <span className="text-sm font-bold">$50</span>
                                         </div>
                                     </div>
-                                    <button className="w-full py-4 bg-black text-white rounded-2xl font-bold hover:scale-[1.02] transition-transform">
+                                    <button
+                                        onClick={() => router.push('/dashboard/book-appointment')}
+                                        className="w-full py-4 bg-black text-white rounded-2xl font-bold hover:scale-[1.02] transition-transform cursor-pointer"
+                                    >
                                         Book Appointment
                                     </button>
                                 </div>
