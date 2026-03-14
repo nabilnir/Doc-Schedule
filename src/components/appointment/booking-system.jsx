@@ -14,6 +14,9 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { bookAppointment, getBookedSlots } from "@/app/actions/book-appointment";
 import { useSession } from "next-auth/react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "../ui/calendar";
 
 export default function BookingSystem({ doctor }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -53,7 +56,6 @@ export default function BookingSystem({ doctor }) {
     if (session?.user) {
       setPatientInfo((prev) => ({
         ...prev,
-        // যদি আগে থেকে নাম/ইমেইল না থাকে (খালি থাকে), তবেই সেশনের ডাটা বসবে
         name: prev.name || session.user.name || "",
         email: prev.email || session.user.email || "",
       }));
@@ -151,6 +153,35 @@ export default function BookingSystem({ doctor }) {
             </button>
           ))}
           {/* Popover Calendar remains same */}
+          <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={cn(
+            "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
+            // If the selected date is not among the quickDates, this button will be highlighted.
+            !quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+              ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
+              : "bg-white text-slate-600 hover:border-[#7BA1C7]/30"
+          )}
+        >
+          <CalendarIcon className="w-4 h-4" />
+          {/* If a custom date is selected, that date will be displayed, otherwise "More Dates" will be displayed. */}
+          {!quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+            ? format(selectedDate, "EEE, d MMM")
+            : "More Dates"}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={(date) => {
+            if (date) setSelectedDate(date);
+          }}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
         </div>
       </div>
 
