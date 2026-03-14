@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import Doctor from "@/models/Doctor";
+import { isValidImageUrl } from "@/lib/utils";
 
 export async function POST(req) {
     try {
@@ -28,6 +29,9 @@ export async function POST(req) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        // Validate image URL
+        const validatedImage = isValidImageUrl(image) ? image : user.image;
+
         // Create or Update Doctor Profile (pending verification)
         const filter = { userId: user._id };
         const update = {
@@ -40,7 +44,7 @@ export async function POST(req) {
             phone,
             email: user.email,
             fee,
-            image: image || user.image,
+            image: validatedImage,
             time_slots: time_slots || [],
             userId: user._id,
             registrationNumber: registrationNumber || null,

@@ -13,6 +13,7 @@ import DoctorFilter from "@/components/doctor/doctor-filter";
 import Image from "next/image";
 // Import the new component we'll create below
 import PaginationControls from "@/components/doctor/pagination-controls";
+import { isValidImageUrl } from "@/lib/utils";
 
 export default async function AllDoctorPage({ searchParams }) {
   try {
@@ -64,7 +65,7 @@ export default async function AllDoctorPage({ searchParams }) {
                   <CardHeader className="p-0 border-b-0 space-y-0">
                     <div className="h-52 w-full relative rounded-t-xl overflow-hidden">
                       <Image
-                        src={doc.image || "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"}
+                        src={isValidImageUrl(doc.image) ? doc.image : "https://img.freepik.com/free-vector/doctor-character-background_1270-84.jpg"}
                         alt="Doctor Illustration"
                         fill
                         className="object-cover object-top"

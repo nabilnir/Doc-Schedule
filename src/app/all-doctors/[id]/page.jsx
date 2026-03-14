@@ -3,6 +3,7 @@ import Doctor from "@/models/Doctor";
 import { notFound } from "next/navigation";
 import BookingSystem from "@/components/appointment/booking-system";
 import Image from "next/image";
+import { isValidImageUrl } from "@/lib/utils";
 
 export default async function DoctorDetails({ params }) {
   await connectDB();
@@ -20,7 +21,7 @@ export default async function DoctorDetails({ params }) {
         {/* Left: Basic Info */}
         <div className="md:col-span-1 bg-slate-50 p-6 rounded-2xl border">
           <div className="w-32 h-32 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-[#7BA1C7] relative overflow-hidden ring-4 ring-slate-50">
-            {doctor.image ? (
+            {isValidImageUrl(doctor.image) ? (
               <Image
                 src={doctor.image}
                 alt={doctor.name}

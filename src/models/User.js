@@ -18,6 +18,8 @@ const UserSchema = new mongoose.Schema({
     loginAttempts: { type: Number, default: 0 },
     otpAttempts: { type: Number, default: 0 },
     isBlocked: { type: Boolean, default: false },
+    age: { type: Number },
+    bloodGroup: { type: String },
 }, {
     timestamps: true,
     collection: 'users'
