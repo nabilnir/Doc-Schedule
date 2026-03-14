@@ -4,22 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BookingSystem from "./booking-system";
+import { isValidImageUrl } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function DoctorCard({ doctor }) {
   const [isExpanded, setIsExpanded] = useState(false);
   if (!doctor) return null;
 
-  const isValidUrl = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const imageUrl = doctor.image && isValidUrl(doctor.image) 
+  const imageUrl = isValidImageUrl(doctor.image)
     ? doctor.image 
     : "https://i.ibb.co/RGh95m3d/portrait-happy-ethnic-student-cheerful-600nw-2163470599.webp";
 
