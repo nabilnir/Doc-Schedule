@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
+  const [dashboardData, setDashboardData] = useState(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -22,10 +23,26 @@ export default function DashboardPage() {
 
     if (session?.user?.role === "doctor") {
       checkDoctorProfile();
-    } else {
-      setLoading(false);
     }
+    
+    fetchDashboardStats();
   }, [session, status]);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await fetch("/api/user/dashboard-stats");
+      if (res.ok) {
+        const data = await res.json();
+        setDashboardData(data);
+      }
+    } catch (err) {
+      console.error("Fetch dashboard stats error:", err);
+    } finally {
+      if (session?.user?.role !== "doctor") {
+        setLoading(false);
+      }
+    }
+  };
 
   const checkDoctorProfile = async () => {
     try {
@@ -59,15 +76,22 @@ export default function DashboardPage() {
           </h1>
           <p className="text-slate-500 mt-1 capitalize">{role} Dashboard Overview</p>
         </div>
-        <Button className="bg-black hover:bg-slate-800 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02]">
+        <Button 
+          onClick={() => {
+            if (role === "admin") router.push("/dashboard/admin");
+            else if (role === "doctor") router.push("/dashboard/doctor/schedule");
+            else router.push("/dashboard/book-appointment");
+          }}
+          className="bg-black hover:bg-slate-800 text-white rounded-2xl h-12 px-6 font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02]"
+        >
           <PlusCircle className="w-5 h-5 mr-2 text-[#7BA1C7]" />
           {role === "admin" ? "Admit User" : role === "doctor" ? "Add Slot" : "Book Appointment"}
         </Button>
       </div>
 
       {role === "admin" && <AdminView />}
-      {role === "doctor" && <DoctorView />}
-      {role === "patient" && <PatientView />}
+      {role === "doctor" && <DoctorView data={dashboardData} />}
+      {role === "patient" && <PatientView data={dashboardData} />}
     </div>
   );
 }
@@ -333,44 +357,219 @@ function AdminView() {
   );
 }
 
-function DoctorView() {
+function DoctorView({ data }) {
+  const router = useRouter();
+  if (!data || !data.stats) return <div className="animate-pulse space-y-4"><div className="h-32 bg-slate-100 rounded-3xl"/><div className="h-64 bg-slate-100 rounded-3xl"/></div>;
+
+  const stats = data.stats;
+  const upcoming = data.upcomingAppointments || [];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <StatCard title="Today's Appointments" value="8" icon={CalendarCheck2} color="blue" />
-      <StatCard title="Total Consultations" value="142" icon={Users} color="emerald" />
-      <StatCard title="Average Rating" value="4.9/5" icon={Activity} color="amber" />
-      <div className="md:col-span-3 h-64 bg-white rounded-[32px] border border-slate-100 flex items-center justify-center text-slate-400 font-medium italic shadow-sm">
-        Doctor Schedule Timeline Coming Soon...
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Today's Appts" value={stats.todayAppointments} icon={CalendarCheck2} color="blue" />
+        <StatCard title="Total Consultations" value={stats.totalConsultations} icon={Users} color="emerald" />
+        <StatCard title="Avg Rating" value={`${stats.averageRating}/5`} icon={Activity} color="amber" />
+        <StatCard title="Total Earnings" value={`৳${stats.totalEarnings.toLocaleString()}`} icon={TrendingUp} color="violet" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Weekly Appointment Chart */}
+        <div className="lg:col-span-2 bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden flex flex-col">
+          <div className="flex justify-between items-center z-10 relative mb-8">
+            <h3 className="font-bold text-lg text-slate-800">Weekly Appointment Volume</h3>
+            <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold border border-slate-100 cursor-pointer hover:bg-slate-100">
+              Last 7 Days
+            </div>
+          </div>
+
+          <div className="flex-1 relative min-h-[220px]">
+            <DoctorActivityChart data={stats.weeklyVolume} />
+          </div>
+        </div>
+
+        {/* Upcoming Appointments List */}
+        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 shadow-xl shadow-slate-100/50 flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-md text-slate-800">Upcoming Today</h3>
+            <Button variant="ghost" size="sm" className="text-xs font-bold text-[#7BA1C7] hover:text-blue-600" onClick={() => router.push('/dashboard/appointment')}>View All</Button>
+          </div>
+
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            {upcoming.length > 0 ? upcoming.map((app, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-[#7BA1C7] font-bold">
+                  {app.patientName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-800 truncate">{app.patientName}</p>
+                  <p className="text-[10px] text-slate-500 font-medium">{app.timeSlot}</p>
+                </div>
+                <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">Coming Up</div>
+              </div>
+            )) : (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <Clock className="w-8 h-8 text-slate-300 mb-2" />
+                <p className="text-xs text-slate-400 font-medium italic">No more appointments today</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function PatientView() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card className="border-none shadow-xl shadow-slate-100 rounded-[32px] bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden group">
-        <CardContent className="p-8 relative">
-          <Clock className="absolute right-[-20px] top-[-20px] w-48 h-48 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
-          <p className="text-blue-100 font-bold uppercase tracking-[2px] text-xs mb-2">Upcoming</p>
-          <h3 className="text-2xl font-bold mb-6 italic">Next Appointment</h3>
-          <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md mb-6">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-[#7BA1C7] font-bold">D</div>
-            <div>
-              <p className="font-bold">Dr. Sarah Connor</p>
-              <p className="text-sm text-blue-100">Tomorrow at 10:30 AM</p>
-            </div>
-          </div>
-          <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white hover:text-slate-900 rounded-xl h-12 font-bold transition-all">
-            Join Meeting
-          </Button>
-        </CardContent>
-      </Card>
+function PatientView({ data }) {
+  const router = useRouter();
+  if (!data || !data.stats) return <div className="animate-pulse space-y-4"><div className="h-32 bg-slate-100 rounded-3xl"/><div className="h-64 bg-slate-100 rounded-3xl"/></div>;
 
-      <div className="space-y-6">
-        <StatCard title="Active Prescriptions" value="3" icon={Activity} color="emerald" />
-        <StatCard title="Medical Reports" value="12" icon={BarChart3} color="amber" />
+  const stats = data.stats;
+  const recent = data.recentActivity || [];
+  const nextApp = stats.upcomingAppointment;
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
+        {/* Next Appointment Hero */}
+        <Card className="border-none shadow-2xl shadow-slate-100 rounded-[40px] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] text-white overflow-hidden group relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32 transition-all duration-700 group-hover:scale-110"/>
+          <CardContent className="p-10 relative">
+            <Clock className="absolute right-[-30px] top-[-30px] w-64 h-64 text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-1000" />
+            
+            <div className="flex items-center gap-3 mb-8">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/>
+              <p className="text-blue-200 font-bold uppercase tracking-[2px] text-xs">Your Next Session</p>
+            </div>
+
+            {nextApp ? (
+              <>
+                <h3 className="text-4xl font-black mb-8 italic tracking-tight">Ready for your consult?</h3>
+                <div className="flex items-center gap-6 bg-white/10 p-6 rounded-[32px] backdrop-blur-xl border border-white/10 mb-8 transition-all hover:bg-white/15">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#7BA1C7] to-blue-400 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-blue-500/20">
+                    {nextApp.doctorName.charAt(3)}
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold tracking-tight">{nextApp.doctorName}</p>
+                    <div className="flex items-center gap-2 text-blue-100/80 mt-1">
+                      <CalendarCheck2 className="w-4 h-4 text-blue-300" />
+                      <p className="text-sm font-medium">{new Date(nextApp.appointmentDate).toDateString()} at {nextApp.timeSlot}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button className="h-14 bg-[#7BA1C7] hover:bg-blue-400 text-white rounded-2xl px-10 text-lg font-black transition-all hover:scale-[1.03] shadow-xl shadow-blue-500/20 flex-1">
+                    Join Meeting
+                  </Button>
+                  <Button variant="outline" className="h-14 bg-transparent border-white/20 text-white hover:bg-white/10 rounded-2xl px-10 text-lg font-bold flex-1" onClick={() => router.push(`/dashboard/appointment/${nextApp._id}`)}>
+                    View Details
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10">
+                <h3 className="text-2xl font-bold mb-4">No upcoming appointments</h3>
+                <p className="text-blue-100/60 mb-8 max-w-sm mx-auto">Stay on top of your health by scheduling a consultation with our top-rated specialists.</p>
+                <Button className="bg-white text-slate-900 hover:bg-blue-50 rounded-2xl h-12 px-8 font-bold" onClick={() => router.push('/dashboard/book-appointment')}>
+                  Discover Doctors
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity Mini List */}
+        <div className="bg-white rounded-[40px] p-8 shadow-xl shadow-slate-100/50 border border-slate-50">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Activity</h3>
+            <Button variant="ghost" className="text-xs font-bold text-[#7BA1C7] rounded-xl" onClick={() => router.push('/dashboard/appointment')}>See All History</Button>
+          </div>
+          <div className="space-y-4">
+            {recent.length > 0 ? recent.map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-4 rounded-3xl bg-slate-50/50 hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-[#7BA1C7] transition-colors">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800">Appointment with {item.doctorName}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">{new Date(item.appointmentDate).toDateString()} · {item.timeSlot}</p>
+                  </div>
+                </div>
+                <div className={cn("px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest", 
+                  item.status === 'confirmed' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'
+                )}>
+                  {item.status}
+                </div>
+              </div>
+            )) : (
+              <p className="text-center text-slate-400 py-8 italic font-medium">No recent activities found.</p>
+            )}
+          </div>
+        </div>
       </div>
+
+      <div className="space-y-8">
+        {/* Right Stats Stack */}
+        <StatCard title="Active Prescriptions" value={stats.prescriptionsCount} icon={Activity} color="emerald" trend="+1 New" />
+        <StatCard title="Medical Reports" value={stats.reportsCount} icon={BarChart3} color="amber" trend="Synced 5m ago" />
+        <StatCard title="Total Consults" value={stats.totalAppointments} icon={Users} color="blue" />
+
+        {/* Health Highlight Card */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[40px] p-8 relative overflow-hidden group border border-blue-100/50 shadow-inner">
+           <TrendingUp className="absolute right-[-20px] bottom-[-20px] w-40 h-40 text-blue-500/5 rotate-12" />
+           <h4 className="font-black text-lg text-slate-900 mb-6">Health Profile</h4>
+           <div className="space-y-4">
+             <div className="flex justify-between items-center p-4 bg-white/60 rounded-2xl backdrop-blur-sm">
+               <span className="text-sm font-bold text-slate-500">Blood Type</span>
+               <span className="text-lg font-black text-red-500">{stats.bloodGroup || "—"}</span>
+             </div>
+             <div className="flex justify-between items-center p-4 bg-white/60 rounded-2xl backdrop-blur-sm">
+               <span className="text-sm font-bold text-slate-500">Age</span>
+               <span className="text-lg font-black text-slate-900">{stats.age || "—"}</span>
+             </div>
+             <div className="flex justify-between items-center p-4 bg-white/60 rounded-2xl backdrop-blur-sm">
+               <span className="text-sm font-bold text-slate-500">Last Checkup</span>
+               <span className="text-lg font-black text-emerald-600">Healthy</span>
+             </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DoctorActivityChart({ data }) {
+  if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-slate-300">No data</div>;
+
+  const maxValue = Math.max(...data.map(d => d.value), 5);
+  const chartHeight = 200;
+  
+  return (
+    <div className="flex items-end justify-between h-full w-full gap-2 pt-4 px-2">
+      {data.map((day, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center group gap-3">
+          <div className="w-full relative flex flex-col items-center">
+             {/* Tooltip on hover */}
+             <div className="absolute -top-8 px-2 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+               {day.value} Sessions
+             </div>
+             
+             {/* Bar */}
+             <div 
+               className="w-full max-w-[40px] rounded-t-2xl bg-gradient-to-t from-blue-500 to-blue-400 group-hover:from-blue-600 group-hover:to-blue-500 transition-all duration-500 shadow-lg shadow-blue-100/50"
+               style={{ height: `${(day.value / (maxValue * 1.2)) * chartHeight}px` }}
+             />
+             
+             {/* Dynamic Glow background */}
+             <div 
+               className="w-full max-w-[40px] absolute bottom-0 bg-blue-400/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"
+               style={{ height: `${(day.value / (maxValue * 1.2)) * chartHeight}px` }}
+             />
+          </div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day.name}</span>
+        </div>
+      ))}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Clock, Calendar, CheckCircle2, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 const SmartSlotBento = () => {
     const [activeSlots, setActiveSlots] = useState([true, false, true, false, true, true]);
@@ -14,10 +15,10 @@ const SmartSlotBento = () => {
     }, []);
 
     return (
-        <section className="py-20 md:py-[120px] bg-white overflow-hidden" id="slot-generation">
+        <section className="py-20 md:py-[130px]  bg-white overflow-hidden" id="slot-generation">
             <div className="container mx-auto max-w-[1440px] px-6 md:px-8">
                 {/* Section Heading */}
-                <div className="flex flex-col items-center mb-10 md:mb-[60px]">
+                <div className="flex flex-col items-center mt mb-10 md:mb-[60px]">
                     <h2 className="text-3xl sm:text-4xl md:text-[56px] font-semibold tracking-[-0.02em] leading-[1.2] text-[#1A1A1A] text-center mb-6">
                         Intelligent <span className="text-[#7BA1C7]">Slot Generation</span>
                     </h2>
@@ -63,9 +64,9 @@ const SmartSlotBento = () => {
 
                         <div className="mt-6 md:mt-auto relative z-10">
                             <p className="text-[#666666] mb-6 max-w-[300px] text-sm md:text-base">Define your hours, we handle the rest with conflict checking.</p>
-                            <a href="#" className="inline-flex items-center text-sm md:text-[15px] font-medium text-[#1A1A1A] hover:opacity-70 transition-opacity bg-white px-6 py-3 rounded-full shadow-sm">
+                            <Link href="/how-it-works/smart-scheduling" className="inline-flex items-center text-sm md:text-[15px] font-medium text-[#1A1A1A] hover:opacity-70 transition-opacity bg-white px-6 py-3 rounded-full shadow-sm">
                                 How it works <ChevronRight className="ml-1 w-4 h-4" />
-                            </a>
+                            </Link>
                         </div>
 
                         {/* Background Decoration */}

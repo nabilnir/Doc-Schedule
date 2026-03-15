@@ -18,7 +18,7 @@ export async function POST(req) {
 
         const body = await req.json();
         console.log("Incoming Payload:", body);
-        const { fullName, email, phone, image } = body;
+        const { fullName, email, phone, image, age, bloodGroup } = body;
 
         await connectDB();
 
@@ -54,6 +54,14 @@ export async function POST(req) {
         if (image !== undefined) {
             console.log("Updating Image URL");
             user.image = image;
+        }
+        if (age !== undefined) {
+            console.log("Updating Age to:", age);
+            user.age = age;
+        }
+        if (bloodGroup !== undefined) {
+            console.log("Updating Blood Group to:", bloodGroup);
+            user.bloodGroup = bloodGroup;
         }
 
         const savedUser = await user.save();
