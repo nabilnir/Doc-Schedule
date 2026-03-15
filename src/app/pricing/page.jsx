@@ -7,17 +7,22 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 // CHANGED: "export default function" instead of "export const"
 export default function Pricing() {
   const [isYearly, setIsYearly] = useState(false)
 
   const { data: session } = useSession()
+  const router = useRouter()
   const userId = session?.user?.id
 
   const handleSubscribe = async (planType) => {
     try {
-      if (!userId) return alert("Please login first!");
+      if (!userId) {
+        router.push('/login');
+        return;
+      }
 
       const response = await fetch('/api/stripe/subscribe-checkout', {
         method: 'POST',

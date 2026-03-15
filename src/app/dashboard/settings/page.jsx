@@ -24,7 +24,9 @@ export default function SettingsPage() {
         fullName: "",
         email: "",
         phone: "",
-        image: ""
+        image: "",
+        age: "",
+        bloodGroup: ""
     });
 
     const fileInputRef = React.useRef(null);
@@ -47,7 +49,9 @@ export default function SettingsPage() {
                 fullName: session.user.name || "",
                 email: session.user.email || "",
                 phone: session.user.phone || "",
-                image: session.user.image || ""
+                image: session.user.image || "",
+                age: session.user.age || "",
+                bloodGroup: session.user.bloodGroup || ""
             });
         }
     }, [session]);
@@ -277,6 +281,25 @@ export default function SettingsPage() {
                                             className="pl-11 bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
                                         />
                                     </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-slate-700">Age</Label>
+                                    <Input
+                                        type="number"
+                                        value={profileForm.age}
+                                        onChange={(e) => setProfileForm({ ...profileForm, age: e.target.value })}
+                                        placeholder="25"
+                                        className="bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-slate-700">Blood Group</Label>
+                                    <Input
+                                        value={profileForm.bloodGroup}
+                                        onChange={(e) => setProfileForm({ ...profileForm, bloodGroup: e.target.value })}
+                                        placeholder="O+"
+                                        className="bg-slate-50 border-none rounded-xl h-12 focus-visible:ring-[#7BA1C7] font-medium"
+                                    />
                                 </div>
                             </div>
 
