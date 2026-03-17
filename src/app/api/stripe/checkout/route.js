@@ -1,3 +1,4 @@
+"use server"
 import { headers } from "next/headers";
 import Stripe from "stripe";
 
@@ -6,9 +7,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export async function POST(req) {
   try {
     const { appointmentId, fee, patientEmail } = await req.json();
-
     const headerList = await headers();
-    const origin = headerList.get('origin')
+    const origin = headerList.get('origin');
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -26,22 +26,17 @@ export async function POST(req) {
           quantity: 1,
         },
       ],
-      success_url: `${origin}/dashboard/appointment?payment_success=true`,
-      cancel_url: `${origin}/dashboard/book-appointment?payment_canceled=true`,
+      // SUCCESS URL MUST HAVE THE ID
+      success_url: `${origin}/dashboard/appointment?payment_success=true&appointmentId=${appointmentId}`,
+      cancel_url: `${origin}/dashboard/appointment?payment_canceled=true`,
       metadata: {
         appointmentId,
       },
     });
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ url: session.url }), { status: 200 });
   } catch (error) {
     console.error("Stripe Checkout Error:", error);
-    return new Response(
-      JSON.stringify({ error: "Payment failed" }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Payment failed" }), { status: 500 });
   }
 }

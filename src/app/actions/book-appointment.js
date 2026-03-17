@@ -23,11 +23,10 @@ oauth2Client.setCredentials({
 const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
 /**
- * Helper: Adds the appointment to Google Calendar and sends an email invitation.
+ * Helper: Adds the appointment to Google Calendar.
  */
 async function addToGoogleCalendar(appointment) {
   try {
-    // 1. Parse time slot (e.g., "10:00 AM") to set Date object hours
     const appointmentDate = new Date(appointment.appointmentDate);
     const [time, modifier] = appointment.timeSlot.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
@@ -40,44 +39,31 @@ async function addToGoogleCalendar(appointment) {
 
     const startTime = new Date(appointmentDate);
     startTime.setHours(hours, minutes, 0, 0);
-
-    // Set appointment duration to 1 hour
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
 
     const event = {
       summary: `Medical Appointment: ${appointment.doctorName}`,
       location: "Clinic / Hospital",
       description: `Patient: ${appointment.patientName}, Age: ${appointment.patientAge}. Booked via DocSchedule.`,
-      start: {
-        dateTime: startTime.toISOString(),
-        timeZone: "Asia/Dhaka"
-      },
-      end: {
-        dateTime: endTime.toISOString(),
-        timeZone: "Asia/Dhaka"
-      },
-      // Adding the patient as an attendee triggers the invitation email
-      attendees: [
-        { email: appointment.patientEmail },
-      ],
+      start: { dateTime: startTime.toISOString(), timeZone: "Asia/Dhaka" },
+      end: { dateTime: endTime.toISOString(), timeZone: "Asia/Dhaka" },
+      attendees: [{ email: appointment.patientEmail }],
       reminders: {
         useDefault: false,
         overrides: [
-          { method: "email", minutes: 1440 }, // 24 hours before
-          { method: "popup", minutes: 60 },   // 1 hour before
+          { method: "email", minutes: 1440 },
+          { method: "popup", minutes: 60 },
         ],
       },
     };
 
-    // 2. Insert event to Google Calendar
-    // sendUpdates: "all" is critical for the guest to receive the email
     await calendar.events.insert({
       calendarId: "primary",
       requestBody: event,
       sendUpdates: "all",
     });
 
-    console.log("LOG: Google Calendar Event Created & Invitation Sent");
+    console.log("LOG: Google Calendar Event Created");
     return true;
   } catch (error) {
     console.error("LOG: Google Calendar API Error:", error.message);
@@ -96,7 +82,8 @@ export async function getBookedSlots(doctorId, date) {
     const targetDate = new Date(date);
     const appointments = await Appointment.find({
       doctorId: doctorId,
-      appointmentDate: { $gte: startOfDay(targetDate), $lte: endOfDay(targetDate) }
+      appointmentDate: { $gte: startOfDay(targetDate), $lte: endOfDay(targetDate) },
+      status: { $ne: 'cancelled' } 
     }).select('timeSlot');
     return appointments.map(app => app.timeSlot);
   } catch (error) {
@@ -106,50 +93,57 @@ export async function getBookedSlots(doctorId, date) {
 }
 
 /**
- * Handles confirmation logic after successful payment
+ * Handles confirmation logic after successful payment.
  */
 export async function handleConfirmedAppointment(appointmentId) {
   try {
     await connectDB();
-    const existingApp = await Appointment.findById(appointmentId);
-    if (!existingApp) return { success: false, error: "Appointment not found." };
 
-    // Check if user is logged in for system logs
-    const session = await getServerSession(authOptions);
+    // 1. Update the database record
+    const updatedApp = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { 
+        status: "confirmed", 
+        paymentStatus: "paid" 
+      },
+      { new: true }
+    );
 
-    // Sync with Google Calendar (Sends the auto-invite)
-    await addToGoogleCalendar(existingApp);
+    if (!updatedApp) {
+      return { success: false, error: "Appointment not found." };
+    }
 
-    // Send a custom confirmation email via Nodemailer
+    // 2. Sync with Google Calendar
+    await addToGoogleCalendar(updatedApp);
+
+    // 3. Send final confirmation email
     const emailBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h2 style="color: #4CAF50;">Booking Confirmed!</h2>
-        <p>Hello <strong>${existingApp.patientName}</strong>,</p>
-        <p>Your appointment has been successfully paid and scheduled.</p>
+        <h2 style="color: #4CAF50;">Payment Received & Confirmed!</h2>
+        <p>Hello <strong>${updatedApp.patientName}</strong>,</p>
+        <p>Your payment was successful. Your appointment is now officially confirmed.</p>
         <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
-          <p><strong>Doctor:</strong> ${existingApp.doctorName}</p>
-          <p><strong>Date:</strong> ${format(new Date(existingApp.appointmentDate), 'PPPP')}</p>
-          <p><strong>Time:</strong> ${existingApp.timeSlot}</p>
+          <p><strong>Doctor:</strong> ${updatedApp.doctorName}</p>
+          <p><strong>Date:</strong> ${format(new Date(updatedApp.appointmentDate), 'PPPP')}</p>
+          <p><strong>Time:</strong> ${updatedApp.timeSlot}</p>
+          <p><strong>Payment Status:</strong> Paid</p>
         </div>
-        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
-          * A Google Calendar invitation has also been sent to your email.
-        </p>
       </div>
     `;
 
-    console.log(`LOG: Sending Nodemailer confirmation to ${existingApp.patientEmail}`);
-    await sendEmail(existingApp.patientEmail, "Appointment Confirmed - DocSchedule", emailBody);
+    await sendEmail(updatedApp.patientEmail, "Payment Successful - DocSchedule", emailBody);
 
-    // Log booking success for analytics
+    // 4. Log the success (FIXED Validation Error by using 'booking' instead of 'payment')
+    const session = await getServerSession(authOptions);
     try {
       await SystemLog.create({
-        type: "booking",
+        type: "booking", // Use 'booking' as 'payment' is not in your model enum
         status: "success",
-        message: `Appointment paid and confirmed with ${existingApp.doctorName}`,
-        userEmail: session?.user?.email || "webhook",
+        message: `Appointment ${appointmentId} updated to PAID status.`,
+        userEmail: session?.user?.email || "system",
       });
     } catch (logErr) {
-      console.warn("LOG: Failed to write system log:", logErr.message);
+      console.warn("LOG: SystemLog validation failed, but appointment update continues.");
     }
 
     return { success: true };
@@ -160,33 +154,35 @@ export async function handleConfirmedAppointment(appointmentId) {
 }
 
 /**
- * Main action to initiate an appointment booking (Sets to pending for Stripe).
+ * Main action to initiate a booking.
  */
 export async function bookAppointment(data) {
   const session = await getServerSession(authOptions);
 
-  const inputEmail = data.patientDetails.email;
-  
+  if (!session || !session.user) {
+    return { success: false, error: "Unauthorized access. Please log in." };
+  }
 
+  const inputEmail = data.patientDetails.email;
   const loggedInUserEmail = session.user.email;
-  // Check if user is logged in
-  if (!session) return { success: false, error: "Unauthorized access." };
 
   try {
-    console.log("LOG: Initializing booking process...");
     await connectDB();
 
-    // 1. Check for duplicate bookings in the same slot
     const existing = await Appointment.findOne({
       doctorId: data.doctorId,
-      appointmentDate: { $gte: startOfDay(new Date(data.date)), $lte: endOfDay(new Date(data.date)) },
+      appointmentDate: { 
+        $gte: startOfDay(new Date(data.date)), 
+        $lte: endOfDay(new Date(data.date)) 
+      },
       timeSlot: data.slot,
-      status: { $ne: 'cancelled' } // Ignore cancelled ones
+      status: { $ne: 'cancelled' }
     });
 
-    if (existing) return { success: false, error: "This time slot is already taken." };
+    if (existing) {
+      return { success: false, error: "This time slot is already taken." };
+    }
 
-    // 2. Save appointment details to MongoDB as pending
     const newApp = new Appointment({
       doctorId: data.doctorId,
       doctorName: data.doctorName,
@@ -198,66 +194,28 @@ export async function bookAppointment(data) {
       patientBloodGroup: data.patientDetails.bloodGroup,
       patientEmail: inputEmail,
       userEmail: loggedInUserEmail,
-      status: 'pending', // Awaiting payment
+      status: 'pending',
+      paymentStatus: 'unpaid',
     });
-    
-    
 
-     // Create dashboard notifications
+    const savedApp = await newApp.save();
+
     if (Notification) {
       await new Notification({
-        userEmail: data.patientDetails.email,
         userEmail: loggedInUserEmail,
-        message: `${data.patientDetails.name} booked ${data.doctorName} at ${data.slot}`,
+        message: `Booking initiated for ${data.doctorName}. Awaiting payment.`,
         type: "appointment",
         isRead: false,
       }).save();
     }
 
-    const savedApp = await newApp.save();
-    console.log("LOG: Pending appointment record saved to database.");
+    return { 
+      success: true, 
+      appointmentId: savedApp._id.toString() 
+    };
 
-    // 3. Sync with Google Calendar (Sends the auto-invite)
-    await addToGoogleCalendar(savedApp);
-
-
-    
-
-    // 4. Send a custom confirmation email via Nodemailer
-    const emailBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h2 style="color: #4CAF50;">Booking Confirmed!</h2>
-        <p>Hello <strong>${data.patientDetails.name}</strong>,</p>
-        <p>Your appointment has been successfully scheduled.</p>
-        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
-          <p><strong>Doctor:</strong> ${data.doctorName}</p>
-          <p><strong>Date:</strong> ${format(new Date(data.date), 'PPPP')}</p>
-          <p><strong>Time:</strong> ${data.slot}</p>
-        </div>
-        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
-          * A Google Calendar invitation has also been sent to your email.
-        </p>
-      </div>
-    `;
-
-    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
-    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
-    
-    return { success: true };
   } catch (error) {
     console.error("LOG: Fatal Booking Error:", error);
-    // Log booking failure for analytics
-    try {
-      await SystemLog.create({
-        type: "booking",
-        status: "error",
-        message: "Appointment booking failed",
-        errorDetails: error.message,
-        userEmail: session?.user?.email || null,
-      });
-    } catch (logErr) {
-      console.warn("LOG: Failed to write system error log:", logErr.message);
-    }
     return { success: false, error: error.message || "An internal server error occurred." };
   }
 }
