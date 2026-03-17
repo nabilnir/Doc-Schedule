@@ -8,6 +8,7 @@ import { format, startOfDay, endOfDay } from "date-fns";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { google } from "googleapis";
+import Notification from "@/models/Notification";
 
 // --- Google Calendar Configuration ---
 const oauth2Client = new google.auth.OAuth2(
@@ -164,6 +165,10 @@ export async function handleConfirmedAppointment(appointmentId) {
 export async function bookAppointment(data) {
   const session = await getServerSession(authOptions);
 
+  const inputEmail = data.patientDetails.email;
+  
+
+  const loggedInUserEmail = session.user.email;
   // Check if user is logged in
   if (!session) return { success: false, error: "Unauthorized access." };
 
@@ -191,16 +196,32 @@ export async function bookAppointment(data) {
       patientAge: data.patientDetails.age,
       patientGender: data.patientDetails.gender,
       patientBloodGroup: data.patientDetails.bloodGroup,
-      patientEmail: data.patientDetails.email,
-      userEmail: session.user.email,
+      patientEmail: inputEmail,
+      userEmail: loggedInUserEmail,
       status: 'pending', // Awaiting payment
     });
+    
+    
+
+     // Create dashboard notifications
+    if (Notification) {
+      await new Notification({
+        userEmail: data.patientDetails.email,
+        userEmail: loggedInUserEmail,
+        message: `${data.patientDetails.name} booked ${data.doctorName} at ${data.slot}`,
+        type: "appointment",
+        isRead: false,
+      }).save();
+    }
 
     const savedApp = await newApp.save();
     console.log("LOG: Pending appointment record saved to database.");
 
     // 3. Sync with Google Calendar (Sends the auto-invite)
     await addToGoogleCalendar(savedApp);
+
+
+    
 
     // 4. Send a custom confirmation email via Nodemailer
     const emailBody = `
