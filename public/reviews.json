@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Farhan Ahmed",
+    "role": "Cardiologist",
+    "image": "https://i.pravatar.cc/150?img=11",
+    "rating": 5,
+    "comment": "The Google Calendar Sync feature of DocSchedule is amazing! My entire week's schedule updates automatically. No chance of missing any appointments."
+  },
+  {
+    "id": 2,
+    "name": "Sadia Islam",
+    "role": "Patient",
+    "image": "https://i.pravatar.cc/150?img=5",
+    "rating": 5,
+    "comment": "I can easily book real-time slots from home. Receiving an email confirmation and a 2-hour pre-checkup reminder is just fantastic!"
+  },
+  {
+    "id": 3,
+    "name": "Dr. Nabila Haque",
+    "role": "Dermatologist",
+    "image": "https://i.pravatar.cc/150?img=9",
+    "rating": 5,
+    "comment": "Patients can now upload their old reports during booking. I can review their medical history even before they enter my chamber. It saves so much time."
+  },
+  {
+    "id": 4,
+    "name": "Kamal Hossain",
+    "role": "Patient",
+    "image": "https://i.pravatar.cc/150?img=12",
+    "rating": 4.5,
+    "comment": "The telemedicine feature is super helpful. I received the Google Meet link right after booking and had a smooth video consultation from home."
+  },
+  {
+    "id": 5,
+    "name": "LifeCare Clinic",
+    "role": "Clinic Admin",
+    "image": "https://i.pravatar.cc/150?img=68",
+    "rating": 5,
+    "comment": "Managing 5 specialists in our clinic used to be a hassle. With DocSchedule's multi-tenant system, we can track appointments and revenue from a single dashboard."
+  },
+  {
+    "id": 6,
+    "name": "Dr. Rifat Hasan",
+    "role": "Pediatrician",
+    "image": "https://i.pravatar.cc/150?img=13",
+    "rating": 5,
+    "comment": "The Patient Intake Form allows parents to write down symptoms beforehand, helping me provide faster and more accurate treatments."
+  },
+  {
+    "id": 7,
+    "name": "Tariqul Islam",
+    "role": "Patient",
+    "image": "https://i.pravatar.cc/150?img=14",
+    "rating": 5,
+    "comment": "Paying the doctor's fee is incredibly smooth. I paid via Stripe during booking and received a digital receipt instantly."
+  },
+  {
+    "id": 8,
+    "name": "Dr. Mahmudul Hasan",
+    "role": "Neurologist",
+    "image": "https://i.pravatar.cc/150?img=15",
+    "rating": 4.5,
+    "comment": "Thanks to automated email reminders via Resend, the 'no-show' rate at my chamber has dropped significantly. Truly a lifesaver."
+  },
+  {
+    "id": 9,
+    "name": "Anika Tabassum",
+    "role": "Patient",
+    "image": "https://i.pravatar.cc/150?img=16",
+    "rating": 5,
+    "comment": "The UI is very clean and intuitive. Checking doctors' profiles, degrees, and experiences helped me choose the right specialist easily."
+  },
+  {
+    "id": 10,
+    "name": "Dr. Shafiqur Rahman",
+    "role": "General Physician",
+    "image": "https://i.pravatar.cc/150?img=33",
+    "rating": 5,
+    "comment": "I absolutely love the admin dashboard. I can view my daily patient count and earnings analytics with just one click."
+  },
+  {
+    "id": 11,
+    "name": "Tasnim Chowdhury",
+    "role": "Patient",
+    "image": "https://i.pravatar.cc/150?img=20",
+    "rating": 4,
+    "comment": "Booked an appointment for my mother. The ability to upload previous prescriptions securely beforehand is a very thoughtful feature."
+  },
+  {
+    "id": 12,
+    "name": "Dr. Imran Khan",
+    "role": "Orthopedics",
+    "image": "https://i.pravatar.cc/150?img=53",
+    "rating": 5,
+    "comment": "I can manage my shift hours very flexibly. This software has digitized my practice and cut my chamber management workload in half."
+  }
+]

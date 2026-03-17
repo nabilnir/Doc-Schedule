@@ -1,0 +1,107 @@
+commit ba3e3636c2e23b56ebfd431c54906faed9d1940e
+Merge: 073edf5 6227dd7
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Fri Mar 6 00:05:46 2026 +0600
+
+    Merge branch 'nabilnir' of https://github.com/nabilnir/Doc-Schedule into nabilnir
+    Need for major update of the project, with new features and bug fixes. This merge will help to keep the project up to date and improve its functionality.
+
+commit 073edf58335cbc8a913753c695bebad59c30385d
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Fri Mar 6 00:05:17 2026 +0600
+
+    [ADDED] : Admin , Patient & Doctor Dashbaord Created
+
+commit 6227dd76fc8255e81535dc8252a1718c4b1b4526
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Thu Mar 5 13:55:27 2026 +0600
+
+    Dashboard Updated
+
+commit ebb34b2f984cb82fac67f26a6d1d87d47b573e06
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Thu Mar 5 13:19:57 2026 +0600
+
+    [ADDED] : Admin Dashboard - Patient And Doctor Management and Analytics Section
+
+commit 25e7390b2384300370863129ea0ed8ee036c6c2c
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Tue Mar 3 16:48:34 2026 +0600
+
+    [ADDED] : Admin Dashbaord Overview section
+
+commit 2abe6705637c4f7b235b8d96f5165e79664f565d
+Merge: 8c29723 9819224
+Author: Nabil Mahmud <nirarhan@gmail.com>
+Date:   Tue Mar 3 15:59:28 2026 +0600
+
+    [Added] Google Calendar Synchronization
+    
+    [Added] Google Calendar Synchronization
+
+commit 98192249e77516dc16216ec81487c185d53b6cb6
+Author: najmulkhan1 <najmulislam624@gmail.com>
+Date:   Tue Mar 3 15:57:04 2026 +0600
+
+    [Added] Google Calendar Synchronization
+
+commit 8c2972378231dbd4ccdf573e3f71487caa6c32e0
+Merge: 10115e6 c0023a0
+Author: Nabil Mahmud <nirarhan@gmail.com>
+Date:   Mon Mar 2 22:34:30 2026 +0600
+
+    [ADDED] stripe checkout & webhook
+    
+    [ADDED] stripe checkout & webhook
+
+commit c0023a095ef96af0d14126bd99d205dfac320852
+Author: moonahmed <mdmoonahmedkhan10@gmail.com>
+Date:   Mon Mar 2 01:27:31 2026 +0600
+
+    [Added] stripe checkout & webhook
+
+commit 10115e6287b119e7162f768842a853a69d15aa1c
+Merge: 16bb9fd 855a67b
+Author: Nabil Mahmud <nirarhan@gmail.com>
+Date:   Sun Mar 1 17:24:00 2026 +0600
+
+    [ADDED] : Admin Dashboard Added and Overview section implemented
+    
+    [ADDED] : Admin Dashboard Added and Overview section implemented
+
+commit 855a67b774781af9aa990f53013de90f0088bff0
+Author: nabilnir <nirarhan@gmail.com>
+Date:   Sun Mar 1 17:20:42 2026 +0600
+
+    [ADDED] : Admin Dashboard Added and Overview section implemented
+
+commit 16bb9fdbc312fd7cb8c6c929e066d6c485d63d79
+Merge: 207fbb3 b08ccec
+Author: Nabil Mahmud <nirarhan@gmail.com>
+Date:   Sat Feb 28 17:07:10 2026 +0600
+
+    Merge pull request #35 from nabilnir/protiva-1
+    
+    Protiva 1
+
+commit b08ccecbf6a3ab515cc2607eb665fa8f160a021c
+Author: protivaghosh <protivaghosh50@gmail.com>
+Date:   Sat Feb 28 16:08:59 2026 +0600
+
+    added to min-h_section
+
+commit c8dd49cbc7082738382717f9bb19f6768e2b7f3e
+Merge: c990523 207fbb3
+Author: Najmulkhan1 <najmulislam624@gmail.com>
+Date:   Sat Feb 28 01:36:56 2026 +0600
+
+    marging
+
+commit ef7bae4f2cab8df164378d9b0aacd84fa837ce45
+Merge: 8ff07ae a45ecf8
+Author: Nabil Mahmud <nirarhan@gmail.com>
+Date:   Thu Feb 26 14:43:35 2026 +0600
+
+    Merge pull request #34 from nabilnir/nabilnir
+    
+    bug fixes

@@ -1,0 +1,259 @@
+
+> doc-schedule@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 8 errors:
+./src/components/appointment/booking-system.jsx:193:2
+Parsing ecmascript source code failed
+[0m [90m 191 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-[425px] rounded-[32px] bg-white p-8"[39m[33m>[39m
+ [90m 192 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m
+[31m[1m>[22m[39m[90m 193 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+ [90m     |[39m  [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 194 |[39m             [33m<[39m[33mDialogTitle[39m className[33m=[39m[32m"text-2xl font-bold"[39m[33m>[39m[33mPatient[39m [33mDetails[39m[33m<[39m[33m/[39m[33mDialogTitle[39m[33m>[39m
+ [90m 195 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m 196 |[39m             [33m<[39m[33mDialogTitle[39m className[33m=[39m[32m"text-2xl font-bold"[39m[33m>[39m[0m
+
+Expression expected
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:193:4
+Parsing ecmascript source code failed
+[0m [90m 191 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-[425px] rounded-[32px] bg-white p-8"[39m[33m>[39m
+ [90m 192 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m
+[31m[1m>[22m[39m[90m 193 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+ [90m     |[39m    [31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 194 |[39m             [33m<[39m[33mDialogTitle[39m className[33m=[39m[32m"text-2xl font-bold"[39m[33m>[39m[33mPatient[39m [33mDetails[39m[33m<[39m[33m/[39m[33mDialogTitle[39m[33m>[39m
+ [90m 195 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m 196 |[39m             [33m<[39m[33mDialogTitle[39m className[33m=[39m[32m"text-2xl font-bold"[39m[33m>[39m[0m
+
+Expression expected
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:15:1
+Parsing ecmascript source code failed
+[0m [90m 13 |[39m [36mimport[39m { [33mLabel[39m } [36mfrom[39m [32m"@/components/ui/label"[39m[33m;[39m
+ [90m 14 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 15 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 16 |[39m [36mimport[39m { bookAppointment[33m,[39m getBookedSlots } [36mfrom[39m [32m"@/app/actions/book-appointment"[39m[33m;[39m
+ [90m 17 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m 18 |[39m [36mimport[39m {[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:17:1
+Parsing ecmascript source code failed
+[0m [90m 15 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+ [90m 16 |[39m [36mimport[39m { bookAppointment[33m,[39m getBookedSlots } [36mfrom[39m [32m"@/app/actions/book-appointment"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 18 |[39m [36mimport[39m {
+ [90m 19 |[39m   bookAppointment[33m,[39m
+ [90m 20 |[39m   getBookedSlots[33m,[39m[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:23:1
+Parsing ecmascript source code failed
+[0m [90m 21 |[39m } [36mfrom[39m [32m"@/app/actions/book-appointment"[39m[33m;[39m
+ [90m 22 |[39m [36mimport[39m { useSession } [36mfrom[39m [32m"next-auth/react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 23 |[39m [33m>>>[39m[33m>>>[39m[33m>[39m f68286d2b206cd8716443f9eb921d5e9aac9e2bc
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 24 |[39m
+ [90m 25 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mBookingSystem[39m({ doctor }) {
+ [90m 26 |[39m   [36mconst[39m [selectedDate[33m,[39m setSelectedDate] [33m=[39m useState([36mnew[39m [33mDate[39m())[33m;[39m[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:31:1
+Parsing ecmascript source code failed
+[0m [90m 29 |[39m   [36mconst[39m [isModalOpen[33m,[39m setIsModalOpen] [33m=[39m useState([36mfalse[39m)[33m;[39m
+ [90m 30 |[39m   [36mconst[39m [bookedSlots[33m,[39m setBookedSlots] [33m=[39m useState([])[33m;[39m
+[31m[1m>[22m[39m[90m 31 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 32 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m 33 |[39m   [36mconst[39m { data[33m:[39m session[33m,[39m update } [33m=[39m useSession()[33m;[39m
+ [90m 34 |[39m [33m>>>[39m[33m>>>[39m[33m>[39m f68286d2b206cd8716443f9eb921d5e9aac9e2bc[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:32:1
+Parsing ecmascript source code failed
+[0m [90m 30 |[39m   [36mconst[39m [bookedSlots[33m,[39m setBookedSlots] [33m=[39m useState([])[33m;[39m
+ [90m 31 |[39m [33m<<[39m[33m<<[39m[33m<<[39m[33m<[39m [33mHEAD[39m
+[31m[1m>[22m[39m[90m 32 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 33 |[39m   [36mconst[39m { data[33m:[39m session[33m,[39m update } [33m=[39m useSession()[33m;[39m
+ [90m 34 |[39m [33m>>>[39m[33m>>>[39m[33m>[39m f68286d2b206cd8716443f9eb921d5e9aac9e2bc
+ [90m 35 |[39m[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+./src/components/appointment/booking-system.jsx:34:1
+Parsing ecmascript source code failed
+[0m [90m 32 |[39m [33m===[39m[33m===[39m[33m=[39m
+ [90m 33 |[39m   [36mconst[39m { data[33m:[39m session[33m,[39m update } [33m=[39m useSession()[33m;[39m
+[31m[1m>[22m[39m[90m 34 |[39m [33m>>>[39m[33m>>>[39m[33m>[39m f68286d2b206cd8716443f9eb921d5e9aac9e2bc
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 35 |[39m
+ [90m 36 |[39m   [90m// Patient Information State[39m
+ [90m 37 |[39m   [36mconst[39m [patientInfo[33m,[39m setPatientInfo] [33m=[39m useState({[0m
+
+Merge conflict marker encountered.
+
+Import traces:
+  Server Component:
+    ./src/components/appointment/booking-system.jsx
+    ./src/app/all-doctors/[id]/page.jsx
+
+  Client Component Browser:
+    ./src/components/appointment/booking-system.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Client Component Browser]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/appointment/booking-system.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Client Component SSR]
+    ./src/components/appointment/doctor-card.jsx [Server Component]
+    ./src/app/dashboard/appointment/page.jsx [Server Component]
+
+
+    at <unknown> (./src/components/appointment/booking-system.jsx:193:2)
+    at <unknown> (./src/components/appointment/booking-system.jsx:193:4)
+    at <unknown> (./src/components/appointment/booking-system.jsx:15:1)
+    at <unknown> (./src/components/appointment/booking-system.jsx:17:1)
+    at <unknown> (./src/components/appointment/booking-system.jsx:23:1)
+    at <unknown> (./src/components/appointment/booking-system.jsx:31:1)
+    at <unknown> (./src/components/appointment/booking-system.jsx:32:1)
+    at <unknown> (./src/components/appointment/booking-system.jsx:34:1)
