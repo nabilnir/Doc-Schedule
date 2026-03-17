@@ -1,0 +1,43 @@
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+
+
+const UserSchema = new mongoose.Schema({
+    fullName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: { type: String, trim: true },
+    password: { type: String },
+    role: { type: String, enum: ["patient", "doctor", "admin"], default: "patient" },
+    image: { type: String },
+    provider: { type: String, enum: ["credentials", "google", "github"], default: "credentials" },
+    firebaseUid: { type: String },
+    otp: { type: String, default: null },
+    isVerified: { type: Boolean, default: false },
+    resetOtp: { type: String, default: null },
+    resetOtpExpires: { type: Date, default: null },
+    loginAttempts: { type: Number, default: 0 },
+    otpAttempts: { type: Number, default: 0 },
+    isBlocked: { type: Boolean, default: false },
+    age: { type: Number },
+    bloodGroup: { type: String },
+}, {
+    timestamps: true,
+    collection: 'users'
+});
+
+UserSchema.pre("save", async function () {
+    if (!this.password) return;
+    // Skip if not modified
+    if (!this.isModified("password")) return;
+    // Skip if already a bcrypt hash (prevents double-hashing)
+    if (this.password.startsWith("$2b$") || this.password.startsWith("$2a$")) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
+
+UserSchema.methods.comparePassword = async function (inputPassword) {
+    if (!this.password) return false;
+    return bcrypt.compare(inputPassword, this.password);
+};
+
+const User = mongoose.models.User || mongoose.model("User", UserSchema, "users");
+export default User;
