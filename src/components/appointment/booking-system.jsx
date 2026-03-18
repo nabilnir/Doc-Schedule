@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
+import Swal from "sweetalert2"; // SweetAlert Import
 
 export default function BookingSystem({ doctor }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -24,7 +25,20 @@ export default function BookingSystem({ doctor }) {
   const [isPending, setIsPending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
+
+  // SweetAlert Toast Configuration
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 4000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+  });
 
   const [patientInfo, setPatientInfo] = useState({
     name: "",
@@ -34,24 +48,39 @@ export default function BookingSystem({ doctor }) {
     email: "",
   });
 
+  // Fetch Booked Slots
   useEffect(() => {
     const fetchBookedSlots = async () => {
       if (doctor?._id) {
         const slots = await getBookedSlots(doctor._id, selectedDate);
-        setBookedSlots(slots);
-        setSelectedSlot(null); // Changing the date will reset the previously selected slot.
+        setBookedSlots(slots || []);
+        setSelectedSlot(null);
       }
     };
     fetchBookedSlots();
   }, [selectedDate, doctor?._id]);
 
+  // Handle Success/Cancel URL parameters
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
+    if (query.get("payment_success")) {
+      Toast.fire({
+        icon: "success",
+        title: "Payment Successful! Appointment Confirmed.",
+      });
+      // URL theke query parameter remove korar jonno (optional)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     if (query.get("payment_canceled")) {
-      alert("Payment was canceled. Your appointment has not been confirmed.");
+      Toast.fire({
+        icon: "error",
+        title: "Payment Canceled. Please try again.",
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
+  // Sync Session Info
   useEffect(() => {
     if (session?.user) {
       setPatientInfo((prev) => ({
@@ -63,7 +92,7 @@ export default function BookingSystem({ doctor }) {
   }, [session]);
 
   const quickDates = Array.from({ length: 4 }, (_, i) =>
-    addDays(startOfToday(), i),
+    addDays(startOfToday(), i)
   );
 
   const dummySlots = doctor?.time_slots || [
@@ -80,21 +109,24 @@ export default function BookingSystem({ doctor }) {
   };
 
   const handleFinalSubmit = async () => {
-    if (!patientInfo.name || !patientInfo.age || !patientInfo.gender || !patientInfo.email)
-      return alert("Please fill name, age, gender, and email");
+    if (!patientInfo.name || !patientInfo.age || !patientInfo.gender || !patientInfo.email) {
+      return Toast.fire({
+        icon: "warning",
+        title: "Please fill all required fields",
+      });
+    }
 
     setIsPending(true);
-    const result = await bookAppointment({
-      doctorId: doctor?._id,
-      doctorName: doctor?.name,
-      date: selectedDate,
-      slot: selectedSlot,
-      patientDetails: patientInfo,
-    });
+    try {
+      const result = await bookAppointment({
+        doctorId: doctor?._id,
+        doctorName: doctor?.name,
+        date: selectedDate,
+        slot: selectedSlot,
+        patientDetails: patientInfo,
+      });
 
-    if (result.success && result.appointmentId) {
-      try {
-        // Assume default doctor fee is 500 for testing, otherwise fetch from doctor data
+      if (result.success && result.appointmentId) {
         const fee = doctor?.consultationFee || 500;
 
         const stripeRes = await fetch("/api/stripe/checkout", {
@@ -110,18 +142,19 @@ export default function BookingSystem({ doctor }) {
         const stripeData = await stripeRes.json();
 
         if (stripeData.url) {
-          window.location.href = stripeData.url; // Redirect to Stripe
+          window.location.href = stripeData.url; // Stripe e niye jabe
         } else {
-          alert("Payment initialization failed");
-          setIsPending(false);
+          throw new Error("Payment link generation failed");
         }
-      } catch (error) {
-        console.error("Stripe error:", error);
-        alert("Failed to connect to payment gateway.");
-        setIsPending(false);
+      } else {
+        throw new Error(result.error || "Booking failed");
       }
-    } else {
-      alert("Error: " + result.error);
+    } catch (error) {
+      console.error(error);
+      Toast.fire({
+        icon: "error",
+        title: error.message || "Something went wrong",
+      });
       setIsPending(false);
     }
   };
@@ -144,7 +177,7 @@ export default function BookingSystem({ doctor }) {
                 "px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
                 format(selectedDate, "PP") === format(date, "PP")
                   ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
-                  : "bg-white text-slate-600 hover:border-[#7BA1C7]/30",
+                  : "bg-white text-slate-600 hover:border-[#7BA1C7]/30"
               )}
             >
               {format(date, "PP") === format(new Date(), "PP")
@@ -152,36 +185,32 @@ export default function BookingSystem({ doctor }) {
                 : format(date, "EEE, d MMM")}
             </button>
           ))}
-          {/* Popover Calendar remains same */}
+          
           <Popover>
-      <PopoverTrigger asChild>
-        <button
-          className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
-            // If the selected date is not among the quickDates, this button will be highlighted.
-            !quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
-              ? "bg-[#7BA1C7] text-white border-[#7BA1C7] shadow-lg shadow-blue-100"
-              : "bg-white text-slate-600 hover:border-[#7BA1C7]/30"
-          )}
-        >
-          <CalendarIcon className="w-4 h-4" />
-          {/* If a custom date is selected, that date will be displayed, otherwise "More Dates" will be displayed. */}
-          {!quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
-            ? format(selectedDate, "EEE, d MMM")
-            : "More Dates"}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={(date) => {
-            if (date) setSelectedDate(date);
-          }}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold border transition-all",
+                  !quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+                    ? "bg-[#7BA1C7] text-white border-[#7BA1C7]"
+                    : "bg-white text-slate-600 hover:border-[#7BA1C7]/30"
+                )}
+              >
+                <CalendarIcon className="w-4 h-4" />
+                {!quickDates.some((d) => format(d, "PP") === format(selectedDate, "PP"))
+                  ? format(selectedDate, "EEE, d MMM")
+                  : "More Dates"}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -189,19 +218,19 @@ export default function BookingSystem({ doctor }) {
       <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-inner">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           {dummySlots.map((slot) => {
-            const isBooked = bookedSlots.includes(slot); // Check if the slot is booked or not.
+            const isBooked = bookedSlots.includes(slot);
             return (
               <button
                 key={slot}
-                disabled={isBooked} // Will be disabled if booked.
+                disabled={isBooked}
                 onClick={() => setSelectedSlot(slot)}
                 className={cn(
                   "py-3 text-xs font-bold rounded-2xl border transition-all relative overflow-hidden",
                   isBooked
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200"
                     : selectedSlot === slot
-                      ? "bg-white text-[#7BA1C7] border-[#7BA1C7] ring-2 ring-slate-100"
-                      : "bg-white text-slate-500 hover:border-[#7BA1C7]/30",
+                    ? "bg-white text-[#7BA1C7] border-[#7BA1C7] ring-2 ring-slate-100"
+                    : "bg-white text-slate-500 hover:border-[#7BA1C7]/30"
                 )}
               >
                 {slot}
@@ -216,7 +245,7 @@ export default function BookingSystem({ doctor }) {
         </div>
       </div>
 
-      {/* Footer and Modal remain same as your code */}
+      {/* Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-dashed">
         <div className="text-sm font-bold text-slate-700">
           {selectedSlot
@@ -233,9 +262,8 @@ export default function BookingSystem({ doctor }) {
         </Button>
       </div>
 
-      {/* Patient Info Modal remains same as your code */}
+      {/* Patient Info Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        {/* ... Modal Content ... */}
         <DialogContent className="sm:max-w-[425px] rounded-[32px] bg-white p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Patient Details</DialogTitle>
@@ -260,7 +288,6 @@ export default function BookingSystem({ doctor }) {
                 placeholder="email@example.com"
                 onChange={handleInputChange}
                 className="rounded-xl h-12"
-                required
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -281,7 +308,7 @@ export default function BookingSystem({ doctor }) {
                   name="gender"
                   value={patientInfo.gender}
                   onChange={handleInputChange}
-                  className="flex h-12 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-12 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                   required
                 >
                   <option value="" disabled>Select</option>
@@ -303,8 +330,12 @@ export default function BookingSystem({ doctor }) {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleFinalSubmit} disabled={isPending} className="w-full bg-black hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200">
-              {isPending ? "Processing..." : "Submit Appointment"}
+            <Button 
+              onClick={handleFinalSubmit} 
+              disabled={isPending} 
+              className="w-full bg-black hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg"
+            >
+              {isPending ? "Processing..." : "Submit & Pay Now"}
             </Button>
           </DialogFooter>
         </DialogContent>
