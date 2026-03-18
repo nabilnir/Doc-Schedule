@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BookingSystem from "./booking-system";
 import { isValidImageUrl, cn } from "@/lib/utils";
-import { toast } from "sonner"; // ba apnar favorite toast library
+import { toast } from "sonner"; 
 
 export default function DoctorCard({ doctor, existingBooking }) {
   const [isExpanded, setIsExpanded] = useState(false);
