@@ -280,3 +280,6 @@ vite.config.ts.timestamp-*
 .vercel
 .env*.local
 
+.env
+.env.local
+.envtestgit 

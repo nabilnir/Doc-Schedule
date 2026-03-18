@@ -3,69 +3,81 @@ import Appointment from "@/models/Appointment";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { format } from "date-fns";
-import { Clock9, CalendarDays, User, Activity } from "lucide-react";
+import { Clock9, CalendarDays, Activity } from "lucide-react";
 import PaymentSuccessAlert from "@/components/appointment/payment-success-alert";
+import CancelButton from "@/components/appointment/cancel-button";
+
+import Link from "next/link";
+import FilterBar from "@/components/appointment/filter-bar";
 
 export const dynamic = "force-dynamic";
 
-export default async function MyBookingsPage() {
+export default async function MyBookingsPage({ searchParams }) {
   const session = await getServerSession(authOptions);
 
+  // Authorization check
   if (!session) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Access Denied</h2>
-        <p className="text-slate-500">Please log in to view your bookings.</p>
+      <div className="p-10 text-center flex flex-col items-center justify-center min-h-[50vh]">
+        <h2 className="text-xl font-bold text-red-500">Access Denied</h2>
+        <p className="text-slate-500">Please sign in to view your bookings.</p>
       </div>
     );
   }
 
+  // Destructure search parameters with default values
+  const { search = "", status = "", page = "1" } = await searchParams;
+  const limit = 10;
+  const skip = (parseInt(page) - 1) * limit;
+
   await connectDB();
 
-  // Find all appointments for the logged-in user
-  const rawAppointments = await Appointment.find({
-    $or: [
-      { userEmail: session.user.email },
-      { patientEmail: session.user.email }
-    ]
-  })
-    .sort({ appointmentDate: 1 }) // Sort by date ascending
-    .lean();
-
-  const appointments = JSON.parse(JSON.stringify(rawAppointments));
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider">Confirmed</span>;
-      case 'cancelled':
-        return <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase tracking-wider">Cancelled</span>;
-      default:
-        return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold uppercase tracking-wider">Pending</span>;
-    }
+  // Construct MongoDB Query based on filters and session user
+  const query = {
+    $and: [
+      { $or: [{ userEmail: session.user.email }, { patientEmail: session.user.email }] },
+      search ? { doctorName: { $regex: search, $options: "i" } } : {},
+      status ? { status: status } : {},
+    ],
   };
 
+  // Fetch count and paginated data
+  const totalAppointments = await Appointment.countDocuments(query);
+  const rawData = await Appointment.find(query)
+    .sort({ appointmentDate: -1 }) // Show newest appointments first
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const appointments = JSON.parse(JSON.stringify(rawData));
+  const totalPages = Math.ceil(totalAppointments / limit);
+  const currentPage = parseInt(page);
+
   return (
-    <div className="p-6 md:p-10 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-slate-900 mx-1">My Bookings</h1>
-        <p className="text-slate-500 mx-1">View and manage your consultation schedule.</p>
+    <div className="p-6 md:p-10 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {/* Header with Counter and Filter Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">My Bookings</h1>
+            <span className="bg-blue-600 text-white px-3 py-0.5 rounded-full text-xs font-bold shadow-sm">
+              {totalAppointments} Total
+            </span>
+          </div>
+          <p className="text-slate-500 text-sm mt-1">Manage and track your medical appointments.</p>
+        </div>
+        
+        <FilterBar />
       </div>
 
       <PaymentSuccessAlert />
 
+      {/* Results Table Section */}
       {appointments.length === 0 ? (
-        <div className="bg-white rounded-[32px] p-12 text-center border shadow-sm flex flex-col items-center justify-center min-h-[40vh]">
-          <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-            <CalendarDays className="w-10 h-10 text-slate-300" />
-          </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">No past or upcoming bookings</h3>
-          <p className="text-slate-500 max-w-sm mx-auto mb-8">
-            You haven't scheduled any appointments yet. Click the button below to find a doctor.
-          </p>
-          <a href="/dashboard/book-appointment" className="px-8 py-4 bg-black text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors shadow-lg">
-            Book an Appointment
-          </a>
+        <div className="bg-white rounded-[32px] p-20 text-center border border-dashed flex flex-col items-center justify-center">
+          <CalendarDays className="w-12 h-12 text-slate-200 mb-4" />
+          <h3 className="text-lg font-semibold text-slate-800">No appointments found</h3>
+          <p className="text-slate-500 text-sm">Adjust your filters or book a new session.</p>
         </div>
       ) : (
         <div className="bg-white rounded-[32px] border shadow-sm overflow-hidden">
