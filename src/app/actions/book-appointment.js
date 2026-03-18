@@ -241,11 +241,6 @@ export async function bookAppointment(data) {
     console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
     await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
 
-    return { success: true };
-
-    const savedApp = await newApp.save();
-    console.log("LOG: Pending appointment record saved to database.");
-
     // Return the ID so the UI can redirect to Stripe Checkout
     return { success: true, appointmentId: savedApp._id.toString() };
   } catch (error) {
