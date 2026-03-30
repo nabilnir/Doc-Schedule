@@ -12,6 +12,24 @@ import FilterBar from "@/components/appointment/filter-bar";
 
 export const dynamic = "force-dynamic";
 
+/** Renders a colour-coded pill badge for a given appointment status */
+function getStatusBadge(status) {
+  const s = (status || "pending").toLowerCase();
+  const styles = {
+    confirmed:  "bg-emerald-50 text-emerald-700 border border-emerald-100",
+    pending:    "bg-amber-50  text-amber-700  border border-amber-100",
+    cancelled:  "bg-red-50    text-red-600    border border-red-100",
+    completed:  "bg-blue-50   text-blue-700   border border-blue-100",
+  };
+  const label = s.charAt(0).toUpperCase() + s.slice(1);
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold capitalize ${styles[s] || "bg-slate-100 text-slate-500 border border-slate-200"}`}>
+      {label}
+    </span>
+  );
+}
+
+
 export default async function MyBookingsPage({ searchParams }) {
   const session = await getServerSession(authOptions);
 

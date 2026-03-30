@@ -32,7 +32,7 @@
     "react-dom": "19.2.3",
     "sonner": "^2.0.7",
     "stripe": "^20.4.0",
-    "sweetalert2": "^11.26.23",
+    "sweetalert2": "^11.26.24",
     "swiper": "^12.1.2",
     "tailwind-merge": "^3.4.1"
   },

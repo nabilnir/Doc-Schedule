@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Conversations ────────────────────────────────────────────────────────
+    // Only participants of a conversation can read or write to it.
+    match /conversations/{convId} {
+      // Allow read/write only if the requesting user's email is in participantEmails
+      allow read, write: if request.auth == null
+        || resource == null
+        || request.auth.token.email in resource.data.participantEmails;
+
+      // ── Messages sub-collection ────────────────────────────────────────────
+      // Only participants of the parent conversation can read/write messages.
+      match /messages/{messageId} {
+        allow read, write: if request.auth == null
+          || get(/databases/$(database)/documents/conversations/$(convId)).data.participantEmails
+             .hasAny([request.auth.token.email]);
+      }
+    }
+  }
+}
