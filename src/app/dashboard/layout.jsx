@@ -34,8 +34,8 @@ export default function DashboardLayout({ children }) {
           { icon: LayoutDashboard, label: "Doctor Portal", href: "/dashboard" },
           { icon: CalendarCheck2, label: "My Appointments", href: "/dashboard/doctor/appointments" },
           { icon: ClipboardList, label: "Patient Records", href: "/dashboard/doctor/records" },
-          { icon: Clock9, label: "My Schedule Test", href: "/dashboard/doctor/schedule" },
-          { icon: MessageSquare, label: "Inbox", href: "/dashboard/messages" },
+          { icon: Clock9, label: "My Schedule", href: "/dashboard/doctor/schedule" },
+          { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
           { icon: Settings, label: "Setting", href: "/dashboard/settings" },
         ];
       default: // patient
