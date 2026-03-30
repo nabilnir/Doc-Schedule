@@ -2,6 +2,7 @@
 
 import connectDB from "@/lib/mongodb";
 import Appointment from "@/models/Appointment";
+import Patient from "@/models/Patient"; // Patient Model Import
 import SystemLog from "@/models/SystemLog";
 import { sendEmail } from "@/lib/mail";
 import { format, startOfDay, endOfDay } from "date-fns";
@@ -133,11 +134,11 @@ export async function handleConfirmedAppointment(appointmentId) {
 
     await sendEmail(updatedApp.patientEmail, "Payment Successful - DocSchedule", emailBody);
 
-    // 4. Log the success (FIXED Validation Error by using 'booking' instead of 'payment')
+    // 4. Log the success
     const session = await getServerSession(authOptions);
     try {
       await SystemLog.create({
-        type: "booking", // Use 'booking' as 'payment' is not in your model enum
+        type: "booking", 
         status: "success",
         message: `Appointment ${appointmentId} updated to PAID status.`,
         userEmail: session?.user?.email || "system",
@@ -169,6 +170,7 @@ export async function bookAppointment(data) {
   try {
     await connectDB();
 
+    // 1. Check if slot is already taken
     const existing = await Appointment.findOne({
       doctorId: data.doctorId,
       appointmentDate: { 
@@ -183,6 +185,7 @@ export async function bookAppointment(data) {
       return { success: false, error: "This time slot is already taken." };
     }
 
+    // 2. Save the Appointment
     const newApp = new Appointment({
       doctorId: data.doctorId,
       doctorName: data.doctorName,
@@ -200,6 +203,25 @@ export async function bookAppointment(data) {
 
     const savedApp = await newApp.save();
 
+    // --- ADDED: Patient Record Logic (Upsert) ---
+    // Eikhane check hobe patient age theke ache kina, na thakle create hobe.
+    await Patient.findOneAndUpdate(
+  { email: inputEmail }, // Eikhane 'email' field-ti ekhon schema-te ache
+  { 
+    $set: {
+      name: data.patientDetails.name,
+      age: data.patientDetails.age,
+      gender: data.patientDetails.gender,
+      email: inputEmail || loggedInUserEmail, // Eikhane email set korchi
+      lastVisit: new Date(),
+      doctorId: data.doctorId,
+    },
+    $inc: { totalVisits: 1 }
+  },
+  { upsert: true, new: true, runValidators: true } 
+);
+
+    // 3. Notification
     if (Notification) {
       await new Notification({
         userEmail: loggedInUserEmail,

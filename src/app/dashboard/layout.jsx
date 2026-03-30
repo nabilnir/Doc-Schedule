@@ -32,7 +32,8 @@ export default function DashboardLayout({ children }) {
       case "doctor":
         return [
           { icon: LayoutDashboard, label: "Doctor Portal", href: "/dashboard" },
-          { icon: CalendarCheck2, label: "My Appointments", href: "/dashboard/doctor/appointments" },
+          { icon: CalendarCheck2, label: "Appointments Request", href: "/dashboard/doctor/appointments" },
+          { icon: Users, label: "My Patients", href: "/dashboard/doctor/patients" },
           { icon: ClipboardList, label: "Patient Records", href: "/dashboard/doctor/records" },
           { icon: Clock9, label: "My Schedule Test", href: "/dashboard/doctor/schedule" },
           { icon: MessageSquare, label: "Inbox", href: "/dashboard/messages" },
