@@ -13,6 +13,61 @@ import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesNavBadge from "@/components/MessagesNavBadge";
 
+// Reusable Sidebar Component
+const SidebarContent = ({ collapsed = false, pathname, navItems, isCollapsed, setIsCollapsed }) => (
+  <div className="flex flex-col h-full py-6">
+    {/* Brand Logo */}
+    <Link href="/">
+      <div className={cn("px-6 mb-10 flex items-center gap-3", collapsed ? "justify-center" : "")}>
+        <div className="min-w-[40px] h-10 bg-[#7BA1C7] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100 font-bold text-xl transition-all duration-300">
+          D
+        </div>
+        {!collapsed && <span className="font-bold text-2xl tracking-tight text-slate-800">DocSchedule</span>}
+      </div>
+    </Link>
+
+    {/* Navigation Links */}
+    <nav className="flex-1 px-3 space-y-1.5">
+      {navItems.map((item) => {
+        const isActive = pathname === item.href;
+        const isMessages = item.href === "/dashboard/messages";
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={cn(
+              "group relative flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+              isActive
+                ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                : "text-slate-500 hover:bg-slate-50 hover:text-[#7BA1C7]",
+              collapsed && "justify-center px-0 w-12 mx-auto"
+            )}
+          >
+            <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#7BA1C7]")} />
+            {!collapsed && <span className="ml-3 font-semibold flex-1">{item.label}</span>}
+            {isMessages && <MessagesNavBadge collapsed={collapsed} />}
+          </Link>
+        );
+      })}
+    </nav>
+
+    {/* Logout Button */}
+    <div className="px-4 mt-auto border-t border-slate-100 pt-6">
+      <Button
+        variant="ghost"
+        onClick={() => signOut({ callbackUrl: '/' })}
+        className={cn(
+          "w-full justify-start gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl h-12",
+          collapsed && "justify-center px-0"
+        )}
+      >
+        <LogOut className="w-5 h-5" />
+        {!collapsed && <span className="font-bold uppercase tracking-wider text-[11px]">Logout</span>}
+      </Button>
+    </div>
+  </div>
+);
+
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -53,61 +108,6 @@ export default function DashboardLayout({ children }) {
 
   const navItems = getNavItems(role);
 
-  // Reusable Sidebar Component
-  const SidebarContent = ({ collapsed = false }) => (
-    <div className="flex flex-col h-full py-6">
-      {/* Brand Logo */}
-      <Link href="/">
-        <div className={cn("px-6 mb-10 flex items-center gap-3", collapsed ? "justify-center" : "")}>
-          <div className="min-w-[40px] h-10 bg-[#7BA1C7] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100 font-bold text-xl transition-all duration-300">
-            D
-          </div>
-          {!collapsed && <span className="font-bold text-2xl tracking-tight text-slate-800">DocSchedule</span>}
-        </div>
-      </Link>
-
-      {/* Navigation Links */}
-      <nav className="flex-1 px-3 space-y-1.5">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const isMessages = item.href === "/dashboard/messages";
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                "group relative flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-[#7BA1C7]",
-                collapsed && "justify-center px-0 w-12 mx-auto"
-              )}
-            >
-              <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#7BA1C7]")} />
-              {!collapsed && <span className="ml-3 font-semibold flex-1">{item.label}</span>}
-              {isMessages && <MessagesNavBadge collapsed={collapsed} />}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout Button */}
-      <div className="px-4 mt-auto border-t border-slate-100 pt-6">
-        <Button
-          variant="ghost"
-          onClick={() => signOut({ callbackUrl: '/' })}
-          className={cn(
-            "w-full justify-start gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl h-12",
-            collapsed && "justify-center px-0"
-          )}
-        >
-          <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="font-bold uppercase tracking-wider text-[11px]">Logout</span>}
-        </Button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex h-screen bg-[#F8FAFC]">
 
@@ -123,14 +123,14 @@ export default function DashboardLayout({ children }) {
         >
           {isCollapsed ? <Menu className="w-3 h-3 text-[#7BA1C7]" /> : <ChevronLeft className="w-3 h-3 text-[#7BA1C7]" />}
         </button>
-        <SidebarContent collapsed={isCollapsed} />
+        <SidebarContent collapsed={isCollapsed} pathname={pathname} navItems={navItems} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </aside>
 
       {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* HEADER COMPONENT */}
-        <DashboardHeader SidebarContent={SidebarContent} />
+        <DashboardHeader SidebarContent={SidebarContent} pathname={pathname} navItems={navItems} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
         {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar">

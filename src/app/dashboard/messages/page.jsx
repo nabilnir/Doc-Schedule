@@ -616,10 +616,6 @@ export default function MessagesPage() {
                         <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Your Messages</h3>
                         <p className="text-slate-400 font-medium max-w-xs leading-relaxed">
                             Select a conversation or start a new one with your healthcare provider.
-                            <br />
-                            <span className="text-[11px] mt-1 inline-block text-[#7BA1C7] font-semibold">
-                                🔴 Live via Firebase WebSocket
-                            </span>
                         </p>
                         <button
                             onClick={() => setShowNewChat(true)}
