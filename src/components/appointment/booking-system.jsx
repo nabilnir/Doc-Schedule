@@ -108,7 +108,61 @@ export default function BookingSystem({ doctor }) {
     setPatientInfo({ ...patientInfo, [e.target.name]: e.target.value });
   };
 
-  const handleFinalSubmit = async () => {
+  // const handleFinalSubmit = async () => {
+  //   if (!patientInfo.name || !patientInfo.age || !patientInfo.gender || !patientInfo.email) {
+  //     return Toast.fire({
+  //       icon: "warning",
+  //       title: "Please fill all required fields",
+  //     });
+  //   }
+
+  //   setIsPending(true);
+  //   try {
+  //     const result = await bookAppointment({
+  //       doctorId: doctor?._id,
+  //       doctorName: doctor?.name,
+  //       date: selectedDate,
+  //       slot: selectedSlot,
+  //       patientDetails: patientInfo,
+  //     });
+
+  //     if (result.success && result.appointmentId) {
+  //       const fee = doctor?.consultationFee || 500;
+
+  //       const stripeRes = await fetch("/api/stripe/checkout", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           appointmentId: result.appointmentId,
+  //           fee: fee,
+  //           patientEmail: patientInfo.email,
+  //         }),
+  //       });
+
+  //       const stripeData = await stripeRes.json();
+
+  //       if (stripeData.url) {
+  //         window.location.href = stripeData.url; // Stripe e niye jabe
+  //       } else {
+  //         throw new Error("Payment link generation failed");
+  //       }
+  //     } else {
+  //       throw new Error(result.error || "Booking failed");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     Toast.fire({
+  //       icon: "error",
+  //       title: error.message || "Something went wrong",
+  //     });
+  //     setIsPending(false);
+  //   }
+  // };
+
+
+  // handleFinalSubmit function-tuku khuje nichee moto update korun:
+
+const handleFinalSubmit = async () => {
     if (!patientInfo.name || !patientInfo.age || !patientInfo.gender || !patientInfo.email) {
       return Toast.fire({
         icon: "warning",
@@ -123,12 +177,16 @@ export default function BookingSystem({ doctor }) {
         doctorName: doctor?.name,
         date: selectedDate,
         slot: selectedSlot,
-        patientDetails: patientInfo,
+        // patientDetails-er vitore amra phone number ba email pass korchi
+        patientDetails: {
+            ...patientInfo,
+            phone: patientInfo.phone || session?.user?.phone || "N/A" // Jodi phone field thake
+        },
       });
 
       if (result.success && result.appointmentId) {
+        // ... (Stripe logic as it is)
         const fee = doctor?.consultationFee || 500;
-
         const stripeRes = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -140,9 +198,8 @@ export default function BookingSystem({ doctor }) {
         });
 
         const stripeData = await stripeRes.json();
-
         if (stripeData.url) {
-          window.location.href = stripeData.url; // Stripe e niye jabe
+          window.location.href = stripeData.url;
         } else {
           throw new Error("Payment link generation failed");
         }
@@ -151,10 +208,7 @@ export default function BookingSystem({ doctor }) {
       }
     } catch (error) {
       console.error(error);
-      Toast.fire({
-        icon: "error",
-        title: error.message || "Something went wrong",
-      });
+      Toast.fire({ icon: "error", title: error.message || "Something went wrong" });
       setIsPending(false);
     }
   };

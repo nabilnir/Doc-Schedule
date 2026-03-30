@@ -4,7 +4,7 @@ import Doctor from "@/models/Doctor";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { format } from "date-fns";
-import { Clock9, CalendarDays, Activity, User } from "lucide-react";
+import { Clock9, CalendarDays, Activity, User, Mail, Search } from "lucide-react";
 import FilterBar from "@/components/appointment/filter-bar";
 import UpdateStatusDropdown from "@/components/appointment/update-status-dropdown";
 
@@ -66,23 +66,23 @@ export default async function DoctorAppointments({ searchParams }) {
   const currentPage = parseInt(page);
 
   return (
-    <div className="p-6 md:p-10 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="p-6 md:p-10 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 bg-slate-50 min-h-screen">
       {/* Header with Counter and Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-slate-900">Patient Appointments</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Patient Requests</h1>
             <span className="bg-[#7BA1C7] text-white px-3 py-0.5 rounded-full text-xs font-bold shadow-sm">
               {totalAppointments} Total
             </span>
           </div>
-          <p className="text-slate-500 text-sm mt-1">Manage all your upcoming and past consultations.</p>
+          <p className="text-slate-500 text-sm mt-1">Manage your upcoming consultations and patient details.</p>
         </div>
         
         <FilterBar placeholder="Search by patient name..." />
       </div>
 
-      {/* Results Table Section */}
+      {/* Results Section - Grid of Cards */}
       {appointments.length === 0 ? (
         <div className="bg-white rounded-[32px] p-20 text-center border border-dashed flex flex-col items-center justify-center">
           <CalendarDays className="w-12 h-12 text-slate-200 mb-4" />
@@ -90,64 +90,78 @@ export default async function DoctorAppointments({ searchParams }) {
           <p className="text-slate-500 text-sm">Adjust your filters or wait for a patient to book a session.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-[32px] border shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b bg-slate-50/50">
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Patient Details</th>
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Appointment Date</th>
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Time Slot</th>
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Payment</th>
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Status Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {appointments.map((app) => (
-                  <tr key={app._id} className="hover:bg-slate-50/80 transition-colors group">
-                    <td className="px-6 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#7BA1C7]">
-                          <User className="w-5 h-5" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-900">{app.patientName}</span>
-                          <span className="text-xs text-slate-400 font-medium uppercase mt-0.5">
-                            {app.patientAge}y · {app.patientGender || "N/A"}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-6">
-                      <div className="flex items-center gap-2 text-slate-600 font-medium">
-                        <CalendarDays className="w-4 h-4 text-slate-400" />
-                        {format(new Date(app.appointmentDate), "MMM do, yyyy")}
-                      </div>
-                    </td>
-                    <td className="px-6 py-6 text-slate-600 font-medium">
-                      <div className="flex items-center gap-2">
-                        <Clock9 className="w-4 h-4 text-slate-400" />
-                        {app.timeSlot}
-                      </div>
-                    </td>
-                    <td className="px-6 py-6 font-semibold">
-                      {app.paymentStatus === 'paid' ? (
-                        <span className="text-emerald-600">Paid</span>
-                      ) : (
-                        <span className="text-slate-400">Unpaid</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-6 text-right">
-                      <UpdateStatusDropdown 
-                        appointmentId={app._id} 
-                        currentStatus={app.status} 
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {appointments.map((app) => (
+            <div key={app._id} className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#7BA1C7] font-bold text-lg">
+                    {app.patientName ? app.patientName[0] : "P"}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-lg">{app.patientName}</h3>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                      app.status === 'confirmed' ? 'bg-green-50 text-green-600' : 
+                      app.status === 'cancelled' ? 'bg-red-50 text-red-600' : 'bg-yellow-50 text-yellow-600'
+                    }`}>
+                      {app.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right text-xs text-slate-400">
+                  Booked on: {format(new Date(app.createdAt || app.appointmentDate), "MMM dd, yyyy")}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <CalendarDays className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium">{format(new Date(app.appointmentDate), "PPP")}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Clock9 className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium">{app.timeSlot}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <User className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium">{app.patientAge} Years • {app.patientGender}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Activity className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium">Blood: {app.patientBloodGroup || "N/A"}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-2 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold">Contact Email</span>
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="w-3 h-3 text-slate-400" />
+                    <span className="text-sm text-[#7BA1C7] font-medium">{app.patientEmail}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                   {/* Combined feature: Keep the status dropdown from our version */}
+                  <UpdateStatusDropdown 
+                    appointmentId={app._id} 
+                    currentStatus={app.status} 
+                  />
+                  <button className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors">
+                    View Records
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination (If applicable) */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8">
+           {/* Simple pagination indicator */}
+           <p className="text-sm text-slate-400">Page {currentPage} of {totalPages}</p>
         </div>
       )}
     </div>

@@ -2,6 +2,8 @@
 
 import connectDB from "@/lib/mongodb";
 import Appointment from "@/models/Appointment";
+import Doctor from "@/models/Doctor";
+import Patient from "@/models/Patient"; // Patient Model Import
 import SystemLog from "@/models/SystemLog";
 import { sendEmail } from "@/lib/mail";
 import { format, startOfDay, endOfDay } from "date-fns";
@@ -161,7 +163,7 @@ export async function handleConfirmedAppointment(appointmentId) {
     const session = await getServerSession(authOptions);
     try {
       await SystemLog.create({
-        type: "booking", // Use 'booking' as 'payment' is not in your model enum
+        type: "booking", 
         status: "success",
         message: `Appointment ${appointmentId} updated to PAID status.`,
         userEmail: session?.user?.email || "system",
@@ -193,7 +195,7 @@ export async function bookAppointment(data) {
   try {
     await connectDB();
 
-    // Check if slot is taken by another appointment
+    // 1. Check if slot is already taken
     const existing = await Appointment.findOne({
       doctorId: data.doctorId,
       appointmentDate: { 
@@ -208,7 +210,7 @@ export async function bookAppointment(data) {
       return { success: false, error: "This time slot is already taken." };
     }
 
-    // Check if slot or entire date is blocked by doctor
+    // 2. Check if slot or entire date is blocked by doctor (Availability Check)
     const doctor = await Doctor.findById(data.doctorId).select('blockedSlots');
     if (doctor && doctor.blockedSlots) {
         const dateStr = new Date(data.date).toISOString().split('T')[0];
@@ -220,7 +222,7 @@ export async function bookAppointment(data) {
         }
     }
 
-
+    // 3. Save the Appointment
     const newApp = new Appointment({
       doctorId: data.doctorId,
       doctorName: data.doctorName,
@@ -238,6 +240,25 @@ export async function bookAppointment(data) {
 
     const savedApp = await newApp.save();
 
+    // --- ADDED: Patient Record Logic (Upsert) ---
+    // Ensure patient exists or update their last visit info
+    await Patient.findOneAndUpdate(
+      { email: inputEmail }, 
+      { 
+        $set: {
+          name: data.patientDetails.name,
+          age: data.patientDetails.age,
+          gender: data.patientDetails.gender,
+          email: inputEmail || loggedInUserEmail,
+          lastVisit: new Date(),
+          doctorId: data.doctorId,
+        },
+        $inc: { totalVisits: 1 }
+      },
+      { upsert: true, new: true, runValidators: true } 
+    );
+
+    // 4. Notification
     if (Notification) {
       await new Notification({
         userEmail: loggedInUserEmail,
@@ -252,11 +273,6 @@ export async function bookAppointment(data) {
       appointmentId: savedApp._id.toString() 
     };
 
-    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
-    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
-
-    // Return the ID so the UI can redirect to Stripe Checkout
-    return { success: true, appointmentId: savedApp._id.toString() };
   } catch (error) {
     console.error("LOG: Fatal Booking Error:", error);
     return { success: false, error: error.message || "An internal server error occurred." };
