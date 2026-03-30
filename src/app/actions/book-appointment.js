@@ -80,17 +80,41 @@ export async function getBookedSlots(doctorId, date) {
   try {
     await connectDB();
     const targetDate = new Date(date);
+    const dateStr = targetDate.toISOString().split('T')[0];
+
+    // 1. Fetch booked appointments
     const appointments = await Appointment.find({
       doctorId: doctorId,
       appointmentDate: { $gte: startOfDay(targetDate), $lte: endOfDay(targetDate) },
       status: { $ne: 'cancelled' } 
     }).select('timeSlot');
-    return appointments.map(app => app.timeSlot);
+    
+    const booked = appointments.map(app => app.timeSlot);
+
+    // 2. Fetch doctor's blocked slots/dates
+    const doctor = await Doctor.findById(doctorId).select('blockedSlots time_slots');
+    if (doctor && doctor.blockedSlots) {
+      const block = doctor.blockedSlots.find(b => b.date === dateStr);
+      if (block) {
+        // If slots are empty, it means the whole day is blocked
+        if (!block.slots || block.slots.length === 0) {
+          return doctor.time_slots || []; // Return all slots as booked
+        } else {
+          // Add specifically blocked slots
+          block.slots.forEach(s => {
+            if (!booked.includes(s)) booked.push(s);
+          });
+        }
+      }
+    }
+
+    return booked;
   } catch (error) {
     console.error("LOG: Error fetching booked slots:", error);
     return [];
   }
 }
+
 
 /**
  * Handles confirmation logic after successful payment.
@@ -169,6 +193,7 @@ export async function bookAppointment(data) {
   try {
     await connectDB();
 
+    // Check if slot is taken by another appointment
     const existing = await Appointment.findOne({
       doctorId: data.doctorId,
       appointmentDate: { 
@@ -182,6 +207,19 @@ export async function bookAppointment(data) {
     if (existing) {
       return { success: false, error: "This time slot is already taken." };
     }
+
+    // Check if slot or entire date is blocked by doctor
+    const doctor = await Doctor.findById(data.doctorId).select('blockedSlots');
+    if (doctor && doctor.blockedSlots) {
+        const dateStr = new Date(data.date).toISOString().split('T')[0];
+        const block = doctor.blockedSlots.find(b => b.date === dateStr);
+        if (block) {
+            if (!block.slots || block.slots.length === 0 || block.slots.includes(data.slot)) {
+                return { success: false, error: "The doctor is unavailable on this date/time." };
+            }
+        }
+    }
+
 
     const newApp = new Appointment({
       doctorId: data.doctorId,
