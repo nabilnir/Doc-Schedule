@@ -214,6 +214,11 @@ export async function bookAppointment(data) {
       appointmentId: savedApp._id.toString() 
     };
 
+    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
+    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
+
+    // Return the ID so the UI can redirect to Stripe Checkout
+    return { success: true, appointmentId: savedApp._id.toString() };
   } catch (error) {
     console.error("LOG: Fatal Booking Error:", error);
     return { success: false, error: error.message || "An internal server error occurred." };

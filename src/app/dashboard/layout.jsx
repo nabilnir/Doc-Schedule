@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/DashboardHeader";
+import MessagesNavBadge from "@/components/MessagesNavBadge";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -33,7 +34,8 @@ export default function DashboardLayout({ children }) {
           { icon: LayoutDashboard, label: "Doctor Portal", href: "/dashboard" },
           { icon: CalendarCheck2, label: "My Appointments", href: "/dashboard/doctor/appointments" },
           { icon: ClipboardList, label: "Patient Records", href: "/dashboard/doctor/records" },
-          { icon: Clock9, label: "My Schedule", href: "/dashboard/doctor/schedule" },
+          { icon: Clock9, label: "My Schedule Test", href: "/dashboard/doctor/schedule" },
+          { icon: MessageSquare, label: "Inbox", href: "/dashboard/messages" },
           { icon: Settings, label: "Setting", href: "/dashboard/settings" },
         ];
       default: // patient
@@ -67,12 +69,13 @@ export default function DashboardLayout({ children }) {
       <nav className="flex-1 px-3 space-y-1.5">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const isMessages = item.href === "/dashboard/messages";
           return (
             <Link
               key={item.label}
               href={item.href}
               className={cn(
-                "group flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                "group relative flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
                   : "text-slate-500 hover:bg-slate-50 hover:text-[#7BA1C7]",
@@ -80,7 +83,8 @@ export default function DashboardLayout({ children }) {
               )}
             >
               <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#7BA1C7]")} />
-              {!collapsed && <span className="ml-3 font-semibold">{item.label}</span>}
+              {!collapsed && <span className="ml-3 font-semibold flex-1">{item.label}</span>}
+              {isMessages && <MessagesNavBadge collapsed={collapsed} />}
             </Link>
           );
         })}

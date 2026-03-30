@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { MainConditionalLayout } from "@/components/MainConditionalLayout";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +59,8 @@ export default function RootLayout({ children }) {
        <MainConditionalLayout>
           {children}
         </MainConditionalLayout>
-        
+        <Toaster position="top-right" richColors closeButton />
+
       </body>
     </html>
   );
