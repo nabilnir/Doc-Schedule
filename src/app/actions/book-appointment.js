@@ -2,6 +2,7 @@
 
 import connectDB from "@/lib/mongodb";
 import Appointment from "@/models/Appointment";
+import Doctor from "@/models/Doctor";
 import Patient from "@/models/Patient"; // Patient Model Import
 import SystemLog from "@/models/SystemLog";
 import { sendEmail } from "@/lib/mail";
@@ -81,17 +82,41 @@ export async function getBookedSlots(doctorId, date) {
   try {
     await connectDB();
     const targetDate = new Date(date);
+    const dateStr = targetDate.toISOString().split('T')[0];
+
+    // 1. Fetch booked appointments
     const appointments = await Appointment.find({
       doctorId: doctorId,
       appointmentDate: { $gte: startOfDay(targetDate), $lte: endOfDay(targetDate) },
       status: { $ne: 'cancelled' } 
     }).select('timeSlot');
-    return appointments.map(app => app.timeSlot);
+    
+    const booked = appointments.map(app => app.timeSlot);
+
+    // 2. Fetch doctor's blocked slots/dates
+    const doctor = await Doctor.findById(doctorId).select('blockedSlots time_slots');
+    if (doctor && doctor.blockedSlots) {
+      const block = doctor.blockedSlots.find(b => b.date === dateStr);
+      if (block) {
+        // If slots are empty, it means the whole day is blocked
+        if (!block.slots || block.slots.length === 0) {
+          return doctor.time_slots || []; // Return all slots as booked
+        } else {
+          // Add specifically blocked slots
+          block.slots.forEach(s => {
+            if (!booked.includes(s)) booked.push(s);
+          });
+        }
+      }
+    }
+
+    return booked;
   } catch (error) {
     console.error("LOG: Error fetching booked slots:", error);
     return [];
   }
 }
+
 
 /**
  * Handles confirmation logic after successful payment.
@@ -134,7 +159,7 @@ export async function handleConfirmedAppointment(appointmentId) {
 
     await sendEmail(updatedApp.patientEmail, "Payment Successful - DocSchedule", emailBody);
 
-    // 4. Log the success
+    // 4. Log the success (FIXED Validation Error by using 'booking' instead of 'payment')
     const session = await getServerSession(authOptions);
     try {
       await SystemLog.create({
@@ -185,7 +210,19 @@ export async function bookAppointment(data) {
       return { success: false, error: "This time slot is already taken." };
     }
 
-    // 2. Save the Appointment
+    // 2. Check if slot or entire date is blocked by doctor (Availability Check)
+    const doctor = await Doctor.findById(data.doctorId).select('blockedSlots');
+    if (doctor && doctor.blockedSlots) {
+        const dateStr = new Date(data.date).toISOString().split('T')[0];
+        const block = doctor.blockedSlots.find(b => b.date === dateStr);
+        if (block) {
+            if (!block.slots || block.slots.length === 0 || block.slots.includes(data.slot)) {
+                return { success: false, error: "The doctor is unavailable on this date/time." };
+            }
+        }
+    }
+
+    // 3. Save the Appointment
     const newApp = new Appointment({
       doctorId: data.doctorId,
       doctorName: data.doctorName,
@@ -204,24 +241,24 @@ export async function bookAppointment(data) {
     const savedApp = await newApp.save();
 
     // --- ADDED: Patient Record Logic (Upsert) ---
-    // Eikhane check hobe patient age theke ache kina, na thakle create hobe.
+    // Ensure patient exists or update their last visit info
     await Patient.findOneAndUpdate(
-  { email: inputEmail }, // Eikhane 'email' field-ti ekhon schema-te ache
-  { 
-    $set: {
-      name: data.patientDetails.name,
-      age: data.patientDetails.age,
-      gender: data.patientDetails.gender,
-      email: inputEmail || loggedInUserEmail, // Eikhane email set korchi
-      lastVisit: new Date(),
-      doctorId: data.doctorId,
-    },
-    $inc: { totalVisits: 1 }
-  },
-  { upsert: true, new: true, runValidators: true } 
-);
+      { email: inputEmail }, 
+      { 
+        $set: {
+          name: data.patientDetails.name,
+          age: data.patientDetails.age,
+          gender: data.patientDetails.gender,
+          email: inputEmail || loggedInUserEmail,
+          lastVisit: new Date(),
+          doctorId: data.doctorId,
+        },
+        $inc: { totalVisits: 1 }
+      },
+      { upsert: true, new: true, runValidators: true } 
+    );
 
-    // 3. Notification
+    // 4. Notification
     if (Notification) {
       await new Notification({
         userEmail: loggedInUserEmail,
@@ -236,11 +273,6 @@ export async function bookAppointment(data) {
       appointmentId: savedApp._id.toString() 
     };
 
-    console.log(`LOG: Sending Nodemailer confirmation to ${data.patientDetails.email}`);
-    await sendEmail(data.patientDetails.email, "Appointment Confirmed - DocSchedule", emailBody);
-
-    // Return the ID so the UI can redirect to Stripe Checkout
-    return { success: true, appointmentId: savedApp._id.toString() };
   } catch (error) {
     console.error("LOG: Fatal Booking Error:", error);
     return { success: false, error: error.message || "An internal server error occurred." };

@@ -92,30 +92,30 @@ export default function PatientTable() {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="font-bold">Name</TableHead>
+              <TableHead className="font-bold pl-6 md:pl-8">Name</TableHead>
               <TableHead className="font-bold text-center">Age/Gender</TableHead>
               <TableHead className="font-bold">Last Visit</TableHead>
               <TableHead className="font-bold text-center">Visits</TableHead>
-              <TableHead className="font-bold text-right">Actions</TableHead>
+              <TableHead className="font-bold text-right pr-6 md:pr-8">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell colSpan={5} className="h-16 animate-pulse bg-slate-50/50" />
+                  <TableCell colSpan={5} className="h-16 animate-pulse bg-slate-50/50 px-6 md:px-8" />
                 </TableRow>
               ))
             ) : patients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-40 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-40 text-center text-muted-foreground px-6 md:px-8">
                   No patients found.
                 </TableCell>
               </TableRow>
             ) : (
               patients.map((patient) => (
                 <TableRow key={patient._id} className="hover:bg-slate-50/50 transition-colors">
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium pl-6 md:pl-8">
                     <div className="flex flex-col">
                       <span>{patient.name}</span>
                       <span className="text-xs text-muted-foreground">{patient.phone}</span>
@@ -130,7 +130,7 @@ export default function PatientTable() {
                   <TableCell className="text-center font-bold text-blue-600">
                     {patient.totalVisits}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right pr-6 md:pr-8">
                     <div className="flex justify-end gap-2">
                       <Button 
                         variant="outline" 
