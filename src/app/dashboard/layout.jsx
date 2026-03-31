@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/DashboardHeader";
 import MessagesNavBadge from "@/components/MessagesNavBadge";
+import { usePresence } from "@/hooks/usePresence";
 
 // Reusable Sidebar Component
 const SidebarContent = ({ collapsed = false, pathname, navItems, isCollapsed, setIsCollapsed }) => (
@@ -73,6 +74,9 @@ export default function DashboardLayout({ children }) {
   const { data: session } = useSession();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const role = (session?.user?.role || "patient").toLowerCase();
+
+  // Track user presence (online/offline) while in the dashboard
+  usePresence(session?.user?.email);
 
   const getNavItems = (role) => {
     switch (role) {

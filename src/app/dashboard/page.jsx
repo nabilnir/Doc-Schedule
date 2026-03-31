@@ -557,13 +557,13 @@ function DoctorActivityChart({ data }) {
              
              {/* Bar */}
              <div 
-               className="w-full max-w-[40px] rounded-t-2xl bg-gradient-to-t from-blue-500 to-blue-400 group-hover:from-blue-600 group-hover:to-blue-500 transition-all duration-500 shadow-lg shadow-blue-100/50"
+               className="w-full max-w-[40px] rounded-t-2xl bg-gradient-to-t from-[#7BA1C7] to-[#7BA1C7]/80 group-hover:from-[#7BA1C7] group-hover:to-[#7BA1C7] transition-all duration-500 shadow-lg shadow-[#7BA1C7]/20"
                style={{ height: `${(day.value / (maxValue * 1.2)) * chartHeight}px` }}
              />
              
              {/* Dynamic Glow background */}
              <div 
-               className="w-full max-w-[40px] absolute bottom-0 bg-blue-400/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"
+               className="w-full max-w-[40px] absolute bottom-0 bg-[#7BA1C7]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"
                style={{ height: `${(day.value / (maxValue * 1.2)) * chartHeight}px` }}
              />
           </div>
@@ -583,8 +583,8 @@ function LabTenStatCard({ title, value, type, percentage }) {
     },
     completed: {
       bg: "bg-white", text: "text-slate-800",
-      badgeBg: "bg-blue-500 text-white", iconBg: "bg-blue-50 text-blue-500",
-      bars: "bg-blue-500", mutedBars: "bg-blue-100"
+      badgeBg: "bg-[#7BA1C7] text-white", iconBg: "bg-blue-50 text-[#7BA1C7]",
+      bars: "bg-[#7BA1C7]", mutedBars: "bg-[#7BA1C7]/20"
     },
     pending: {
       bg: "bg-white", text: "text-slate-800",
@@ -652,7 +652,7 @@ const mockReviews = [
 
 function StatCard({ title, value, icon: Icon, color, trend }) {
   const colors = {
-    blue: "bg-slate-50 text-[#7BA1C7] shadow-slate-50",
+    blue: "bg-slate-50 text-[#7BA1C7] shadow-[#7BA1C7]/10",
     emerald: "bg-emerald-50 text-emerald-600 shadow-emerald-100",
     amber: "bg-amber-50 text-amber-600 shadow-amber-100",
     violet: "bg-violet-50 text-violet-600 shadow-violet-100",
@@ -747,17 +747,17 @@ function RevenueChart({ data }) {
         <svg className="w-full h-full preserve-3d" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#7BA1C7" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#7BA1C7" stopOpacity="0.0" />
             </linearGradient>
           </defs>
           <path d={closePath} fill="url(#gradientArea)" />
-          <path d={pathData} fill="none" stroke="#3b82f6" strokeWidth="3" />
+          <path d={pathData} fill="none" stroke="#7BA1C7" strokeWidth="3" />
           
           {/* Highlight max point */}
           <g transform={`translate(${maxPointX}, ${maxPointY})`}>
-            <line x1="0" y1="0" x2="0" y2={chartHeight - maxPointY} stroke="#3b82f6" strokeWidth="8" strokeLinecap="round" />
-            <circle cx="0" cy="0" r="6" fill="white" stroke="#3b82f6" strokeWidth="3" />
+            <line x1="0" y1="0" x2="0" y2={chartHeight - maxPointY} stroke="#7BA1C7" strokeWidth="8" strokeLinecap="round" />
+            <circle cx="0" cy="0" r="6" fill="white" stroke="#7BA1C7" strokeWidth="3" />
           </g>
         </svg>
 

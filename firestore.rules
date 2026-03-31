@@ -19,5 +19,13 @@ service cloud.firestore {
              .hasAny([request.auth.token.email]);
       }
     }
+
+    // ── Presence ──────────────────────────────────────────────────────────────
+    // Each user manages their own presence doc (keyed by email with @ and . → _).
+    // Note: Currently allowing unauthenticated access because the app uses NextAuth
+    // instead of Firebase Auth. This should be secured later!
+    match /presence/{userKey} {
+      allow read, write: if request.auth == null || request.auth != null;
+    }
   }
 }
