@@ -25,6 +25,11 @@ export default function DashboardHeader({ SidebarContent }) {
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Notification list and count fetching function
   const fetchNotifications = async () => {
@@ -87,6 +92,15 @@ export default function DashboardHeader({ SidebarContent }) {
         </Link>
 
         {/* Notification Bell Popover */}
+        {!isMounted ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full h-10 w-10 border-slate-200"
+            >
+              <Bell className="w-5 h-5 text-slate-400" />
+            </Button>
+        ) : (
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -195,6 +209,7 @@ export default function DashboardHeader({ SidebarContent }) {
             </div>
           </PopoverContent>
         </Popover>
+        )}
 
         {/* User Profile Section */}
         <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l shrink-0">

@@ -19,15 +19,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, UserCircle, FileText, MessageSquare } from "lucide-react";
+import { Search, UserCircle, FileText, MessageSquare, Users, Venus, Mars, Star, Clock, SortAsc } from "lucide-react";
 import { format } from "date-fns";
+
+const FILTER_OPTIONS = [
+  { value: "all",         label: "All Patients",      icon: Users },
+  { value: "recent",      label: "Recent Patients",   icon: Clock },
+  { value: "oldest",      label: "Oldest Visit",      icon: Clock },
+  { value: "frequent",    label: "Most Frequent",     icon: Star },
+  { value: "new",         label: "New Patients",      icon: UserCircle },
+  { value: "male",        label: "Male Patients",     icon: Mars },
+  { value: "female",      label: "Female Patients",   icon: Venus },
+  { value: "alphabetical",label: "A – Z (Name)",      icon: SortAsc },
+];
 
 export default function PatientTable() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("recent");
-  
+
   const router = useRouter();
 
   useEffect(() => {
@@ -57,10 +68,8 @@ export default function PatientTable() {
     router.push(`/dashboard/doctor/patients/${id}/records`);
   };
 
-  const handleMessage = (phone) => {
-    // WhatsApp e message pathanor logic (non-numeric characters remove kore)
-    const cleanNumber = phone.replace(/\D/g, "");
-    window.open(`https://wa.me/${cleanNumber}`, "_blank");
+  const handleMessage = (email) => {
+    router.push(`/dashboard/messages?email=${encodeURIComponent(email)}`);
   };
 
   return (
@@ -77,12 +86,30 @@ export default function PatientTable() {
           />
         </div>
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-full md:w-[180px] rounded-xl">
-            <SelectValue placeholder="Filter by" />
+          <SelectTrigger className="w-full md:w-[210px] rounded-xl">
+            <SelectValue>
+              {(() => {
+                const opt = FILTER_OPTIONS.find((o) => o.value === filter);
+                if (!opt) return "Filter by";
+                const Icon = opt.icon;
+                return (
+                  <span className="flex items-center gap-2">
+                    <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                    {opt.label}
+                  </span>
+                );
+              })()}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Recent Patients</SelectItem>
-            <SelectItem value="frequent">Frequent Patients</SelectItem>
+          <SelectContent position="popper" align="end" sideOffset={6}>
+            {FILTER_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <SelectItem key={value} value={value}>
+                <span className="flex items-center gap-2">
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  {label}
+                </span>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -148,12 +175,12 @@ export default function PatientTable() {
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="secondary" 
-                        size="icon" 
+                      <Button
+                        variant="secondary"
+                        size="icon"
                         className="text-blue-600"
-                        onClick={() => handleMessage(patient.phone)}
-                        title="WhatsApp"
+                        onClick={() => handleMessage(patient.email)}
+                        title="Message patient"
                       >
                         <MessageSquare className="h-4 w-4" />
                       </Button>
