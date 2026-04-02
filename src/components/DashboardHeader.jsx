@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Bell, Calendar, User, Clock, Search, Menu, Home } from "lucide-react";
+import { Bell, User, Clock, Search, Home, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,33 +13,28 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import * as Tooltip from "@radix-ui/react-tooltip"; // If needed, but let's stick to Sheet
 
-export default function DashboardHeader({ SidebarContent }) {
+export default function DashboardHeader() {
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Notification list and count fetching function
+  // Fetch notifications from the backend
   const fetchNotifications = async () => {
     try {
       const res = await fetch("/api/notifications/list");
       const data = await res.json();
-      setNotifications(data);
-      const unread = data.filter((n) => !n.isRead).length;
-      setUnreadCount(unread);
+      if (Array.isArray(data)) {
+        setNotifications(data);
+        const unread = data.filter((n) => !n.isRead).length;
+        setUnreadCount(unread);
+      }
     } catch (err) {
       console.error("Failed to fetch notifications");
     }
   };
 
-  // Mark as Read function
+  // Mark all notifications as read
   const handleMarkAsRead = async () => {
     try {
       const res = await fetch("/api/notifications/mark-read", {
@@ -48,7 +43,7 @@ export default function DashboardHeader({ SidebarContent }) {
       if (res.ok) {
         setUnreadCount(0);
         setNotifications((prev) =>
-          prev.map((notif) => ({ ...notif, isRead: true })),
+          prev.map((notif) => ({ ...notif, isRead: true }))
         );
       }
     } catch (err) {
@@ -56,6 +51,7 @@ export default function DashboardHeader({ SidebarContent }) {
     }
   };
 
+  // Polling every 30 seconds to get fresh data
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
@@ -63,157 +59,133 @@ export default function DashboardHeader({ SidebarContent }) {
   }, []);
 
   return (
-    <header className="h-20 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-6 lg:px-10">
-
-      {/* Search Bar - Desktop */}
-      <div className="relative w-full max-w-xs hidden md:block">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    <header className="h-20 border-b bg-white/80 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between px-6 lg:px-10 transition-all">
+      
+      {/* Left Side: Search Bar */}
+      <div className="relative w-full max-w-xs hidden md:block group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#7BA1C7] transition-colors" />
         <Input
-          placeholder="Search..."
-          className="pl-12 bg-slate-100/50 border-none rounded-2xl h-11 focus-visible:ring-[#7BA1C7]"
+          placeholder="Search patient or doctor..."
+          className="pl-11 bg-slate-100/60 border-none rounded-2xl h-11 focus-visible:ring-2 focus-visible:ring-[#7BA1C7]/50 transition-all"
         />
       </div>
 
-      <div className="flex items-center gap-3 lg:gap-6">
-        {/* Home Button */}
+      {/* Right Side: Actions & Profile */}
+      <div className="flex items-center gap-3 lg:gap-5">
         <Link href="/">
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full h-10 w-10 border-slate-200 hover:bg-slate-50 transition-all"
-          >
-            <Home className="w-5 h-5 text-slate-600" />
+          <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 text-slate-500 hover:bg-slate-100 transition-all">
+            <Home className="w-5 h-5" />
           </Button>
         </Link>
 
-        {/* Notification Bell Popover */}
+        {/* Notifications Dropdown */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative rounded-full h-10 w-10 border-slate-200 hover:bg-slate-50 transition-all"
-            >
-              <Bell className="w-5 h-5 text-slate-600" />
+            <Button variant="ghost" size="icon" className="relative rounded-xl h-10 w-10 bg-slate-100/50 text-slate-600 hover:bg-slate-100 transition-all">
+              <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#7BA1C7] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-4 ring-white animate-in zoom-in">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent
-            className="w-80 p-0 rounded-3xl shadow-2xl border-slate-100 overflow-hidden"
-            align="end"
-          >
+          <PopoverContent className="w-[380px] p-0 rounded-[24px] shadow-2xl border-slate-100 overflow-hidden mt-2" align="end">
+            {/* Popover Header */}
             <div className="p-5 bg-white border-b flex justify-between items-center">
-              <h3 className="font-bold text-slate-800">Notifications</h3>
-              {unreadCount > 0 && (
-                <span className="text-[10px] bg-slate-100 text-[#7BA1C7] px-2 py-0.5 rounded-full font-bold">
-                  {unreadCount} New
-                </span>
-              )}
+              <div>
+                <h3 className="font-bold text-slate-900 text-lg">Notifications</h3>
+                <p className="text-xs text-slate-500">You have {unreadCount} unread updates</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleMarkAsRead}
+                className="text-[11px] font-bold text-[#7BA1C7] hover:bg-blue-50"
+                disabled={unreadCount === 0}
+              >
+                Mark all read
+              </Button>
             </div>
 
-            <ScrollArea className="h-[350px] bg-white">
+            {/* Notifications List */}
+            <ScrollArea className="h-[450px] bg-white">
               {notifications.length > 0 ? (
                 <div className="flex flex-col">
                   {notifications.map((notif) => {
-                    // --- Updated Parsing Logic ---
-                    // Format: "Your appointment with Dr. Ariful Islam on Mar 12, 2026 at 02:25 AM is confirmed."
-
-                    // Extracting Doctor Name: Get text between "with " and " on"
-                    const doctorMatch = notif.message.match(/with (.*?) on/);
-                    const doctorName = doctorMatch ? doctorMatch[1] : "Doctor";
-
-                    // Extracting Time: Get text between "at " and " is confirmed"
-                    const timeMatch = notif.message.match(
-                      /at (.*?) is confirmed/,
-                    );
-                    const appointmentTime = timeMatch
-                      ? timeMatch[1]
-                      : "Time not set";
-
+                    // Logic: Use the 'status' field from your DB
+                    const isConfirmed = notif.status === "confirmed";
+                    
                     return (
-                      <div
-                        key={notif._id}
-                        className={`p-4 border-b last:border-0 hover:bg-slate-50 transition-colors ${
-                          !notif.isRead ? "bg-blue-50/40" : ""
-                        }`}
+                      <div 
+                        key={notif._id} 
+                        className={`p-4 border-b last:border-0 transition-colors hover:bg-slate-50/80 ${!notif.isRead ? "bg-blue-50/40" : ""}`}
                       >
-                        <div className="flex justify-between items-start mb-1.5">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-[#7BA1C7]">
-                            Appointment Alert
-                          </p>
-                          {!notif.isRead && (
-                            <div className="h-2 w-2 bg-[#7BA1C7] rounded-full"></div>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          {/* Doctor name */}
-                          <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                            <User className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="truncate">{doctorName}</span>
+                        <div className="flex gap-4">
+                          {/* Left: Icon Badge */}
+                          <div className={`h-10 w-10 rounded-full shrink-0 flex items-center justify-center ${isConfirmed ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"}`}>
+                            {isConfirmed ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                           </div>
 
-                          {/* Appointment time */}
-                          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                            <Clock className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{appointmentTime}</span>
-                          </div>
+                          {/* Right: Notification Body */}
+                          <div className="flex-1 space-y-2">
+                            <div className="flex justify-between items-start">
+                                <p className="text-sm text-slate-600 leading-snug">
+                                  <span className="font-bold text-slate-900">{notif.name || "A user"}</span> 
+                                  {isConfirmed ? " has a confirmed appointment." : " started a booking (Awaiting Payment)."}
+                                </p>
+                                {!notif.isRead && <div className="h-2 w-2 bg-[#7BA1C7] rounded-full mt-1 shrink-0 shadow-[0_0_8px_#7BA1C7]"></div>}
+                            </div>
 
-                          {/* When the notification arrives */}
-                          <p className="text-[10px] text-slate-400 font-medium pt-1">
-                            {format(new Date(notif.createdAt), "PPp")}
-                          </p>
+                            {/* Details Box */}
+                            <div className="bg-white border border-slate-100 p-3 rounded-xl shadow-sm space-y-1.5">
+                              <div className="flex items-center gap-2">
+                                <User className="h-3.5 w-3.5 text-slate-400" />
+                                <span className="text-xs font-bold text-slate-700">Dr. {notif.doctorName}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                <span className="text-[11px] font-semibold text-slate-500">
+                                  {notif.timeSlot || "Time not set"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Timestamp */}
+                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                              {format(new Date(notif.createdAt), "PPp")}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="p-10 text-center flex flex-col items-center justify-center">
-                  <Bell className="h-8 w-8 text-slate-200 mb-2" />
-                  <p className="text-slate-400 text-sm">
-                    No notifications yet.
-                  </p>
+                /* Empty State */
+                <div className="flex flex-col items-center justify-center h-[300px] text-center p-6">
+                  <div className="bg-slate-100 p-4 rounded-full mb-3">
+                    <Bell className="h-8 w-8 text-slate-300" />
+                  </div>
+                  <p className="text-slate-500 font-medium">No notifications yet</p>
+                  <p className="text-xs text-slate-400">Updates about your bookings will appear here.</p>
                 </div>
               )}
             </ScrollArea>
-
-            <div className="p-3 bg-slate-50/50 border-t">
-              <Button
-                variant="ghost"
-                disabled={unreadCount === 0}
-                onClick={handleMarkAsRead}
-                className="text-xs font-bold text-[#7BA1C7] hover:bg-slate-100 hover:text-slate-900 w-full rounded-xl transition-all"
-              >
-                Mark all as read
-              </Button>
-            </div>
           </PopoverContent>
         </Popover>
 
         {/* User Profile Section */}
-        <div className="flex items-center gap-3 pl-3 lg:pl-6 border-l shrink-0">
+        <div className="flex items-center gap-3 pl-4 border-l border-slate-200 shrink-0 h-10">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-800">
-              {session?.user?.name || "Guest User"}
-            </p>
-            <p className="text-[10px] font-medium text-[#7BA1C7] uppercase">
-              {session?.user?.role || "Member"}
-            </p>
+            <p className="text-sm font-bold text-slate-800 leading-none mb-1">{session?.user?.name || "User"}</p>
+            <p className="text-[10px] font-bold text-[#7BA1C7] tracking-wider uppercase">{session?.user?.role || "Member"}</p>
           </div>
-          <Avatar className="h-9 w-9 border shadow-sm ring-2 ring-white">
-            <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
-            <AvatarFallback className="bg-[#7BA1C7] text-white font-bold text-xs">
-              {session?.user?.name
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase() || "GU"}
+          <Avatar className="h-10 w-10 border-2 border-white shadow-md transition-transform hover:scale-105 cursor-pointer">
+            <AvatarImage src={session?.user?.image} />
+            <AvatarFallback className="bg-gradient-to-br from-[#7BA1C7] to-[#5a8bb8] text-white text-xs font-bold">
+               {session?.user?.name?.substring(0, 2).toUpperCase() || "GU"}
             </AvatarFallback>
           </Avatar>
         </div>

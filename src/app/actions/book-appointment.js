@@ -262,8 +262,13 @@ export async function bookAppointment(data) {
     if (Notification) {
       await new Notification({
         userEmail: loggedInUserEmail,
+        name: data.patientDetails.name,
+        doctorName: data.doctorName,
+        timeSlot: data.slot,
         message: `Booking initiated for ${data.doctorName}. Awaiting payment.`,
         type: "appointment",
+        status: "confirmed",
+        
         isRead: false,
       }).save();
     }
