@@ -12,6 +12,7 @@ import Link from "next/link";
 import DoctorFilter from "@/components/doctor/doctor-filter";
 import Image from "next/image";
 import { isValidImageUrl } from "@/lib/utils";
+import PaginationControls from "@/components/doctor/pagination-controls";
 
 export const dynamic = "force-dynamic";
 
