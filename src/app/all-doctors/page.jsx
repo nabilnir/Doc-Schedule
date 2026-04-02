@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import DoctorFilter from "@/components/doctor/doctor-filter";
 import Image from "next/image";
-// Import the new component we'll create below
-import PaginationControls from "@/components/doctor/pagination-controls";
 import { isValidImageUrl } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export default async function AllDoctorPage({ searchParams }) {
   try {

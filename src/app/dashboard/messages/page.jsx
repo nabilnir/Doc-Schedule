@@ -108,6 +108,14 @@ function ConvSkeleton() {
    MAIN PAGE
 ───────────────────────────────────────────────────────── */
 export default function MessagesPage() {
+    return (
+        <React.Suspense fallback={<div className="h-screen flex items-center justify-center text-slate-400 font-medium animate-pulse">Initializing Messages...</div>}>
+            <MessagesPageContent />
+        </React.Suspense>
+    );
+}
+
+function MessagesPageContent() {
     const { data: session } = useSession();
     const searchParams   = useSearchParams();
     const targetEmail    = searchParams.get("email") || "";
