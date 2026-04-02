@@ -18,6 +18,11 @@ export default function DashboardHeader() {
   const { data: session } = useSession();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Fetch notifications from the backend
   const fetchNotifications = async () => {
@@ -78,7 +83,16 @@ export default function DashboardHeader() {
           </Button>
         </Link>
 
-        {/* Notifications Dropdown */}
+        {/* Notification Bell Popover */}
+        {!isMounted ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full h-10 w-10 border-slate-200"
+            >
+              <Bell className="w-5 h-5 text-slate-400" />
+            </Button>
+        ) : (
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative rounded-xl h-10 w-10 bg-slate-100/50 text-slate-600 hover:bg-slate-100 transition-all">
@@ -175,6 +189,7 @@ export default function DashboardHeader() {
             </ScrollArea>
           </PopoverContent>
         </Popover>
+        )}
 
         {/* User Profile Section */}
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200 shrink-0 h-10">

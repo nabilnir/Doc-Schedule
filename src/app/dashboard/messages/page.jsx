@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebaseClient";
 import {
     collection, doc, query, where, orderBy, onSnapshot,
@@ -108,6 +109,9 @@ function ConvSkeleton() {
 ───────────────────────────────────────────────────────── */
 export default function MessagesPage() {
     const { data: session } = useSession();
+    const searchParams   = useSearchParams();
+    const targetEmail    = searchParams.get("email") || "";
+
     const userEmail  = session?.user?.email  || "";
     const userName   = session?.user?.name   || "Me";
     const userImage  = session?.user?.image  || "";
@@ -125,11 +129,20 @@ export default function MessagesPage() {
     const [searchQuery,      setSearchQuery]      = useState("");
     const [loading,          setLoading]          = useState(true);
     const [mobileShowChat,   setMobileShowChat]   = useState(false);
+    const [autoOpened,       setAutoOpened]       = useState(false);
+    const [presenceCache,    setPresenceCache]    = useState({}); // { [emailKey]: { isOnline, lastSeen } }
+    const [ticker,           setTicker]           = useState(0);
 
     /* ── Refs ── */
     const messagesEndRef  = useRef(null);
     const textareaRef     = useRef(null);
     const msgUnsubRef     = useRef(null);
+
+    /* ── Force re-renders for 'Last seen X ago' ── */
+    useEffect(() => {
+        const t = setInterval(() => setTicker(v => v + 1), 15000);
+        return () => clearInterval(t);
+    }, []);
 
     /* ── Auto-scroll ── */
     useEffect(() => {
@@ -168,6 +181,39 @@ export default function MessagesPage() {
     }, [userEmail]);
 
     /* ─────────────────────────────────────────────────────
+       Auto-open conversation from ?email= query param
+    ───────────────────────────────────────────────────── */
+    useEffect(() => {
+        if (!targetEmail || !userEmail || loading || autoOpened) return;
+
+        const convId = getConvId(userEmail, targetEmail);
+        const existing = conversations.find(c => c.id === convId);
+
+        if (existing) {
+            // Conversation already exists — just open it
+            setActiveConvId(convId);
+            setMobileShowChat(true);
+            setAutoOpened(true);
+        } else {
+            // Need to create it — fetch the patient's details first
+            fetch(`/api/messages/contacts`)
+                .then(r => r.json())
+                .then(async ({ contacts: list = [] }) => {
+                    const contact = list.find(c => c.email === targetEmail);
+                    if (contact) {
+                        await openConversation(contact);
+                    } else {
+                        // Minimal stub so the conversation can be created
+                        await openConversation({ email: targetEmail, name: targetEmail.split("@")[0], role: "patient", image: "" });
+                    }
+                    setAutoOpened(true);
+                })
+                .catch(() => setAutoOpened(true));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [targetEmail, userEmail, loading, conversations, autoOpened]);
+
+    /* ─────────────────────────────────────────────────────
        REALTIME: Messages in active conversation (WebSocket)
     ───────────────────────────────────────────────────── */
     useEffect(() => {
@@ -190,12 +236,56 @@ export default function MessagesPage() {
     }, [activeConvId]);
 
     /* ─────────────────────────────────────────────────────
+       Derived values for the active conversation
+       (must be declared BEFORE any useEffect that uses them)
+    ───────────────────────────────────────────────────── */
+    const activeConv  = conversations.find(c => c.id === activeConvId);
+    const otherEmail  = activeConv?.participantEmails?.find(e => e?.toLowerCase() !== userEmail?.toLowerCase()) || "";
+    const otherName   = activeConv?.participantNames?.[otherEmail]  || "Unknown";
+    const otherImage  = activeConv?.participantImages?.[otherEmail] || "";
+    const otherRole   = activeConv?.participantRoles?.[otherEmail]  || "doctor";
+
+    /* ─────────────────────────────────────────────────────
+       REALTIME: Presence for all visible participants
+    ───────────────────────────────────────────────────── */
+    useEffect(() => {
+        if (!conversations.length || !userEmail) return;
+
+        // Get unique other participant emails
+        const emails = new Set();
+        conversations.forEach(c => {
+            c.participantEmails?.forEach(e => {
+                if (e?.toLowerCase() !== userEmail.toLowerCase()) {
+                    emails.add(e.toLowerCase());
+                }
+            });
+        });
+
+        const unsubs = Array.from(emails).map(email => {
+            const key = email.replace(/[@.]/g, "_");
+            return onSnapshot(doc(db, "presence", key), snap => {
+                if (snap.exists()) {
+                    setPresenceCache(prev => ({ ...prev, [key]: snap.data() }));
+                }
+            });
+        });
+
+        return () => unsubs.forEach(unsub => unsub());
+    }, [conversations, userEmail]);
+
+    const otherPresence = (() => {
+        if (!otherEmail) return null;
+        const key = otherEmail.toLowerCase().replace(/[@.]/g, "_");
+        return presenceCache[key] || null;
+    })();
+
+    /* ─────────────────────────────────────────────────────
        Mark conversation as read
     ───────────────────────────────────────────────────── */
     const markAsRead = useCallback(async (convId) => {
         if (!convId || !userEmail) return;
         try {
-            const key = userEmail.replace(/[@.]/g, "_");
+            const key = userEmail.toLowerCase().replace(/[@.]/g, "_");
             await updateDoc(doc(db, "conversations", convId), { [`unread.${key}`]: 0 });
         } catch { /* conversation might not yet fully exist—safe to ignore */ }
     }, [userEmail]);
@@ -300,20 +390,31 @@ export default function MessagesPage() {
 
     /* ─────────────────────────────────────────────────────
        Derived values for the active conversation
+       (moved above — see earlier in the file)
     ───────────────────────────────────────────────────── */
-    const activeConv  = conversations.find(c => c.id === activeConvId);
-    const otherEmail  = activeConv?.participantEmails?.find(e => e !== userEmail) || "";
-    const otherName   = activeConv?.participantNames?.[otherEmail]  || "Unknown";
-    const otherImage  = activeConv?.participantImages?.[otherEmail] || "";
-    const otherRole   = activeConv?.participantRoles?.[otherEmail]  || "doctor";
 
-    const getUnread = (conv) => conv.unread?.[userEmail.replace(/[@.]/g, "_")] || 0;
+    const getUnread = (conv) => conv.unread?.[userEmail.toLowerCase().replace(/[@.]/g, "_")] || 0;
 
     const filteredConvs = conversations.filter(conv => {
         const other = conv.participantEmails?.find(e => e !== userEmail) || "";
         const name  = conv.participantNames?.[other] || "";
         return name.toLowerCase().includes(searchQuery.toLowerCase());
     });
+
+    const otherIsOnline = (() => {
+        if (!otherPresence) return false;
+        if (!otherPresence.isOnline) return false;
+        // Treat as offline if lastSeen > 90 seconds ago (handles crashes)
+        if (otherPresence.lastSeen?.toDate) {
+            const diff = Date.now() - otherPresence.lastSeen.toDate().getTime();
+            if (diff > 90 * 1000) return false;
+        }
+        return true;
+    })();
+
+    const otherLastSeen = otherPresence?.lastSeen?.toDate
+        ? formatTime(otherPresence.lastSeen)
+        : null;
 
     const messageGroups = groupByDate(messages);
 
@@ -394,7 +495,23 @@ export default function MessagesPage() {
                                 >
                                     <div className="relative flex-shrink-0">
                                         <Avatar name={name} image={image} size="md" ring={active} />
-                                        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
+                                        {/* Real presence dot for sidebar */}
+                                        <span className={cn(
+                                            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white",
+                                            (() => {
+                                                const oEmail = conv.participantEmails?.find(e => e?.toLowerCase() !== userEmail?.toLowerCase()) || "";
+                                                const k = oEmail.toLowerCase().replace(/[@.]/g, "_");
+                                                const p = presenceCache[k];
+                                                if (!p || !p.isOnline) return "bg-slate-300";
+
+                                                // Timeout check
+                                                if (p.lastSeen?.toDate) {
+                                                    const diff = Date.now() - p.lastSeen.toDate().getTime();
+                                                    if (diff > 90 * 1000) return "bg-slate-300";
+                                                }
+                                                return "bg-emerald-400";
+                                            })()
+                                        )} />
                                     </div>
 
                                     <div className="flex-1 min-w-0">
@@ -453,9 +570,18 @@ export default function MessagesPage() {
 
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-slate-800 text-sm leading-tight">{otherName}</p>
-                                <p className="text-[11px] font-semibold text-emerald-500 flex items-center gap-1 mt-0.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                                    Online · <span className="capitalize">{otherRole}</span>
+                                <p className={cn(
+                                    "text-[11px] font-semibold flex items-center gap-1 mt-0.5",
+                                    otherIsOnline ? "text-emerald-500" : "text-slate-400"
+                                )}>
+                                    <span className={cn(
+                                        "w-1.5 h-1.5 rounded-full inline-block",
+                                        otherIsOnline ? "bg-emerald-400 animate-pulse" : "bg-slate-300"
+                                    )} />
+                                    {otherIsOnline
+                                        ? <>Online &middot; <span className="capitalize">{otherRole}</span></>
+                                        : otherLastSeen ? `Last seen ${otherLastSeen}` : "Offline"
+                                    }
                                 </p>
                             </div>
 
