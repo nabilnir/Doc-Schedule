@@ -134,22 +134,33 @@ function AdminView() {
     totalPatients: 0,
     totalDoctors: 0,
     totalAppointments: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
+    pendingAppointments: 0,
+    cancelledAppointments: 0,
+    completedAppointments: 0,
+    completedPercentage: 0,
+    genderStats: { male: 0, female: 0, other: 0 },
+    reviews: []
   });
   const [revenueData, setRevenueData] = useState({
     monthlyRevenue: Array(12).fill(0),
     monthNames: [],
-    maxRevenue: 50000,
+    maxRevenue: 5000,
     totalRevenue: 0
   });
+
+  const [revFilter, setRevFilter] = useState("This Month");
+  const [actFilter, setActFilter] = useState("This Month");
+  const [showRevDrop, setShowRevDrop] = useState(false);
+  const [showActDrop, setShowActDrop] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const [statsRes, revenueRes] = await Promise.all([
-          fetch("/api/admin/stats"),
-          fetch("/api/admin/revenue")
+          fetch(`/api/admin/stats?filter=${actFilter}`),
+          fetch(`/api/admin/revenue?period=${revFilter}`)
         ]);
         
         if (statsRes.ok) {
@@ -168,7 +179,7 @@ function AdminView() {
       }
     };
     fetchStats();
-  }, []);
+  }, [revFilter, actFilter]);
 
   if (loading) {
     return (
@@ -185,23 +196,42 @@ function AdminView() {
     <div className="space-y-6">
       {/* TOP STATS ROW */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <LabTenStatCard title="Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} type="revenue" percentage="86%" />
-        <LabTenStatCard title="Completed" value={stats.totalAppointments.toLocaleString()} type="completed" percentage="64%" />
-        <LabTenStatCard title="Pending" value="150" type="pending" percentage="43%" />
-        <LabTenStatCard title="Cancelled" value="42" type="cancelled" percentage="24%" />
+        <LabTenStatCard title="Revenue" value={`৳${stats.totalRevenue.toLocaleString()}`} type="revenue" percentage="100%" />
+        <LabTenStatCard title="Completed" value={stats.completedAppointments.toLocaleString()} type="completed" percentage={`${stats.completedPercentage}%`} />
+        <LabTenStatCard title="Pending" value={stats.pendingAppointments.toLocaleString()} type="pending" percentage={stats.totalAppointments > 0 ? `${Math.round((stats.pendingAppointments / stats.totalAppointments) * 100)}%` : "0%"} />
+        <LabTenStatCard title="Cancelled" value={stats.cancelledAppointments.toLocaleString()} type="cancelled" percentage={stats.totalAppointments > 0 ? `${Math.round((stats.cancelledAppointments / stats.totalAppointments) * 100)}%` : "0%"} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ROW 1 LEFT: REVENUE CHART */}
         <div className="lg:col-span-2 bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden flex flex-col">
-          <div className="flex justify-between items-center z-10 relative mb-8">
+          <div className="flex justify-between items-center z-10 relative mb-8 px-4 sm:px-0">
             <h3 className="font-bold text-lg text-slate-800">Total Revenue</h3>
-            <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold flex items-center gap-2 border border-slate-100 cursor-pointer hover:bg-slate-100">
-              This Year <span className="text-[10px]">▼</span>
+            <div className="relative">
+              <button 
+                onClick={() => setShowRevDrop(!showRevDrop)}
+                className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold flex items-center gap-2 border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
+                title="Change revenue filter"
+              >
+                {revFilter} <span className="text-[10px]">▼</span>
+              </button>
+              {showRevDrop && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                  {["This Year", "This Month", "Last Year", "Today"].map(f => (
+                    <button 
+                      key={f} 
+                      onClick={() => { setRevFilter(f); setShowRevDrop(false); }}
+                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-600 hover:bg-slate-50 border-b border-slate-50 last:border-0"
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex-1 relative min-h-[220px]">
+          <div className="flex-1 relative min-h-[220px]" key={revFilter}>
             {/* Generate Y Axis with dynamic range */}
             <RevenueChart data={revenueData} />
           </div>
@@ -211,8 +241,26 @@ function AdminView() {
         <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-md text-slate-800">Activity manager</h3>
-            <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold flex items-center gap-1 border border-slate-100 cursor-pointer">
-              Today <span className="text-[10px]">▼</span>
+            <div className="relative">
+              <button 
+                onClick={() => setShowActDrop(!showActDrop)}
+                className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold flex items-center gap-1 border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
+              >
+                {actFilter} <span className="text-[10px]">▼</span>
+              </button>
+              {showActDrop && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                  {["Today", "This Week", "This Month", "This Year"].map(f => (
+                    <button 
+                      key={f} 
+                      onClick={() => { setActFilter(f); setShowActDrop(false); }}
+                      className="w-full px-4 py-2 text-left text-xs font-bold text-slate-600 hover:bg-slate-50 border-b border-slate-50 last:border-0"
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -238,37 +286,58 @@ function AdminView() {
               <p className="text-[9px] text-[#3CA9DB] font-semibold bg-blue-50 px-2 py-0.5 rounded-full inline-block w-max mt-1 mb-4">Updated just now</p>
 
               <div className="space-y-2 mt-auto text-[10px] font-semibold">
-                <div className="flex justify-between items-center"><span className="text-slate-500">Checked In</span><span className="text-blue-500">520</span></div>
-                <div className="flex justify-between items-center"><span className="text-slate-500">Pending</span><span className="text-teal-400">215</span></div>
-                <div className="flex justify-between items-center"><span className="text-slate-500">Canceled</span><span className="text-red-400">45</span></div>
+                <div className="flex justify-between items-center"><span className="text-slate-500">Checked In</span><span className="text-blue-500">{stats.completedAppointments}</span></div>
+                <div className="flex justify-between items-center"><span className="text-slate-500">Pending</span><span className="text-teal-400">{stats.pendingAppointments}</span></div>
+                <div className="flex justify-between items-center"><span className="text-slate-500">Canceled</span><span className="text-red-400">{stats.cancelledAppointments}</span></div>
               </div>
             </div>
           </div>
 
           {/* Gender Donut Chart Area */}
-          <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 flex items-center justify-center relative min-h-[140px] overflow-hidden">
+          <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 flex items-center justify-center relative min-h-[140px] overflow-hidden" key={actFilter}>
             <span className="absolute top-3 left-4 text-xs font-bold">Gender</span>
-            {/* Pure CSS Donut Chart logic representation */}
-            <div className="relative w-24 h-24 rounded-full border-[12px] border-blue-50 flex items-center justify-center mt-2">
-              {/* Left side teal, right side blue, red sliver via borders is complex, let's use a conic gradient or SVG */}
-              <div className="absolute inset-[-12px] rounded-full" style={{ background: 'conic-gradient(#3b82f6 0% 54%, #2dd4bf 54% 96%, #f87171 96% 100%)', WebkitMaskImage: 'radial-gradient(transparent 55%, black 56%)' }}></div>
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner z-10 text-blue-500">
+            
+            {/* Dynamic Donut Chart based on real stats */}
+            <div className="relative w-24 h-24 rounded-full flex items-center justify-center mt-2 mr-16">
+              {(() => {
+                const total = (stats.genderStats?.male + stats.genderStats?.female + stats.genderStats?.other) || 1;
+                const femaleP = ((stats.genderStats?.female || 0) / total) * 100;
+                const maleP = ((stats.genderStats?.male || 0) / total) * 100;
+                return (
+                  <div className="absolute inset-[-12px] rounded-full" style={{ 
+                    background: `conic-gradient(#7BA1C7 0% ${femaleP}%, #3b82f6 ${femaleP}% ${femaleP + maleP}%, #f87171 ${femaleP + maleP}% 100%)`, 
+                    WebkitMaskImage: 'radial-gradient(transparent 55%, black 56%)' 
+                  }}></div>
+                );
+              })()}
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner z-10 text-[#7BA1C7]">
                 <Users className="w-4 h-4" />
               </div>
             </div>
 
             {/* Labels */}
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 text-[9px] font-bold">
-              <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div><span className="text-slate-500">Female: 54.4%</span></div>
-              <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-teal-400"></div><span className="text-slate-500">Male: 41.6%</span></div>
-              <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-400"></div><span className="text-slate-500">Other: 4%</span></div>
+              {[ 
+                { label: "Female", color: "bg-[#7BA1C7]", count: stats.genderStats?.female || 0 },
+                { label: "Male", color: "bg-blue-500", count: stats.genderStats?.male || 0 },
+                { label: "Other", color: "bg-red-400", count: stats.genderStats?.other || 0 }
+              ].map((g, i) => {
+                const total = (stats.genderStats?.male + stats.genderStats?.female + stats.genderStats?.other) || 1;
+                const p = Math.round((g.count / total) * 100);
+                return (
+                  <div key={i} className="flex items-center gap-1">
+                    <div className={`w-1.5 h-1.5 rounded-full ${g.color}`}></div>
+                    <span className="text-slate-500">{g.label}: {p}%</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* ROW 2 LEFT: APPOINTMENTS TABLE */}
         <div className="lg:col-span-2 bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 shadow-xl shadow-slate-100/50">
-          <h3 className="font-bold text-lg text-slate-800 mb-6">Appointments</h3>
+          <h3 className="font-bold text-lg text-slate-800 mb-6">Latest Appointments</h3>
           <div className="w-full overflow-x-auto text-sm">
             <table className="w-full text-left min-w-[700px] border-collapse">
               <thead>
@@ -276,48 +345,49 @@ function AdminView() {
                   <th className="pb-3 px-2 font-medium">Doctor</th>
                   <th className="pb-3 px-2 font-medium">Time & Date</th>
                   <th className="pb-3 px-2 font-medium">Patient</th>
-                  <th className="pb-3 px-2 font-medium">Treatment Type</th>
                   <th className="pb-3 px-2 font-medium">Payment</th>
                   <th className="pb-3 px-2 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {mockAppointments.map((app, i) => (
+                {(stats.latestAppointments || []).length > 0 ? (stats.latestAppointments || []).map((app, i) => (
                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
-                        <img src={app.doctor.img} className="w-9 h-9 rounded-full object-cover border border-slate-200" alt="" />
+                        <div className="w-9 h-9 rounded-full bg-[#7BA1C7]/10 flex items-center justify-center text-[#7BA1C7] font-bold border border-[#7BA1C7]/20">
+                          {app.doctorName?.charAt(0) || "D"}
+                        </div>
                         <div>
-                          <p className="font-bold text-slate-800">{app.doctor.name}</p>
-                          <p className="text-[10px] text-slate-400">{app.doctor.role}</p>
+                          <p className="font-bold text-slate-800">{app.doctorName}</p>
+                          <p className="text-[10px] text-slate-400">{app.doctorId?.specialty || "General"}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-2">
-                      <p className="font-bold text-slate-800">{app.time}</p>
-                      <p className="text-[10px] text-slate-400">{app.date}</p>
+                      <p className="font-bold text-slate-800">{app.timeSlot}</p>
+                      <p className="text-[10px] text-slate-400">{new Date(app.appointmentDate).toLocaleDateString()}</p>
                     </td>
                     <td className="py-4 px-2">
-                      <div className="flex items-center gap-3">
-                        <img src={app.patient.img} className="w-8 h-8 rounded-full object-cover" alt="" />
-                        <div>
-                          <p className="font-bold text-slate-800 text-xs">{app.patient.name}</p>
-                          <p className="text-[10px] text-slate-400">Age {app.patient.age}</p>
-                        </div>
+                      <div>
+                        <p className="font-bold text-slate-800 text-xs">{app.patientName}</p>
+                        <p className="text-[10px] text-slate-400">{app.patientAge}yr · {app.patientGender}</p>
                       </div>
                     </td>
-                    <td className="py-4 px-2 font-medium text-slate-600 text-xs">{app.treatment}</td>
                     <td className="py-4 px-2">
-                      <span className={`text-xs font-semibold ${app.payment === 'Pending' ? 'text-amber-500' : app.payment === 'Paid' ? 'text-emerald-500' : 'text-slate-500'}`}>{app.payment}</span>
+                      <span className={`text-xs font-semibold capitalize ${app.paymentStatus === 'paid' ? 'text-emerald-500' : 'text-amber-500'}`}>{app.paymentStatus || "unpaid"}</span>
                     </td>
                     <td className="py-4 px-2">
-                      <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold",
-                        app.status === 'In progress' ? 'bg-blue-50 text-blue-600' :
-                          app.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                      <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold capitalize",
+                        app.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' :
+                        app.status === 'pending' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'
                       )}>{app.status}</span>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="5" className="py-20 text-center text-slate-400 italic">No appointments yet</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -331,11 +401,14 @@ function AdminView() {
           </div>
 
           <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {mockReviews.map((rev, i) => (
+            {(stats.reviews || []).length > 0 ? (stats.reviews || []).map((rev, i) => (
               <div key={i} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
-                    <img src={rev.img} className="w-8 h-8 rounded-full object-cover" alt="" />
+                    {/* Dynamic Image or Initials if img is missing */}
+                    <div className="w-8 h-8 rounded-full bg-[#7BA1C7]/10 flex items-center justify-center text-[#7BA1C7] font-bold border border-[#7BA1C7]/20">
+                      {rev.img ? <img src={rev.img} className="w-8 h-8 rounded-full object-cover" alt="" /> : (rev.name?.charAt(0) || "P")}
+                    </div>
                     <div>
                       <p className="text-xs font-bold text-slate-800">{rev.name}</p>
                       <p className="text-[9px] text-slate-400">{rev.date}</p>
@@ -349,7 +422,11 @@ function AdminView() {
                   &quot;{rev.text}&quot;
                 </p>
               </div>
-            ))}
+            )) : (
+              <div className="h-full flex flex-col items-center justify-center text-slate-300 italic text-xs py-10">
+                No reviews found for this period
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -682,7 +759,7 @@ function RevenueChart({ data }) {
     return <div>Loading chart...</div>;
   }
 
-  const maxValue = Math.max(data.maxRevenue, 50000);
+  const maxValue = Math.max(data.maxRevenue, 1000); // Drastically lower minimum ceiling for clear visibility of small ranges
   const chartHeight = 200;
   const chartWidth = 800;
   const padding = 30;
@@ -723,7 +800,7 @@ function RevenueChart({ data }) {
   const yLabels = [];
   for (let i = yAxisSteps; i >= 0; i--) {
     const value = (i / yAxisSteps) * maxValue;
-    yLabels.push(value > 1000 ? `$${(value / 1000).toFixed(0)}k` : `$${value}`);
+    yLabels.push(value > 1000 ? `৳${(value / 1000).toFixed(0)}k` : `৳${value}`);
   }
 
   return (
@@ -762,11 +839,13 @@ function RevenueChart({ data }) {
         </svg>
 
         {/* Tooltip */}
-        <div className="absolute" style={{ left: `${(maxPointX / chartWidth) * 100}%`, top: `${(maxPointY / chartHeight) * 100}%`, transform: 'translate(-50%, -120%)' }}>
-          <div className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold text-blue-600 shadow-md border border-blue-50 whitespace-nowrap">
-            ${(maxValueData / 1000).toFixed(1)}k
+        {maxValueData > 0 && (
+          <div className="absolute transition-all duration-500 ease-in-out" style={{ left: `${(maxPointX / chartWidth) * 100}%`, top: `${(maxPointY / chartHeight) * 100}%`, transform: 'translate(-50%, -120%)' }}>
+            <div className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold text-[#7BA1C7] shadow-lg border border-[#7BA1C7]/10 whitespace-nowrap">
+              ৳{(maxValueData / 1000).toFixed(1)}k
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* X Axis Labels */}

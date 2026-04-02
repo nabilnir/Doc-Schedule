@@ -66,8 +66,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
-.env.*
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -206,8 +204,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
-.env.*
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -280,7 +276,6 @@ vite.config.ts.timestamp-*
 .vercel
 .env*.local
 
-.env
-.env.local
 .envtestgit 
 env
+config.bat
