@@ -29,32 +29,60 @@ const calendar = google.calendar({ version: "v3", auth: oauth2Client });
  */
 async function addToGoogleCalendar(appointment) {
   try {
+    // 1. Parse the date and time strings
     const appointmentDate = new Date(appointment.appointmentDate);
     const [time, modifier] = appointment.timeSlot.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
+let [hours, minutes] = time.split(":").map(Number);
 
-    if (hours === 12) {
-      hours = modifier === "AM" ? 0 : 12;
-    } else if (modifier === "PM") {
-      hours += 12;
-    }
+if (modifier === "PM" && hours !== 12) {
+  hours += 12;
+}
+if (modifier === "AM" && hours === 12) {
+  hours = 0;
+}
 
-    const startTime = new Date(appointmentDate);
-    startTime.setHours(hours, minutes, 0, 0);
-    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+const startTime = new Date(Date.UTC(
+  appointmentDate.getFullYear(),
+  appointmentDate.getMonth(),
+  appointmentDate.getDate(),
+  hours,
+  minutes,
+  0
+));
+
+    // 4. Set duration to exactly 30 minutes
+    const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+
+    // 5. Manual RFC3339 Formatting (Required for Google API Timezone accuracy)
+    const formatForGoogle = (date) => {
+      const pad = (n) => (n < 10 ? "0" + n : n);
+      const yyyy = date.getFullYear();
+      const mm = pad(date.getMonth() + 1);
+      const dd = pad(date.getDate());
+      const hh = pad(date.getHours());
+      const min = pad(date.getMinutes());
+      const ss = pad(date.getSeconds());
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+    };
 
     const event = {
       summary: `Medical Appointment: ${appointment.doctorName}`,
       location: "Clinic / Hospital",
-      description: `Patient: ${appointment.patientName}, Age: ${appointment.patientAge}. Booked via DocSchedule.`,
-      start: { dateTime: startTime.toISOString(), timeZone: "Asia/Dhaka" },
-      end: { dateTime: endTime.toISOString(), timeZone: "Asia/Dhaka" },
+      description: `Patient: ${appointment.patientName}. Slot: ${appointment.timeSlot}.`,
+      start: { 
+        dateTime: formatForGoogle(startTime), 
+        timeZone: "Asia/Dhaka" 
+      },
+      end: { 
+        dateTime: formatForGoogle(endTime), 
+        timeZone: "Asia/Dhaka" 
+      },
       attendees: [{ email: appointment.patientEmail }],
       reminders: {
         useDefault: false,
         overrides: [
           { method: "email", minutes: 1440 },
-          { method: "popup", minutes: 60 },
+          { method: "popup", minutes: 30 },
         ],
       },
     };
@@ -65,7 +93,7 @@ async function addToGoogleCalendar(appointment) {
       sendUpdates: "all",
     });
 
-    console.log("LOG: Google Calendar Event Created");
+    console.log(`LOG: Calendar Event Created for ${appointment.timeSlot} (30 mins)`);
     return true;
   } catch (error) {
     console.error("LOG: Google Calendar API Error:", error.message);
