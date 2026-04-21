@@ -1,5 +1,3 @@
-# Doc-Schedule
-
 # Doc Schedule
 
 Doc Schedule is a professional healthcare management platform built for doctors and patients. It streamlines the appointment process through intelligent automation and a premium user interface.
